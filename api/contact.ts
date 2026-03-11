@@ -1,5 +1,5 @@
 import { Resend } from 'resend';
-import { isRateLimited } from './_utils/rateLimit';
+import { isRateLimited } from './_utils/rateLimit.js';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
