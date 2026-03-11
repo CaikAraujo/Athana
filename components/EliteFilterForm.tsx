@@ -142,54 +142,18 @@ export const EliteFilterForm: React.FC<EliteFilterFormProps> = ({ onStepChange }
         animate={{ opacity: 1, y: 0 }}
         className="py-8"
       >
-        {budget === 'lt2k' ? (
-          <div className="space-y-6 text-center">
-            <h3 className="text-2xl font-bold text-white font-display">Parfait pour vous !</h3>
-            <p className="text-athana-muted leading-relaxed">
-              Notre <strong className="text-athana-accent">Site Vitrine</strong> à 1 900 CHF correspond exactement à votre enveloppe.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-              <Link
-                to="/templates"
-                className="px-6 py-3 bg-athana-accent text-black font-bold rounded hover:bg-white transition-colors cursor-pointer"
-              >
-                Découvrir le Site Vitrine
-              </Link>
-              <Link
-                to="/"
-                className="px-6 py-3 border border-white/20 text-white rounded hover:border-athana-accent hover:text-athana-accent transition-colors text-center cursor-pointer"
-              >
-                Retour à l'accueil
-              </Link>
-            </div>
-          </div>
-        ) : budget === '2k-5k' ? (
-          <div className="space-y-6 text-center">
-            <h3 className="text-2xl font-bold text-white font-display">Demande reçue avec succès.</h3>
-            <p className="text-athana-muted leading-relaxed">
-              L'équipe Athana analyse vos besoins pour un Site Business ou E-commerce. Notre équipe vous contactera sous 24h pour planifier une session stratégique.
-            </p>
-            <Link
-              to="/"
-              className="inline-block px-6 py-3 bg-athana-accent text-black font-bold rounded hover:bg-white transition-colors cursor-pointer"
-            >
-              Retour à l'accueil
-            </Link>
-          </div>
-        ) : (
-          <div className="space-y-6 text-center">
-            <h3 className="text-2xl font-bold text-white font-display">Demande reçue avec succès.</h3>
-            <p className="text-athana-muted leading-relaxed">
-              L'équipe Athana analyse actuellement vos besoins. Si votre projet correspond à notre expertise (intégrations, back-end sur mesure, logiciels), notre équipe d'architecture digitale vous contactera sous 24h pour planifier une session stratégique.
-            </p>
-            <Link
-              to="/"
-              className="inline-block px-6 py-3 bg-athana-accent text-black font-bold rounded hover:bg-white transition-colors cursor-pointer"
-            >
-              Retour à l'accueil
-            </Link>
-          </div>
-        )}
+        <div className="space-y-6 text-center">
+          <h3 className="text-2xl font-bold text-white font-display">Demande reçue avec succès.</h3>
+          <p className="text-athana-muted leading-relaxed">
+            L'équipe Athana analyse vos besoins. Notre équipe vous contactera sous 24h pour planifier une session stratégique.
+          </p>
+          <Link
+            to="/"
+            className="inline-block px-6 py-3 bg-athana-accent text-black font-bold rounded hover:bg-white transition-colors cursor-pointer"
+          >
+            Retour à l'accueil
+          </Link>
+        </div>
       </motion.div>
     );
   }
