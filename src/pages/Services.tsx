@@ -1,0 +1,220 @@
+
+
+import { Helmet } from 'react-helmet-async';
+import { Contact } from '../../components/Contact';
+import { ServicePricingSection, PricingTier } from '../../components/ServicePricingSection';
+import { Reveal } from '../../components/ui/Section';
+
+const webDevTiers: PricingTier[] = [
+    {
+        name: 'Site Vitrine',
+        description: 'Parfait pour présenter votre activité en ligne.',
+        price: 'CHF 1.900',
+        features: ['Design réactif sur mesure', 'Jusqu\'à 5 pages', 'Optimisation SEO de base', 'Formulaire de contact', 'Hébergement 1 an inclus', 'Support 3 mois'],
+        buttonText: 'Planifier mon site',
+    },
+    {
+        name: 'Site Business',
+        description: 'Solution complète pour développer votre entreprise.',
+        price: 'CHF 2.900',
+        features: ['Design premium personnalisé', 'Jusqu\'à 10 pages', 'SEO avancé + Blog', 'Système de réservation', 'Intégrations (CRM, Email)', 'Analyses avancées', 'Support 6 mois'],
+        buttonText: 'Planifier mon site',
+        highlight: true,
+    },
+    {
+        name: 'E-commerce',
+        description: 'Boutique en ligne complète avec ventes intégrées.',
+        price: 'CHF 4.500',
+        features: ['Design e-commerce exclusif', 'Config. initiale jusqu\'à 50 produits', 'Paiement sécurisé (Stripe/TWINT)', 'Gestion des stocks', 'Panneau d\'administration', 'SEO pour e-commerce', 'Support 12 mois'],
+        buttonText: 'Concevoir ma boutique',
+    },
+];
+
+const seoTiers: PricingTier[] = [
+    {
+        name: 'SEO Essentiel',
+        description: 'Idéal pour commencer votre référencement.',
+        price: 'CHF 600',
+        period: '/mois',
+        features: ['Audit SEO initial', 'Optimisation technique de base', '5 mots-clés cibles', 'Rapport mensuel', 'Support par email'],
+        buttonText: "Démarrer l'optimisation",
+    },
+    {
+        name: 'SEO Avancé',
+        description: 'Stratégie complète de croissance organique.',
+        price: 'CHF 1.050',
+        period: '/mois',
+        features: ['Audit SEO complet', 'Optimisation technique avancée', '15 mots-clés cibles', 'Création de contenu (2 articles/mois)', 'Netlinking de base', 'Rapport détaillé'],
+        buttonText: 'Définir une stratégie',
+        highlight: true,
+    },
+    {
+        name: 'SEO Premium',
+        description: 'Pour les entreprises aux grandes ambitions.',
+        price: 'CHF 1.850',
+        period: '/mois',
+        features: ['Stratégie SEO 360º', 'Mots-clés illimités', 'Contenu premium (4 articles/mois)', 'Netlinking avancé', 'Analyse des concurrents', 'Consultant dédié', 'Support prioritaire'],
+        buttonText: 'Demander un audit',
+    },
+];
+
+const adsTiers: PricingTier[] = [
+    {
+        name: 'Google Ads Essentiel',
+        description: 'Idéal pour débuter avec le trafic payant.',
+        price: 'CHF 450',
+        period: '/mois',
+        features: ['Configuration du compte', 'Campagne Search (3 groupes)', 'Géolocalisation précise', 'Rapport mensuel', 'Support par email'],
+        buttonText: 'Lancer une Campagne',
+    },
+    {
+        name: 'Google Ads Avancé',
+        description: 'Stratégie complète de croissance.',
+        price: 'CHF 900',
+        period: '/mois',
+        features: ['Gestion complète des campagnes', 'Search + Display', 'Remarketing dynamique', 'Optimisation hebdomadaire', 'Rapport bimensuel', 'Consultant dédié'],
+        buttonText: "Planifier l'acquisition",
+        highlight: true,
+    },
+    {
+        name: 'Google Ads Premium',
+        description: 'Solution d\'entreprise pour grande échelle.',
+        price: 'CHF 1.650',
+        period: '/mois',
+        features: ['Stratégie multi-canal', 'Shopping + Vidéo (YouTube)', 'Optimisation IA', 'Tests A/B continus', 'Tableau de bord personnalisé', 'Support 24/7'],
+        buttonText: 'Parler à un expert',
+    },
+];
+
+const performanceTiers: PricingTier[] = [
+    {
+        name: 'Optimisation de Base',
+        description: 'Améliorez la vitesse essentielle du site.',
+        price: 'CHF 600',
+        features: ['Audit de performance', 'Optimisation des images', 'Cache navigateur', 'Minification CSS/JS', 'Rapport avant/après'],
+        buttonText: 'Accélérer mon site',
+    },
+    {
+        name: 'Optimisation Avancée',
+        description: 'Performance maximale (Core Web Vitals).',
+        price: 'CHF 1.100',
+        features: ['Audit complet', 'Optimisation des images (WebP)', 'Cache avancé (Redis/Varnish)', 'Configuration CDN', 'Lazy loading intelligent', 'Garantie de score vert'],
+        buttonText: 'Accélérer mon site',
+        highlight: true,
+    },
+    {
+        name: 'Optimisation Premium',
+        description: 'Solution définitive de vitesse.',
+        price: 'CHF 1.850',
+        features: ['Analyse d\'architecture', 'Refactorisation de code critique', 'CDN Enterprise', 'Monitoring RUM', 'Conseil technique', 'Formation équipe'],
+        buttonText: 'Planifier une refonte',
+    },
+];
+
+const maintenanceTiers: PricingTier[] = [
+    {
+        name: 'Basique',
+        description: 'Maintenance essentielle pour la sécurité.',
+        price: 'CHF 120',
+        period: '/mois',
+        features: ['Mises à jour plugins/core', 'Sauvegarde hebdomadaire', 'Monitoring 24/7', 'Support par email'],
+        buttonText: 'Protéger mon site',
+    },
+    {
+        name: 'Pro',
+        description: 'Sécurité et performance garanties.',
+        price: 'CHF 290',
+        period: '/mois',
+        features: ['Mises à jour prioritaires', 'Sauvegarde quotidienne', 'Monitoring avancé', 'Heures de développement (2h)', 'Optimisation de performance', 'Support prioritaire'],
+        buttonText: 'Protéger mon site',
+        highlight: true,
+    },
+    {
+        name: 'Enterprise',
+        description: 'Gestion complète de votre environnement numérique.',
+        price: 'Sur Devis',
+        period: '/mois',
+        features: ['Mises à jour en temps réel', 'Sauvegardes multi-sites', 'Monitoring de sécurité proactif', 'Développement continu', 'SLA Garanti', 'Gestionnaire de compte'],
+        buttonText: 'Auditer mon infrastructure',
+    },
+];
+
+
+
+export default function ServicesPage() {
+    return (
+        <div className="bg-athana-black min-h-screen">
+            <Helmet>
+                <title>Services & Tarifs | ATHANA</title>
+                <meta name="description" content="Solutions complètes de développement web : Sites vitrines, E-commerce, SEO et Google Ads. Transparence totale et prix clairs pour le marché Suisse." />
+            </Helmet>
+            {/* Page Header */}
+            <section className="pt-40 pb-20 relative overflow-hidden">
+                <div className="absolute inset-0 bg-athana-accent/5 blur-[120px] pointer-events-none"></div>
+                <div className="max-w-7xl mx-auto px-6 relative z-10 text-center">
+                    <Reveal>
+                        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-athana-accent/30 bg-athana-accent/5 text-athana-accent text-xs font-mono font-bold tracking-widest uppercase mb-8 hover:bg-athana-accent/10 transition-colors cursor-default backdrop-blur-sm mx-auto">
+                            <span className="relative flex h-2 w-2">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-athana-accent opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-athana-accent"></span>
+                            </span>
+                            CAPABILITÉS
+                        </div>
+                        <h1 className="text-5xl md:text-7xl font-display font-bold text-white mb-6">
+                            Nos Domaines <span className="text-athana-accent">d'Expertise.</span>
+                        </h1>
+                        <p className="text-xl text-athana-muted max-w-3xl mx-auto font-light leading-relaxed">
+                            L'intelligence technique derrière vos ambitions. Découvrez nos solutions de développement pour structurer, automatiser et garantir à votre entreprise une présence digitale inébranlable.
+                        </p>
+                    </Reveal>
+                </div>
+            </section>
+
+            <ServicePricingSection
+                id="web"
+                category="Développement"
+                title="Création de Sites & Apps"
+                subtitle="Choisissez la solution qui correspond à vos besoins et à votre budget."
+                tiers={webDevTiers}
+                colorTheme="athana"
+            />
+
+            <ServicePricingSection
+                id="seo"
+                category="Visibilité"
+                title="Optimisation SEO"
+                subtitle="Augmentez votre visibilité sur Google avec nos stratégies de recherche."
+                tiers={seoTiers}
+                colorTheme="green"
+            />
+
+            <ServicePricingSection
+                id="ads"
+                category="Trafic Payant"
+                title="Google Ads & Performance"
+                subtitle="Générez plus de leads et de ventes avec des campagnes optimisées. (Budget publicitaire non inclus)"
+                tiers={adsTiers}
+                colorTheme="orange"
+            />
+
+            <ServicePricingSection
+                id="performance"
+                category="Vitesse"
+                title="Optimisation de Performance"
+                subtitle="Accélérez votre site pour une meilleure expérience utilisateur et un meilleur SEO."
+                tiers={performanceTiers}
+                colorTheme="blue"
+            />
+
+            <ServicePricingSection
+                category="Support"
+                title="Maintenance & Sécurité"
+                subtitle="Gardez votre site toujours à jour, sécurisé et rapide."
+                tiers={maintenanceTiers}
+                colorTheme="purple"
+            />
+
+            <Contact />
+        </div>
+    );
+}

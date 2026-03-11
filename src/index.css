@@ -1,0 +1,81 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Outfit", sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
+
+  --color-athana-black: #050505;
+  --color-athana-dark: #0A0A0A;
+  --color-athana-gray: #171717;
+  --color-athana-accent: #C5A059;
+  --color-athana-accentHover: #D4AF37;
+  --color-athana-text: #F8FAFC;
+  --color-athana-muted: #94A3B8;
+
+  --color-bg-primary: #050505;
+  --color-bg-card: #171717;
+  --color-accent-gold: #C5A059;
+  --color-accent-glow: #38BDF8;
+
+  --color-neon-blue: #38BDF8;
+  --color-neon-purple: #C5A059;
+  --color-neon-pink: #C5A059;
+
+  --image-grid-pattern: linear-gradient(to right, #1f1f1f 1px, transparent 1px), linear-gradient(to bottom, #1f1f1f 1px, transparent 1px);
+  --image-glow-radial: radial-gradient(circle at center, var(--tw-gradient-stops));
+}
+
+:root {
+  --foreground-rgb: 255, 255, 255;
+  --background-start-rgb: 5, 5, 5;
+  --background-end-rgb: 5, 5, 5;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))) rgb(var(--background-start-rgb));
+  overflow-x: hidden;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #050505;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #00F0FF;
+}
+
+.text-glow {
+  text-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+}
+
+.bg-300\% {
+  background-size: 300% auto;
+  animation: gradient-move 5s ease infinite;
+}
+
+@keyframes gradient-move {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
