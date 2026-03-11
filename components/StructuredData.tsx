@@ -9,7 +9,7 @@ export default function StructuredData() {
                 url: 'https://athana.ch',
                 logo: 'https://athana.ch/og-image.jpg',
                 image: 'https://athana.ch/og-image.jpg',
-                description: 'Agence de développement web premium à Genève. Spécialistes Next.js, SEO et Design UI/UX.',
+                description: "Agence d'architecture digitale basée à Genève. Conception de monuments digitaux, sites web Next.js ultra-performants et solutions logicielles sur mesure pour le marché B2B suisse.",
                 telephone: '+41 78 339 98 95',
                 email: 'contact@athana.ch',
                 foundingDate: '2024',
