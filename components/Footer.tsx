@@ -21,9 +21,7 @@ export const Footer: React.FC = () => {
                 </div>
 
                 <div className="flex gap-6 font-mono text-sm">
-                    <a href="#" className="hover:text-athana-accent transition-colors">GITHUB</a>
-                    <a href="#" className="hover:text-athana-accent transition-colors">LINKEDIN</a>
-                    <a href="#" className="hover:text-athana-accent transition-colors">TWITTER</a>
+                    <a href="https://www.linkedin.com/company/athana-geneve/?viewAsMember=true" target="_blank" rel="noopener noreferrer" className="hover:text-athana-accent transition-colors">LINKEDIN</a>
                 </div>
             </div>
         </footer>

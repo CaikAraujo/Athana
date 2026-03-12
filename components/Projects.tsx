@@ -1,7 +1,6 @@
 import React from 'react';
 import { PROJECTS } from '../constants';
 import { Reveal } from './ui/Section';
-import { ArrowRight } from 'lucide-react';
 
 export const Projects: React.FC = () => {
   return (
@@ -51,15 +50,7 @@ export const Projects: React.FC = () => {
                     ))}
                   </div>
 
-                  <div className="pt-6">
-                    <a
-                      href={project.link || '#'}
-                      className="inline-flex items-center gap-2 text-white font-bold hover:text-athana-accent transition-colors group/btn"
-                    >
-                      En savoir plus
-                      <ArrowRight className="w-4 h-4 transform group-hover/btn:translate-x-1 transition-transform" />
-                    </a>
-                  </div>
+
                 </div>
               </div>
             </Reveal>
