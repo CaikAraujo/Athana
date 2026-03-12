@@ -3,6 +3,7 @@ import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
 import { WhatsAppButton } from '../components/WhatsAppButton';
 import { ModalProvider } from './context/ModalContext';
+import { GoogleAnalytics } from '../components/GoogleAnalytics';
 
 // Pages
 import Home from './pages/Home';
@@ -17,6 +18,7 @@ import ScrollToTop from '../components/ScrollToTop';
 function App() {
     return (
         <Router>
+            <GoogleAnalytics measurementId="G-FXDN2CW828" />
             <ScrollToTop />
             <ModalProvider>
                 <div className="bg-athana-black min-h-screen text-athana-text selection:bg-athana-accent selection:text-black antialiased">
