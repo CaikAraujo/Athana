@@ -1,6 +1,7 @@
 
 
 import { Helmet } from 'react-helmet-async';
+import { Link } from 'react-router-dom';
 import { Contact } from '../../components/Contact';
 import { ServicePricingSection, PricingTier } from '../../components/ServicePricingSection';
 import { Reveal } from '../../components/ui/Section';
@@ -213,6 +214,35 @@ export default function ServicesPage() {
                 tiers={maintenanceTiers}
                 colorTheme="purple"
             />
+
+            <section className="py-20 border-t border-white/5">
+                <div className="max-w-7xl mx-auto px-6">
+                    <Reveal>
+                        <div className="text-center mb-12">
+                            <h2 className="text-3xl md:text-4xl font-display font-bold text-white mb-4">
+                                Ressources Locales <span className="text-athana-accent">Genève</span>
+                            </h2>
+                            <p className="text-athana-muted max-w-2xl mx-auto">
+                                Guides et pages dédiées pour les entreprises genevoises qui recherchent une solution technique concrète.
+                            </p>
+                        </div>
+                    </Reveal>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <Link to="/services/developpement-web-sur-mesure-geneve" className="p-6 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors">
+                            <h3 className="text-white font-bold mb-2">Développement Web sur Mesure à Genève</h3>
+                            <p className="text-sm text-athana-muted">Landing dédiée pour les entreprises qui veulent un site ou une plateforme sur mesure.</p>
+                        </Link>
+                        <Link to="/services/integration-odoo-erp-geneve" className="p-6 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors">
+                            <h3 className="text-white font-bold mb-2">Intégration Odoo & ERP à Genève</h3>
+                            <p className="text-sm text-athana-muted">Page orientée intégration de systèmes pour fluidifier vos opérations.</p>
+                        </Link>
+                        <Link to="/services/application-web-securisee-suisse" className="p-6 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors">
+                            <h3 className="text-white font-bold mb-2">Application Web Sécurisée en Suisse</h3>
+                            <p className="text-sm text-athana-muted">Focus sécurité applicative et conformité nFADP pour équipes B2B.</p>
+                        </Link>
+                    </div>
+                </div>
+            </section>
 
             <Contact />
         </div>

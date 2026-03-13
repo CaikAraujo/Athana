@@ -13,6 +13,9 @@ import Projects from './pages/Projects';
 import Confidentialite from './pages/Confidentialite';
 import Impressum from './pages/Impressum';
 import Templates from './pages/Templates';
+import DeveloppementWebGeneve from './pages/DeveloppementWebGeneve';
+import IntegrationOdooGeneve from './pages/IntegrationOdooGeneve';
+import ApplicationWebSecuriseeGeneve from './pages/ApplicationWebSecuriseeGeneve';
 import ScrollToTop from '../components/ScrollToTop';
 
 function App() {
@@ -31,6 +34,9 @@ function App() {
                         <Route path="/confidentialite" element={<Confidentialite />} />
                         <Route path="/impressum" element={<Impressum />} />
                         <Route path="/templates" element={<Templates />} />
+                        <Route path="/services/developpement-web-sur-mesure-geneve" element={<DeveloppementWebGeneve />} />
+                        <Route path="/services/integration-odoo-erp-geneve" element={<IntegrationOdooGeneve />} />
+                        <Route path="/services/application-web-securisee-suisse" element={<ApplicationWebSecuriseeGeneve />} />
                     </Routes>
                     <WhatsAppButton />
                     <Footer />

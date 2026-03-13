@@ -48,11 +48,47 @@ export default function StructuredData() {
                     closes: '18:00'
                 },
 
+                knowsAbout: [
+                    'Custom Software Development',
+                    'Web Agency Services',
+                    'Enterprise Systems Integration (ERP/CRM)',
+                    'Swiss Data Privacy Compliant Hosting'
+                ],
+
+                service: [
+                    {
+                        '@type': 'Service',
+                        name: 'Custom Software Development',
+                        url: 'https://athana.ch/services/developpement-web-sur-mesure-geneve',
+                        areaServed: { '@type': 'City', name: 'Genève' }
+                    },
+                    {
+                        '@type': 'Service',
+                        name: 'Web Agency Services',
+                        url: 'https://athana.ch/services/developpement-web-sur-mesure-geneve',
+                        areaServed: { '@type': 'City', name: 'Genève' }
+                    },
+                    {
+                        '@type': 'Service',
+                        name: 'Enterprise Systems Integration (ERP/CRM)',
+                        url: 'https://athana.ch/services/integration-odoo-erp-geneve',
+                        areaServed: { '@type': 'City', name: 'Genève' }
+                    },
+                    {
+                        '@type': 'Service',
+                        name: 'Swiss Data Privacy Compliant Hosting',
+                        url: 'https://athana.ch/services/application-web-securisee-suisse',
+                        areaServed: { '@type': 'Country', name: 'Switzerland' }
+                    }
+                ],
+
                 sameAs: [
                     'https://instagram.com/athana.ch',
-                    'https://linkedin.com/company/athana-ch',
+                    'https://linkedin.com/company/athana',
                     'https://github.com/athana-ch',
-                    'https://twitter.com/athana_ch'
+                    'https://twitter.com/athana_ch',
+                    'https://www.moneyhouse.ch/en/company/athana-XXXXX',
+                    'https://www.uid.admin.ch/Detail.aspx?uid=CHE-XXX.XXX.XXX'
                 ],
 
                 hasOfferCatalog: {
