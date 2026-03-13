@@ -38,7 +38,7 @@ export default async function handler(req: any, res: any) {
         <p><strong>Étape:</strong> ${stage}</p>
         <p><strong>Budget:</strong> ${budget}</p>
         <p><strong>Vision:</strong></p>
-        <p>${vision}</p>
+        <p>${vision || 'Non renseigné'}</p>
       `,
     });
 

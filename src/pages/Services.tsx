@@ -7,26 +7,26 @@ import { Reveal } from '../../components/ui/Section';
 
 const webDevTiers: PricingTier[] = [
     {
-        name: 'Site Vitrine',
+        name: 'Présence Premium',
         description: 'Parfait pour présenter votre activité en ligne.',
-        price: 'CHF 1.900',
+        price: 'Dès CHF 1.900',
         features: ['Design réactif sur mesure', 'Jusqu\'à 5 pages', 'Optimisation SEO de base', 'Formulaire de contact', 'Hébergement 1 an inclus', 'Support 3 mois'],
-        buttonText: 'Planifier mon site',
+        buttonText: 'Demander un Audit',
     },
     {
-        name: 'Site Business',
+        name: 'Écosystème Croissance',
         description: 'Solution complète pour développer votre entreprise.',
-        price: 'CHF 2.900',
+        price: 'Dès CHF 2.900',
         features: ['Design premium personnalisé', 'Jusqu\'à 10 pages', 'SEO avancé + Blog', 'Système de réservation', 'Intégrations (CRM, Email)', 'Analyses avancées', 'Support 6 mois'],
-        buttonText: 'Planifier mon site',
+        buttonText: 'Demander un Audit',
         highlight: true,
     },
     {
         name: 'E-commerce',
         description: 'Boutique en ligne complète avec ventes intégrées.',
-        price: 'CHF 4.500',
+        price: 'Dès CHF 4.500',
         features: ['Design e-commerce exclusif', 'Config. initiale jusqu\'à 50 produits', 'Paiement sécurisé (Stripe/TWINT)', 'Gestion des stocks', 'Panneau d\'administration', 'SEO pour e-commerce', 'Support 12 mois'],
-        buttonText: 'Concevoir ma boutique',
+        buttonText: 'Demander un Audit',
     },
 ];
 
@@ -37,7 +37,7 @@ const seoTiers: PricingTier[] = [
         price: 'CHF 600',
         period: '/mois',
         features: ['Audit SEO initial', 'Optimisation technique de base', '5 mots-clés cibles', 'Rapport mensuel', 'Support par email'],
-        buttonText: "Démarrer l'optimisation",
+        buttonText: 'Demander un Audit',
     },
     {
         name: 'SEO Avancé',
@@ -45,7 +45,7 @@ const seoTiers: PricingTier[] = [
         price: 'CHF 1.050',
         period: '/mois',
         features: ['Audit SEO complet', 'Optimisation technique avancée', '15 mots-clés cibles', 'Création de contenu (2 articles/mois)', 'Netlinking de base', 'Rapport détaillé'],
-        buttonText: 'Définir une stratégie',
+        buttonText: 'Demander un Audit',
         highlight: true,
     },
     {
@@ -54,7 +54,7 @@ const seoTiers: PricingTier[] = [
         price: 'CHF 1.850',
         period: '/mois',
         features: ['Stratégie SEO 360º', 'Mots-clés illimités', 'Contenu premium (4 articles/mois)', 'Netlinking avancé', 'Analyse des concurrents', 'Consultant dédié', 'Support prioritaire'],
-        buttonText: 'Demander un audit',
+        buttonText: 'Demander un Audit',
     },
 ];
 
@@ -65,7 +65,7 @@ const adsTiers: PricingTier[] = [
         price: 'CHF 450',
         period: '/mois',
         features: ['Configuration du compte', 'Campagne Search (3 groupes)', 'Géolocalisation précise', 'Rapport mensuel', 'Support par email'],
-        buttonText: 'Lancer une Campagne',
+        buttonText: 'Demander un Audit',
     },
     {
         name: 'Google Ads Avancé',
@@ -73,7 +73,7 @@ const adsTiers: PricingTier[] = [
         price: 'CHF 900',
         period: '/mois',
         features: ['Gestion complète des campagnes', 'Search + Display', 'Remarketing dynamique', 'Optimisation hebdomadaire', 'Rapport bimensuel', 'Consultant dédié'],
-        buttonText: "Planifier l'acquisition",
+        buttonText: 'Demander un Audit',
         highlight: true,
     },
     {
@@ -82,7 +82,7 @@ const adsTiers: PricingTier[] = [
         price: 'CHF 1.650',
         period: '/mois',
         features: ['Stratégie multi-canal', 'Shopping + Vidéo (YouTube)', 'Optimisation IA', 'Tests A/B continus', 'Tableau de bord personnalisé', 'Support 24/7'],
-        buttonText: 'Parler à un expert',
+        buttonText: 'Demander un Audit',
     },
 ];
 
@@ -92,14 +92,14 @@ const performanceTiers: PricingTier[] = [
         description: 'Améliorez la vitesse essentielle du site.',
         price: 'CHF 600',
         features: ['Audit de performance', 'Optimisation des images', 'Cache navigateur', 'Minification CSS/JS', 'Rapport avant/après'],
-        buttonText: 'Accélérer mon site',
+        buttonText: 'Demander un Audit',
     },
     {
         name: 'Optimisation Avancée',
         description: 'Performance maximale (Core Web Vitals).',
         price: 'CHF 1.100',
         features: ['Audit complet', 'Optimisation des images (WebP)', 'Cache avancé (Redis/Varnish)', 'Configuration CDN', 'Lazy loading intelligent', 'Garantie de score vert'],
-        buttonText: 'Accélérer mon site',
+        buttonText: 'Demander un Audit',
         highlight: true,
     },
     {
@@ -107,7 +107,7 @@ const performanceTiers: PricingTier[] = [
         description: 'Solution définitive de vitesse.',
         price: 'CHF 1.850',
         features: ['Analyse d\'architecture', 'Refactorisation de code critique', 'CDN Enterprise', 'Monitoring RUM', 'Conseil technique', 'Formation équipe'],
-        buttonText: 'Planifier une refonte',
+        buttonText: 'Demander un Audit',
     },
 ];
 
@@ -118,7 +118,7 @@ const maintenanceTiers: PricingTier[] = [
         price: 'CHF 120',
         period: '/mois',
         features: ['Mises à jour plugins/core', 'Sauvegarde hebdomadaire', 'Monitoring 24/7', 'Support par email'],
-        buttonText: 'Protéger mon site',
+        buttonText: 'Demander un Audit',
     },
     {
         name: 'Pro',
@@ -126,7 +126,7 @@ const maintenanceTiers: PricingTier[] = [
         price: 'CHF 290',
         period: '/mois',
         features: ['Mises à jour prioritaires', 'Sauvegarde quotidienne', 'Monitoring avancé', 'Heures de développement (2h)', 'Optimisation de performance', 'Support prioritaire'],
-        buttonText: 'Protéger mon site',
+        buttonText: 'Demander un Audit',
         highlight: true,
     },
     {
@@ -135,7 +135,7 @@ const maintenanceTiers: PricingTier[] = [
         price: 'Sur Devis',
         period: '/mois',
         features: ['Mises à jour en temps réel', 'Sauvegardes multi-sites', 'Monitoring de sécurité proactif', 'Développement continu', 'SLA Garanti', 'Gestionnaire de compte'],
-        buttonText: 'Auditer mon infrastructure',
+        buttonText: 'Demander un Audit',
     },
 ];
 

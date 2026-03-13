@@ -12,7 +12,7 @@ const eliteFilterSchema = z.object({
   ambition: z.enum(['plateforme', 'refonte', 'automatisation', 'corporate']).optional(),
   stage: z.enum(['idee', 'maquette', 'remplacer']).optional(),
   budget: z.enum(['lt2k', '2k-5k', '5k+']).optional(),
-  vision: z.string().min(50, 'Minimum 50 caractères requis'),
+  vision: z.string().optional(),
   name: z.string().min(2, 'Le nom doit comporter au moins 2 caractères'),
   email: z.string().email('Email invalide'),
   company: z.string().min(2, "L'entreprise doit comporter au moins 2 caractères"),
@@ -35,9 +35,9 @@ const STAGE_OPTIONS = [
 ];
 
 const BUDGET_OPTIONS = [
-  { value: 'lt2k' as const, label: '< 2 000 CHF', desc: 'Direction automatique vers le Site Vitrine (CHF 1.900)' },
-  { value: '2k-5k' as const, label: '2 000 CHF - 5 000 CHF', desc: 'Sweet Spot : Site Business ou E-commerce' },
-  { value: '5k+' as const, label: '5 000 CHF +', desc: 'Projet Sur-Mesure / Logiciel (intégrations, back-end complexe)' },
+  { value: 'lt2k' as const, label: '< 2 000 CHF', desc: 'Point de départ' },
+  { value: '2k-5k' as const, label: '2 000 CHF - 5 000 CHF', desc: 'Standard' },
+  { value: '5k+' as const, label: '5 000 CHF +', desc: 'Sur-mesure' },
 ];
 
 const slideVariants = {
@@ -56,13 +56,16 @@ export const EliteFilterForm: React.FC<EliteFilterFormProps> = ({ onStepChange }
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [hasClickedEnvoyer, setHasClickedEnvoyer] = useState(false);
   const [honeypot, setHoneypot] = useState('');
+  const [callbackPhone, setCallbackPhone] = useState('');
+  const [callbackSent, setCallbackSent] = useState(false);
+  const [callbackLoading, setCallbackLoading] = useState(false);
+  const [callbackError, setCallbackError] = useState<string | null>(null);
 
   const {
     register,
     handleSubmit,
     watch,
     setValue,
-    trigger,
     formState: { errors, isSubmitting },
   } = useForm<EliteFilterData>({
     resolver: zodResolver(eliteFilterSchema),
@@ -83,18 +86,42 @@ export const EliteFilterForm: React.FC<EliteFilterFormProps> = ({ onStepChange }
   const stage = watch('stage');
   const budget = watch('budget');
 
+  const handleCallbackSubmit = async () => {
+    const trimmed = callbackPhone.trim();
+    if (!trimmed || trimmed.length < 8) {
+      setCallbackError('Veuillez entrer un numéro valide');
+      return;
+    }
+    setCallbackError(null);
+    setCallbackLoading(true);
+    try {
+      const response = await fetch('/api/callback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: trimmed }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Erreur lors de l'envoi");
+      }
+      setCallbackSent(true);
+      setCallbackPhone('');
+    } catch (err) {
+      setCallbackError(err instanceof Error ? err.message : 'Une erreur est survenue.');
+    } finally {
+      setCallbackLoading(false);
+    }
+  };
+
   React.useEffect(() => {
     onStepChange?.(step);
   }, [step, onStepChange]);
 
   const goNext = async () => {
     if (step === 4) {
-      const valid = await trigger('vision');
-      if (valid) {
-        setDirection(1);
-        setStep(5);
-        onStepChange?.(5);
-      }
+      setDirection(1);
+      setStep(5);
+      onStepChange?.(5);
     } else if (step === 5) {
       return;
     } else {
@@ -159,11 +186,37 @@ export const EliteFilterForm: React.FC<EliteFilterFormProps> = ({ onStepChange }
   }
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="relative min-h-[400px]"
-      noValidate
-    >
+    <>
+      <div className="mb-8 p-6 bg-athana-accent/5 border border-athana-accent/30 rounded-lg flex flex-col md:flex-row items-center justify-between gap-4">
+        <p className="text-white text-lg font-bold text-center md:text-left">Vous manquez de temps ? Laissez votre numéro, notre directeur vous rappelle dans les 2 heures.</p>
+        <div className="flex flex-col gap-2 w-full md:w-auto">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <input
+              type="tel"
+              placeholder="Votre numéro de téléphone"
+              value={callbackPhone}
+              onChange={(e) => setCallbackPhone(e.target.value)}
+              disabled={callbackSent}
+              className="flex-grow px-4 py-2 bg-white/5 border border-white/10 rounded-md text-white placeholder:text-gray-500 focus:outline-none focus:border-athana-accent focus:bg-white/10 disabled:opacity-50"
+            />
+            <button
+              type="button"
+              onClick={handleCallbackSubmit}
+              disabled={callbackSent || callbackLoading}
+              className="px-6 py-2 bg-athana-accent text-black font-bold rounded-md hover:bg-white transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {callbackSent ? 'Demande envoyée' : callbackLoading ? 'Envoi...' : 'Être rappelé'}
+            </button>
+          </div>
+          {callbackError && <p className="text-red-400 text-sm">{callbackError}</p>}
+          {callbackSent && <p className="text-athana-accent text-sm">Nous vous rappellerons dans les 2 heures.</p>}
+        </div>
+      </div>
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="relative min-h-[400px]"
+        noValidate
+      >
       {/* Honeypot field - invisible to humans, bots will fill it */}
       <input
         type="text"
@@ -293,7 +346,7 @@ export const EliteFilterForm: React.FC<EliteFilterFormProps> = ({ onStepChange }
             transition={{ duration: 0.3 }}
             className="space-y-6"
           >
-            <h3 className="text-xl font-bold text-white font-display">Parlez-nous de votre vision.</h3>
+            <h3 className="text-xl font-bold text-white font-display">Parlez-nous de votre vision (Optionnel).</h3>
             <p className="text-athana-muted text-sm">Décrivez brièvement le problème que vous souhaitez résoudre ou l'objectif à atteindre.</p>
             <div className="space-y-2">
               <textarea
@@ -399,5 +452,6 @@ export const EliteFilterForm: React.FC<EliteFilterFormProps> = ({ onStepChange }
         )}
       </div>
     </form>
+    </>
   );
 };
