@@ -48,8 +48,8 @@ export default function TemplatesPage() {
         <div className="bg-athana-black min-h-screen">
             <Helmet>
                 <title>Templates Premium | ATHANA</title>
-                <meta name="description" content="Accélérez votre lancement avec nos templates Next.js haute performance. Design suisse, code propre et optimisation SEO native." />
-                <meta property="og:title" content="Templates Premium Next.js | ATHANA" />
+                <meta name="description" content="Accélérez votre lancement avec nos templates web haute performance. Design suisse, code propre et optimisation SEO native." />
+                <meta property="og:title" content="Templates Premium | ATHANA" />
                 <meta property="og:description" content="Boutique de code pour startups et entreprises exigeantes." />
             </Helmet>
             {/* Hero Section */}
