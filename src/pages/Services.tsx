@@ -180,6 +180,25 @@ export default function ServicesPage() {
                 colorTheme="athana"
             />
 
+            <section className="pb-14 -mt-10 relative z-30 pointer-events-auto">
+                <div className="max-w-7xl mx-auto px-6">
+                    <div className="text-center">
+                        <p className="text-sm md:text-base text-athana-muted/90">
+                            Besoin d'une solution rapide pour votre activité locale ? Nous créons des landing pages haute performance dès CHF 1&apos;000 pour dynamiser vos appels.
+                            {' '}
+                            <a
+                                href="https://wa.me/41783399895?text=Bonjour%2C%20je%20souhaite%20parler%20de%20mon%20projet%20local."
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="relative z-40 inline underline underline-offset-4 text-athana-accent hover:text-white transition-colors pointer-events-auto"
+                            >
+                                Parlez-nous de votre projet local sur WhatsApp.
+                            </a>
+                        </p>
+                    </div>
+                </div>
+            </section>
+
             <ServicePricingSection
                 id="seo"
                 category="Visibilité"
