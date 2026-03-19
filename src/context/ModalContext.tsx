@@ -1,7 +1,8 @@
 'use client';
 
-import { createContext, useContext, useState, ReactNode } from 'react';
-import { ContactModal } from '../../components/ContactModal';
+import { createContext, useContext, useState, type ReactNode, lazy, Suspense } from 'react';
+
+const ContactModal = lazy(() => import('../../components/ContactModal').then((mod) => ({ default: mod.ContactModal })));
 
 interface ModalContextType {
     openModal: (context?: string) => void;
@@ -27,7 +28,11 @@ export const ModalProvider = ({ children }: { children: ReactNode }) => {
     return (
         <ModalContext.Provider value={{ openModal, closeModal }}>
             {children}
-            <ContactModal isOpen={isOpen} onClose={closeModal} context={modalContext} />
+            {isOpen && (
+                <Suspense fallback={null}>
+                    <ContactModal isOpen={isOpen} onClose={closeModal} context={modalContext} />
+                </Suspense>
+            )}
         </ModalContext.Provider>
     );
 };

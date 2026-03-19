@@ -1,21 +1,51 @@
-// Simple in-memory rate limiter
-// Note: Resets per serverless instance. Good enough for small sites.
+// In-memory rate limiter for small deployments.
+// Note: in serverless this is per instance; better than no protection.
 
-const ipRequestMap = new Map<string, { count: number; resetAt: number }>();
+type RateLimitOptions = {
+  maxRequests?: number;
+  windowMs?: number;
+};
 
-const WINDOW_MS = 60 * 60 * 1000; // 1 hour
-const MAX_REQUESTS = 5; // max 5 requests per IP per hour
+const requestMap = new Map<string, { count: number; resetAt: number }>();
+const DEFAULT_WINDOW_MS = Number(process.env.RATE_LIMIT_WINDOW_MS || 60 * 60 * 1000);
+const DEFAULT_MAX_REQUESTS = Number(process.env.RATE_LIMIT_MAX_REQUESTS || 5);
+const CLEANUP_INTERVAL = 250;
+let callsSinceCleanup = 0;
 
-export function isRateLimited(ip: string): boolean {
+const cleanupExpired = (now: number) => {
+  callsSinceCleanup += 1;
+  if (callsSinceCleanup < CLEANUP_INTERVAL) return;
+  callsSinceCleanup = 0;
+  for (const [key, record] of requestMap.entries()) {
+    if (now > record.resetAt) {
+      requestMap.delete(key);
+    }
+  }
+};
+
+export function getClientIp(req: any): string {
+  const forwarded = req.headers['x-forwarded-for'];
+  if (typeof forwarded === 'string' && forwarded.length > 0) {
+    return forwarded.split(',')[0].trim();
+  }
+  return req.socket?.remoteAddress || 'unknown';
+}
+
+export function isRateLimited(ip: string, routeKey = 'default', options?: RateLimitOptions): boolean {
   const now = Date.now();
-  const record = ipRequestMap.get(ip);
+  cleanupExpired(now);
+
+  const windowMs = options?.windowMs ?? DEFAULT_WINDOW_MS;
+  const maxRequests = options?.maxRequests ?? DEFAULT_MAX_REQUESTS;
+  const key = `${routeKey}:${ip}`;
+  const record = requestMap.get(key);
 
   if (!record || now > record.resetAt) {
-    ipRequestMap.set(ip, { count: 1, resetAt: now + WINDOW_MS });
+    requestMap.set(key, { count: 1, resetAt: now + windowMs });
     return false;
   }
 
-  if (record.count >= MAX_REQUESTS) {
+  if (record.count >= maxRequests) {
     return true;
   }
 

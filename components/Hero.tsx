@@ -1,12 +1,19 @@
 'use client';
 
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { ArrowDown } from 'lucide-react';
 import { Reveal } from './ui/Section';
 import { AthanaCanvas } from './ui/AthanaCanvas';
+import { useTranslation } from 'react-i18next';
+import { DEFAULT_LOCALE, isLocale, withLocalePath } from '../src/i18n/routing';
 
 export const Hero: React.FC = () => {
+  const { t } = useTranslation('home');
+  const { lang } = useParams();
+  const locale = isLocale(lang) ? lang : DEFAULT_LOCALE;
+  const toLocalePath = (path: string) => withLocalePath(locale, path);
+
   return (
     <section className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden bg-athana-black">
       {/* Background Animation */}
@@ -24,39 +31,38 @@ export const Hero: React.FC = () => {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-athana-accent opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-athana-accent"></span>
             </span>
-            Architecture Digitale
+            {t('hero.badge')}
           </div>
         </Reveal>
 
         <Reveal delay={200}>
           <h1 className="font-display font-bold text-5xl md:text-7xl lg:text-9xl tracking-tighter text-white mb-8 leading-[0.9]">
-            BÂTISSEZ VOTRE <br />
+            {t('hero.titleLine1')} <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-athana-accent via-white to-athana-accent animate-pulse bg-300% bg-left">
-              MONUMENT DIGITAL.
+              {t('hero.titleLine2')}
             </span>
           </h1>
         </Reveal>
 
         <Reveal delay={400}>
           <p className="max-w-2xl mx-auto text-athana-muted text-lg md:text-xl mb-12 leading-relaxed font-light backdrop-blur-sm p-4 rounded-lg bg-black/20 border border-white/5">
-            Votre <span className="text-white font-medium">agence genevoise</span> pour des solutions digitales <span className="text-white font-medium">robustes et pérennes</span>.
-            Alliez performance technique et <span className="text-white font-medium">fiabilité suisse</span> pour propulser votre entreprise.
+            {t('hero.description')}
           </p>
         </Reveal>
 
         <Reveal delay={600}>
           <div className="flex flex-col md:flex-row items-center justify-center gap-4">
             <Link
-              to="/demarrer"
+              to={toLocalePath('/demarrer')}
               className="w-full md:w-auto px-8 py-4 bg-athana-accent text-black font-bold rounded hover:bg-white hover:shadow-[0_0_30px_rgba(0,240,255,0.6)] transition-all duration-300 transform hover:-translate-y-1 block md:inline-block cursor-pointer"
             >
-              Démarrer un Projet _&gt;
+              {t('hero.ctaPrimary')}
             </Link>
             <Link
-              to="/projets"
+              to={toLocalePath('/projets')}
               className="w-full md:w-auto px-8 py-4 border border-white/10 bg-white/5 backdrop-blur-md text-white font-medium rounded hover:border-athana-accent hover:text-athana-accent transition-colors duration-300 block md:inline-block cursor-pointer"
             >
-              Voir le Portfolio
+              {t('hero.ctaSecondary')}
             </Link>
           </div>
         </Reveal>

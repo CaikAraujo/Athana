@@ -150,12 +150,6 @@ export default function StructuredData() {
                         position: 2,
                         name: 'Services',
                         item: 'https://athana.ch/services'
-                    },
-                    {
-                        '@type': 'ListItem',
-                        position: 3,
-                        name: 'Templates',
-                        item: 'https://athana.ch/templates'
                     }
                 ]
             }

@@ -1,15 +1,27 @@
 import React from 'react';
-import { PROJECTS } from '../constants';
 import { Reveal } from './ui/Section';
+import { useTranslation } from 'react-i18next';
 
 export const Projects: React.FC = () => {
+  const { t, i18n } = useTranslation('projectsPage');
+  const localizedProjectsRaw = t('items', { returnObjects: true }) as Array<{
+    id: string;
+    title: string;
+    category: string;
+    description: string;
+    image: string;
+    technologies: string[];
+  }>;
+  const fallbackProjects = i18n.getResource('fr', 'projectsPage', 'items') as typeof localizedProjectsRaw;
+  const localizedProjects = Array.isArray(localizedProjectsRaw) && localizedProjectsRaw.length > 0 ? localizedProjectsRaw : fallbackProjects;
+
   return (
     <section id="projects" className="py-20 bg-athana-black relative">
       <div className="max-w-7xl mx-auto px-6">
 
 
         <div className="space-y-32">
-          {PROJECTS.map((project, index) => (
+          {localizedProjects.map((project, index) => (
             <Reveal key={project.id} delay={index * 100} className="group">
               <div className="flex flex-col md:flex-row gap-12 items-center">
                 {/* Image Section - Left side (or alternating if preferred, but sticking to request for now) */}

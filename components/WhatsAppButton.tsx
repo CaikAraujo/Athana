@@ -1,11 +1,37 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import { DEFAULT_LOCALE } from '../src/i18n/routing';
 export const WhatsAppButton = () => {
     const [isVisible, setIsVisible] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
     const phoneNumber = '41783399895';
-    const message = 'Bonjour, je souhaite en savoir plus sur les services de Athana.';
+    const { i18n } = useTranslation();
+    const locale = (i18n.resolvedLanguage || DEFAULT_LOCALE).slice(0, 2);
+    const labels: Record<string, { message: string; tooltip: string; aria: string }> = {
+        fr: {
+            message: 'Bonjour, je souhaite en savoir plus sur les services de Athana.',
+            tooltip: 'Discutez avec nous sur WhatsApp !',
+            aria: 'Discuter sur WhatsApp',
+        },
+        en: {
+            message: 'Hello, I would like to learn more about Athana services.',
+            tooltip: 'Chat with us on WhatsApp!',
+            aria: 'Chat on WhatsApp',
+        },
+        de: {
+            message: 'Hallo, ich möchte mehr über die Dienstleistungen von Athana erfahren.',
+            tooltip: 'Sprechen Sie mit uns auf WhatsApp!',
+            aria: 'Auf WhatsApp chatten',
+        },
+        it: {
+            message: 'Ciao, vorrei saperne di più sui servizi di Athana.',
+            tooltip: 'Parla con noi su WhatsApp!',
+            aria: 'Chatta su WhatsApp',
+        },
+    };
+    const current = labels[locale] || labels.fr;
 
     useEffect(() => {
         // Show button after a small delay to not block initial content
@@ -24,17 +50,17 @@ export const WhatsAppButton = () => {
                     ${isHovered ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-90 translate-y-4 pointer-events-none'}
                 `}
             >
-                <p className="font-medium text-sm">Discutez avec nous sur WhatsApp !</p>
+                <p className="font-medium text-sm">{current.tooltip}</p>
             </div>
 
             <a
-                href={`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`}
+                href={`https://wa.me/${phoneNumber}?text=${encodeURIComponent(current.message)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
                 className="group relative flex items-center justify-center w-14 h-14 bg-[#11422C] hover:bg-[#1A5C3D] text-white rounded-full shadow-[0_4px_14px_rgba(17,66,44,0.5)] hover:shadow-[0_6px_20px_rgba(17,66,44,0.7)] hover:-translate-y-1 transition-all duration-300"
-                aria-label="Chat on WhatsApp"
+                aria-label={current.aria}
             >
                 <svg
                     viewBox="0 0 24 24"

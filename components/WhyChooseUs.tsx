@@ -2,74 +2,40 @@
 
 import { Shield, Zap, UserCheck, ArrowRight } from 'lucide-react';
 import { Reveal } from './ui/Section';
-import { Link } from 'react-router-dom';
-
-const comparisonData = [
-    {
-        criteria: "Vitesse",
-        traditional: {
-            text: "Lente/Moyenne (Perte de clients)",
-            icon: <div className="w-2 h-2 rounded-full bg-red-500 shrink-0" />
-        },
-        athana: {
-            text: "Instantanée (Fidélise les clients)",
-            icon: <div className="w-2 h-2 rounded-full bg-athana-accent shadow-[0_0_8px_cyan] shrink-0" />
-        }
-    },
-    {
-        criteria: "Maintenance",
-        traditional: {
-            text: "Vous la faites (Risque d'erreur)",
-            icon: null
-        },
-        athana: {
-            text: "Nous la faisons (Concierge)",
-            icon: null
-        }
-    },
-    {
-        criteria: "Sécurité",
-        traditional: {
-            text: "Vulnérable aux Plugins/Hackers",
-            icon: null
-        },
-        athana: {
-            text: "Blindée (Architecture Sécurisée)",
-            icon: null
-        }
-    },
-    {
-        criteria: "SEO Google",
-        traditional: {
-            text: "Optimisation Basique",
-            icon: null
-        },
-        athana: {
-            text: "Natif & Prioritaire",
-            icon: null,
-            highlight: true
-        }
-    },
-    {
-        criteria: "Focus",
-        traditional: {
-            text: "Livrer le site et disparaître",
-            icon: null
-        },
-        athana: {
-            text: "Partenariat à Long Terme",
-            icon: null
-        }
-    }
-];
+import { Link, useParams } from 'react-router-dom';
+import { DEFAULT_LOCALE, isLocale, withLocalePath } from '../src/i18n/routing';
+import { useTranslation } from 'react-i18next';
 
 export const WhyChooseUs = () => {
+    const { lang } = useParams();
+    const locale = isLocale(lang) ? lang : DEFAULT_LOCALE;
+    const { t, i18n } = useTranslation('home');
+    const localizedCopy = t('whyChooseUs', { returnObjects: true }) as {
+        title: string;
+        titleAccent: string;
+        subtitleBefore: string;
+        subtitleAccent: string;
+        subtitleAfter: string;
+        cards: Array<{ title: string; description: string; label: string; value: string }>;
+        table: { criteria: string; traditional: string; athana: string };
+        cta: string;
+        ctaNote: string;
+        comparisonData: Array<{
+            criteria: string;
+            traditional: { text: string };
+            athana: { text: string; highlight?: boolean };
+        }>;
+    };
+    const fallbackCopy = i18n.getResource('fr', 'home', 'whyChooseUs') as typeof localizedCopy;
+    const copy = localizedCopy && Object.keys(localizedCopy).length > 0 ? localizedCopy : fallbackCopy;
+    const comparisonData = copy.comparisonData || [];
+
     return (
         <section className="py-32 bg-athana-dark relative overflow-hidden">
             {/* Background Elements */}
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-                <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-athana-accent/5 blur-[100px] rounded-full"></div>
-                <div className="absolute bottom-[-10%] left-[-5%] w-[500px] h-[500px] bg-athana-accent/20 blur-[100px] rounded-full"></div>
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_92%_88%,rgba(197,160,89,0.10),rgba(197,160,89,0.04)_26%,rgba(197,160,89,0.015)_40%,transparent_60%)]"></div>
+                <div className="absolute inset-0 bg-[linear-gradient(to_top_left,rgba(10,10,10,0.06),rgba(10,10,10,0)_36%)]"></div>
             </div>
 
             <div className="max-w-7xl mx-auto px-6 relative z-10">
@@ -77,11 +43,11 @@ export const WhyChooseUs = () => {
                 {/* Header */}
                 <Reveal className="text-center mb-20">
                     <h2 className="text-4xl md:text-6xl font-display font-bold text-white mb-6">
-                        Excellence Technique & <span className="text-athana-accent">Sérénité Absolue.</span>
+                        {copy.title} <span className="text-athana-accent">{copy.titleAccent}</span>
                     </h2>
                     <h3 className="text-xl text-athana-muted max-w-3xl mx-auto font-light leading-relaxed">
-                        Plus qu'une agence Web, votre <span className="text-white font-semibold">partenaire digital à Genève</span>.
-                        Alliez la puissance du développement sur-mesure à un accompagnement de proximité.
+                        {copy.subtitleBefore} <span className="text-white font-semibold">{copy.subtitleAccent}</span>.{' '}
+                        {copy.subtitleAfter}
                     </h3>
                 </Reveal>
 
@@ -92,16 +58,16 @@ export const WhyChooseUs = () => {
                         <div className="w-14 h-14 bg-athana-accent/10 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                             <Zap className="text-athana-accent" size={28} />
                         </div>
-                        <h4 className="text-xl font-bold text-white mb-4">Architecture Moderne & Robuste</h4>
+                        <h4 className="text-xl font-bold text-white mb-4">{copy.cards[0].title}</h4>
                         <p className="text-gray-400 text-sm leading-relaxed mb-4">
-                            Nous développons des solutions pérennes avec Next.js, le standard de l'industrie pour la performance et l'évolutivité. Pas de dette technique, juste de l'excellence.
+                            {copy.cards[0].description}
                         </p>
                         <div className="border-t border-white/5 pt-4">
                             <p className="text-athana-accent text-xs font-bold uppercase tracking-wider">
-                                Le Résultat :
+                                {copy.cards[0].label}
                             </p>
                             <p className="text-white text-sm mt-1">
-                                Des sites qui chargent instantanément et dominent le SEO Google.
+                                {copy.cards[0].value}
                             </p>
                         </div>
                     </Reveal>
@@ -111,16 +77,16 @@ export const WhyChooseUs = () => {
                         <div className="w-14 h-14 bg-athana-accent/10 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                             <UserCheck className="text-athana-accent" size={28} />
                         </div>
-                        <h4 className="text-xl font-bold text-white mb-4">Accompagnement Sur-mesure</h4>
+                        <h4 className="text-xl font-bold text-white mb-4">{copy.cards[1].title}</h4>
                         <p className="text-gray-400 text-sm leading-relaxed mb-4">
-                            Fini le "bricolage" interne. Notre équipe gère votre écosystème digital comme une extension de votre entreprise. Vous décidez, nous exécutons.
+                            {copy.cards[1].description}
                         </p>
                         <div className="border-t border-white/5 pt-4">
                             <p className="text-athana-accent text-xs font-bold uppercase tracking-wider">
-                                Comment ça marche :
+                                {copy.cards[1].label}
                             </p>
                             <p className="text-white text-sm mt-1">
-                                Un changement ? Envoyez-le nous. Nous l'exécutons sans compromettre le design.
+                                {copy.cards[1].value}
                             </p>
                         </div>
                     </Reveal>
@@ -130,16 +96,16 @@ export const WhyChooseUs = () => {
                         <div className="w-14 h-14 bg-athana-accent/10 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                             <Shield className="text-athana-accent" size={28} />
                         </div>
-                        <h4 className="text-xl font-bold text-white mb-4">Sécurité & Conformité Suisse</h4>
+                        <h4 className="text-xl font-bold text-white mb-4">{copy.cards[2].title}</h4>
                         <p className="text-gray-400 text-sm leading-relaxed mb-4">
-                            Infrastructure blindée et respect strict de la nLPD. Vos données et celles de vos clients sont hébergées et traitées avec la plus haute rigueur.
+                            {copy.cards[2].description}
                         </p>
                         <div className="border-t border-white/5 pt-4">
                             <p className="text-athana-accent text-xs font-bold uppercase tracking-wider">
-                                La Garantie :
+                                {copy.cards[2].label}
                             </p>
                             <p className="text-white text-sm mt-1">
-                                Pas de virus, pas de plugins obsolètes. Précision d'une horloge suisse 24/7.
+                                {copy.cards[2].value}
                             </p>
                         </div>
                     </Reveal>
@@ -154,9 +120,9 @@ export const WhyChooseUs = () => {
                             <table className="w-full text-left border-collapse min-w-[700px]">
                                 <thead>
                                     <tr className="bg-white/5 border-b border-white/10">
-                                        <th className="p-6 text-gray-400 font-medium uppercase text-xs tracking-widest w-1/3">Critère</th>
-                                        <th className="p-6 text-gray-400 font-medium uppercase text-xs tracking-widest w-1/3">Agences Traditionnelles (WP/Wix)</th>
-                                        <th className="p-6 text-athana-accent font-bold uppercase text-xs tracking-widest w-1/3 bg-athana-accent/5">ATHANA (Next.js)</th>
+                                        <th className="p-6 text-gray-400 font-medium uppercase text-xs tracking-widest w-1/3">{copy.table.criteria}</th>
+                                        <th className="p-6 text-gray-400 font-medium uppercase text-xs tracking-widest w-1/3">{copy.table.traditional}</th>
+                                        <th className="p-6 text-athana-accent font-bold uppercase text-xs tracking-widest w-1/3 bg-athana-accent/5">{copy.table.athana}</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-white/5">
@@ -165,13 +131,13 @@ export const WhyChooseUs = () => {
                                             <td className="p-6 text-white font-bold">{item.criteria}</td>
                                             <td className="p-6 text-gray-400">
                                                 <div className="flex items-center gap-2">
-                                                    {item.traditional.icon}
+                                                    {index === 0 && <span className="w-2 h-2 rounded-full bg-red-500 shrink-0" />}
                                                     {item.traditional.text}
                                                 </div>
                                             </td>
                                             <td className={`p-6 text-white bg-athana-accent/5 ${item.athana.highlight ? 'font-bold text-athana-accent' : ''}`}>
                                                 <div className="flex items-center gap-2">
-                                                    {item.athana.icon}
+                                                    {index === 0 && <span className="w-2 h-2 rounded-full bg-athana-accent shadow-[0_0_8px_cyan] shrink-0" />}
                                                     {item.athana.text}
                                                 </div>
                                             </td>
@@ -188,17 +154,17 @@ export const WhyChooseUs = () => {
                                     <h4 className="text-white font-bold text-lg border-l-4 border-athana-accent pl-3">{item.criteria}</h4>
 
                                     <div className="bg-white/5 rounded-lg p-4">
-                                        <p className="text-xs text-gray-500 uppercase tracking-wider mb-2">Agences Traditionnelles</p>
+                                        <p className="text-xs text-gray-500 uppercase tracking-wider mb-2">{copy.table.traditional}</p>
                                         <div className="text-gray-400 flex items-center gap-2 text-sm">
-                                            {item.traditional.icon}
+                                            {index === 0 && <span className="w-2 h-2 rounded-full bg-red-500 shrink-0" />}
                                             {item.traditional.text}
                                         </div>
                                     </div>
 
                                     <div className="bg-athana-accent/10 rounded-lg p-4 border border-athana-accent/20">
-                                        <p className="text-xs text-athana-accent font-bold uppercase tracking-wider mb-2">ATHANA</p>
+                                        <p className="text-xs text-athana-accent font-bold uppercase tracking-wider mb-2">{copy.table.athana}</p>
                                         <div className={`text-white flex items-center gap-2 text-sm ${item.athana.highlight ? 'font-bold text-athana-accent' : ''}`}>
-                                            {item.athana.icon}
+                                            {index === 0 && <span className="w-2 h-2 rounded-full bg-athana-accent shadow-[0_0_8px_cyan] shrink-0" />}
                                             {item.athana.text}
                                         </div>
                                     </div>
@@ -211,12 +177,12 @@ export const WhyChooseUs = () => {
 
                 {/* CTA */}
                 <Reveal delay={500} className="text-center mt-20">
-                    <Link to="/demarrer" className="inline-flex items-center gap-3 bg-white text-black px-8 py-4 rounded-full font-bold text-lg hover:bg-athana-accent transition-all duration-300 shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_rgba(197,160,89,0.5)] cursor-pointer group">
-                        Discuter de votre Projet
+                    <Link to={withLocalePath(locale, '/demarrer')} className="inline-flex items-center gap-3 bg-white text-black px-8 py-4 rounded-full font-bold text-lg hover:bg-athana-accent transition-all duration-300 shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_rgba(197,160,89,0.5)] cursor-pointer group">
+                        {copy.cta}
                         <ArrowRight className="group-hover:translate-x-1 transition-transform" />
                     </Link>
                     <p className="text-gray-500 mt-4 text-sm uppercase tracking-widest">
-                        Réservez une consultation gratuite et découvrez le potentiel de votre projet.
+                        {copy.ctaNote}
                     </p>
                 </Reveal>
 

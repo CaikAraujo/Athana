@@ -6,39 +6,20 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, ChevronLeft, Send, AlertCircle } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
+import { DEFAULT_LOCALE, isLocale, withLocalePath } from '../src/i18n/routing';
+import { useTranslation } from 'react-i18next';
 
-const eliteFilterSchema = z.object({
-  ambition: z.enum(['plateforme', 'refonte', 'automatisation', 'corporate']).optional(),
-  stage: z.enum(['idee', 'maquette', 'remplacer']).optional(),
-  budget: z.enum(['lt2k', '2k-5k', '5k+']).optional(),
-  vision: z.string().optional(),
-  name: z.string().min(2, 'Le nom doit comporter au moins 2 caractères'),
-  email: z.string().email('Email invalide'),
-  company: z.string().min(2, "L'entreprise doit comporter au moins 2 caractères"),
-  phone: z.string().optional(),
-}).refine((d) => d.ambition && d.stage && d.budget, { message: 'Veuillez compléter les étapes précédentes', path: ['ambition'] });
-
-type EliteFilterData = z.infer<typeof eliteFilterSchema>;
-
-const AMBITION_OPTIONS = [
-  { value: 'plateforme' as const, title: "Création d'une Plateforme / App Web", desc: 'De zéro, focalisé sur l\'innovation' },
-  { value: 'refonte' as const, title: "Refonte d'un Système Existant", desc: 'Modernisation de systèmes legacy' },
-  { value: 'automatisation' as const, title: 'Automatisation & Outils Internes', desc: 'Haute valeur ajoutée' },
-  { value: 'corporate' as const, title: 'Site Corporate Haute Performance', desc: 'Vitrine digitale premium' },
-];
-
-const STAGE_OPTIONS = [
-  { value: 'idee' as const, title: 'Phase d\'idée / Cahier des charges en cours', desc: 'Consultation initiale' },
-  { value: 'maquette' as const, title: 'Nous avons une maquette / Des besoins clairs', desc: 'Prêt pour un devis' },
-  { value: 'remplacer' as const, title: 'Nous devons remplacer notre solution actuelle', desc: 'Urgence élevée' },
-];
-
-const BUDGET_OPTIONS = [
-  { value: 'lt2k' as const, label: '< 2 000 CHF', desc: 'Point de départ' },
-  { value: '2k-5k' as const, label: '2 000 CHF - 5 000 CHF', desc: 'Standard' },
-  { value: '5k+' as const, label: '5 000 CHF +', desc: 'Sur-mesure' },
-];
+type EliteFilterData = {
+  ambition?: 'plateforme' | 'refonte' | 'automatisation' | 'corporate';
+  stage?: 'idee' | 'maquette' | 'remplacer';
+  budget?: 'lt2k' | '2k-5k' | '5k+';
+  vision?: string;
+  name: string;
+  email: string;
+  company: string;
+  phone?: string;
+};
 
 const slideVariants = {
   enter: (direction: number) => ({ opacity: 0, x: direction > 0 ? 20 : -20 }),
@@ -51,6 +32,42 @@ interface EliteFilterFormProps {
 }
 
 export const EliteFilterForm: React.FC<EliteFilterFormProps> = ({ onStepChange }) => {
+  const { lang } = useParams();
+  const locale = isLocale(lang) ? lang : DEFAULT_LOCALE;
+  const { t, i18n } = useTranslation('eliteFlow');
+  const getFlowObject = <T,>(key: string): T => {
+    const localized = t(key, { returnObjects: true }) as T;
+    const isArray = Array.isArray(localized);
+    const isObject = localized && typeof localized === 'object';
+    if ((isArray && (localized as unknown[]).length > 0) || (isObject && Object.keys(localized as Record<string, unknown>).length > 0)) {
+      return localized;
+    }
+    return i18n.getResource('fr', 'eliteFlow', key) as T;
+  };
+  const copy = {
+    validation: getFlowObject<Record<string, string>>('validation'),
+    options: getFlowObject<{
+      ambition: Array<{ value: EliteFilterData['ambition']; title: string; desc: string }>;
+      stage: Array<{ value: EliteFilterData['stage']; title: string; desc: string }>;
+      budget: Array<{ value: EliteFilterData['budget']; label: string; desc: string }>;
+    }>('options'),
+    success: getFlowObject<Record<string, string>>('success'),
+    callback: getFlowObject<Record<string, string>>('callback'),
+    steps: getFlowObject<Record<string, string>>('steps'),
+    form: getFlowObject<Record<string, string>>('form'),
+    nav: getFlowObject<Record<string, string>>('nav'),
+    alerts: getFlowObject<Record<string, string>>('alerts'),
+  };
+  const eliteFilterSchema = z.object({
+    ambition: z.enum(['plateforme', 'refonte', 'automatisation', 'corporate']).optional(),
+    stage: z.enum(['idee', 'maquette', 'remplacer']).optional(),
+    budget: z.enum(['lt2k', '2k-5k', '5k+']).optional(),
+    vision: z.string().optional(),
+    name: z.string().min(2, copy.validation.name),
+    email: z.string().email(copy.validation.email),
+    company: z.string().min(2, copy.validation.company),
+    phone: z.string().optional(),
+  }).refine((d) => d.ambition && d.stage && d.budget, { message: copy.validation.previousSteps, path: ['ambition'] });
   const [step, setStep] = useState(1);
   const [direction, setDirection] = useState(0);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -60,6 +77,7 @@ export const EliteFilterForm: React.FC<EliteFilterFormProps> = ({ onStepChange }
   const [callbackSent, setCallbackSent] = useState(false);
   const [callbackLoading, setCallbackLoading] = useState(false);
   const [callbackError, setCallbackError] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const {
     register,
@@ -89,7 +107,7 @@ export const EliteFilterForm: React.FC<EliteFilterFormProps> = ({ onStepChange }
   const handleCallbackSubmit = async () => {
     const trimmed = callbackPhone.trim();
     if (!trimmed || trimmed.length < 8) {
-      setCallbackError('Veuillez entrer un numéro valide');
+      setCallbackError(copy.validation.callbackPhone);
       return;
     }
     setCallbackError(null);
@@ -102,12 +120,12 @@ export const EliteFilterForm: React.FC<EliteFilterFormProps> = ({ onStepChange }
       });
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.error || "Erreur lors de l'envoi");
+        throw new Error(data.error || copy.validation.sendError);
       }
       setCallbackSent(true);
       setCallbackPhone('');
     } catch (err) {
-      setCallbackError(err instanceof Error ? err.message : 'Une erreur est survenue.');
+      setCallbackError(err instanceof Error ? err.message : copy.validation.genericError);
     } finally {
       setCallbackLoading(false);
     }
@@ -142,6 +160,7 @@ export const EliteFilterForm: React.FC<EliteFilterFormProps> = ({ onStepChange }
 
   const onSubmit = async (data: EliteFilterData) => {
     console.log('EliteFilter submitted:', data);
+    setSubmitError(null);
     try {
       const response = await fetch('/api/elite-filter', {
         method: 'POST',
@@ -152,13 +171,13 @@ export const EliteFilterForm: React.FC<EliteFilterFormProps> = ({ onStepChange }
       });
 
       if (!response.ok) {
-        throw new Error("Erreur lors de l'envoi du formulaire");
+        throw new Error(copy.alerts.submitError);
       }
 
       setIsSubmitted(true);
     } catch (error) {
       console.error('Submission error:', error);
-      alert('Une erreur est survenue, veuillez réessayer.');
+      setSubmitError(copy.alerts.retry);
     }
   };
 
@@ -170,15 +189,15 @@ export const EliteFilterForm: React.FC<EliteFilterFormProps> = ({ onStepChange }
         className="py-8"
       >
         <div className="space-y-6 text-center">
-          <h3 className="text-2xl font-bold text-white font-display">Demande reçue avec succès.</h3>
+          <h3 className="text-2xl font-bold text-white font-display">{copy.success.title}</h3>
           <p className="text-athana-muted leading-relaxed">
-            L'équipe Athana analyse vos besoins. Notre équipe vous contactera sous 24h pour planifier une session stratégique.
+            {copy.success.subtitle}
           </p>
           <Link
-            to="/"
+            to={withLocalePath(locale, '/')}
             className="inline-block px-6 py-3 bg-athana-accent text-black font-bold rounded hover:bg-white transition-colors cursor-pointer"
           >
-            Retour à l'accueil
+            {copy.success.backHome}
           </Link>
         </div>
       </motion.div>
@@ -188,12 +207,12 @@ export const EliteFilterForm: React.FC<EliteFilterFormProps> = ({ onStepChange }
   return (
     <>
       <div className="mb-8 p-6 bg-athana-accent/5 border border-athana-accent/30 rounded-lg flex flex-col md:flex-row items-center justify-between gap-4">
-        <p className="text-white text-lg font-bold text-center md:text-left">Vous manquez de temps ? Laissez votre numéro, notre directeur vous rappelle dans les 2 heures.</p>
+        <p className="text-white text-lg font-bold text-center md:text-left">{copy.callback.headline}</p>
         <div className="flex flex-col gap-2 w-full md:w-auto">
           <div className="flex flex-col sm:flex-row gap-3">
             <input
               type="tel"
-              placeholder="Votre numéro de téléphone"
+              placeholder={copy.callback.placeholder}
               value={callbackPhone}
               onChange={(e) => setCallbackPhone(e.target.value)}
               disabled={callbackSent}
@@ -205,11 +224,11 @@ export const EliteFilterForm: React.FC<EliteFilterFormProps> = ({ onStepChange }
               disabled={callbackSent || callbackLoading}
               className="px-6 py-2 bg-athana-accent text-black font-bold rounded-md hover:bg-white transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {callbackSent ? 'Demande envoyée' : callbackLoading ? 'Envoi...' : 'Être rappelé'}
+              {callbackSent ? copy.callback.sent : callbackLoading ? copy.callback.sending : copy.callback.cta}
             </button>
           </div>
           {callbackError && <p className="text-red-400 text-sm">{callbackError}</p>}
-          {callbackSent && <p className="text-athana-accent text-sm">Nous vous rappellerons dans les 2 heures.</p>}
+          {callbackSent && <p className="text-athana-accent text-sm">{copy.callback.doneMessage}</p>}
         </div>
       </div>
       <form
@@ -240,9 +259,9 @@ export const EliteFilterForm: React.FC<EliteFilterFormProps> = ({ onStepChange }
             transition={{ duration: 0.3 }}
             className="space-y-6"
           >
-            <h3 className="text-xl font-bold text-white font-display">Quelle est l'ambition de votre projet ?</h3>
+            <h3 className="text-xl font-bold text-white font-display">{copy.steps.s1}</h3>
             <div className="grid gap-4">
-              {AMBITION_OPTIONS.map((opt) => (
+              {copy.options.ambition.map((opt) => (
                 <motion.button
                   key={opt.value}
                   type="button"
@@ -276,9 +295,9 @@ export const EliteFilterForm: React.FC<EliteFilterFormProps> = ({ onStepChange }
             transition={{ duration: 0.3 }}
             className="space-y-6"
           >
-            <h3 className="text-xl font-bold text-white font-display">À quelle étape vous trouvez-vous ?</h3>
+            <h3 className="text-xl font-bold text-white font-display">{copy.steps.s2}</h3>
             <div className="grid gap-4">
-              {STAGE_OPTIONS.map((opt) => (
+              {copy.options.stage.map((opt) => (
                 <motion.button
                   key={opt.value}
                   type="button"
@@ -312,9 +331,9 @@ export const EliteFilterForm: React.FC<EliteFilterFormProps> = ({ onStepChange }
             transition={{ duration: 0.3 }}
             className="space-y-6"
           >
-            <h3 className="text-xl font-bold text-white font-display">Quelle est l'enveloppe budgétaire allouée à ce monument ?</h3>
+            <h3 className="text-xl font-bold text-white font-display">{copy.steps.s3}</h3>
             <div className="grid gap-4">
-              {BUDGET_OPTIONS.map((opt) => (
+              {copy.options.budget.map((opt) => (
                 <motion.button
                   key={opt.value}
                   type="button"
@@ -346,13 +365,13 @@ export const EliteFilterForm: React.FC<EliteFilterFormProps> = ({ onStepChange }
             transition={{ duration: 0.3 }}
             className="space-y-6"
           >
-            <h3 className="text-xl font-bold text-white font-display">Parlez-nous de votre vision (Optionnel).</h3>
-            <p className="text-athana-muted text-sm">Décrivez brièvement le problème que vous souhaitez résoudre ou l'objectif à atteindre.</p>
+            <h3 className="text-xl font-bold text-white font-display">{copy.steps.s4Title}</h3>
+            <p className="text-athana-muted text-sm">{copy.steps.s4Subtitle}</p>
             <div className="space-y-2">
               <textarea
                 {...register('vision')}
                 rows={5}
-                placeholder="Votre vision..."
+                placeholder={copy.steps.s4Placeholder}
                 className="w-full bg-white/5 border border-white/10 rounded-lg p-4 text-white placeholder:text-gray-500 focus:outline-none focus:border-athana-accent focus:bg-white/10 transition-all resize-none"
               />
               {errors.vision && (
@@ -375,43 +394,43 @@ export const EliteFilterForm: React.FC<EliteFilterFormProps> = ({ onStepChange }
             transition={{ duration: 0.3 }}
             className="space-y-6"
           >
-            <h3 className="text-xl font-bold text-white font-display">Vos coordonnées pour organiser notre premier échange stratégique.</h3>
+            <h3 className="text-xl font-bold text-white font-display">{copy.steps.s5}</h3>
             <div className="grid gap-4">
               <div className="space-y-2">
-                <label className="text-xs font-bold text-athana-accent uppercase tracking-widest">Nom & Prénom</label>
+                <label className="text-xs font-bold text-athana-accent uppercase tracking-widest">{copy.form.name}</label>
                 <input
                   {...register('name')}
                   className="w-full bg-white/5 border border-white/10 rounded-lg p-4 text-white placeholder:text-gray-500 focus:outline-none focus:border-athana-accent focus:bg-white/10"
-                  placeholder="Votre nom"
+                  placeholder={copy.form.namePlaceholder}
                 />
                 {hasClickedEnvoyer && errors.name && <p className="text-red-400 text-xs flex items-center gap-1"><AlertCircle size={12} /> {errors.name.message}</p>}
               </div>
               <div className="space-y-2">
-                <label className="text-xs font-bold text-athana-accent uppercase tracking-widest">E-mail professionnel</label>
+                <label className="text-xs font-bold text-athana-accent uppercase tracking-widest">{copy.form.email}</label>
                 <input
                   {...register('email')}
                   type="email"
                   className="w-full bg-white/5 border border-white/10 rounded-lg p-4 text-white placeholder:text-gray-500 focus:outline-none focus:border-athana-accent focus:bg-white/10"
-                  placeholder="votre@entreprise.ch"
+                  placeholder={copy.form.emailPlaceholder}
                 />
                 {hasClickedEnvoyer && errors.email && <p className="text-red-400 text-xs flex items-center gap-1"><AlertCircle size={12} /> {errors.email.message}</p>}
               </div>
               <div className="space-y-2">
-                <label className="text-xs font-bold text-athana-accent uppercase tracking-widest">Nom de l'entreprise</label>
+                <label className="text-xs font-bold text-athana-accent uppercase tracking-widest">{copy.form.company}</label>
                 <input
                   {...register('company')}
                   className="w-full bg-white/5 border border-white/10 rounded-lg p-4 text-white placeholder:text-gray-500 focus:outline-none focus:border-athana-accent focus:bg-white/10"
-                  placeholder="Votre entreprise"
+                  placeholder={copy.form.companyPlaceholder}
                 />
                 {hasClickedEnvoyer && errors.company && <p className="text-red-400 text-xs flex items-center gap-1"><AlertCircle size={12} /> {errors.company.message}</p>}
               </div>
               <div className="space-y-2">
-                <label className="text-xs font-bold text-athana-accent uppercase tracking-widest">Numéro de téléphone <span className="text-athana-muted font-normal">(Optionnel)</span></label>
+                <label className="text-xs font-bold text-athana-accent uppercase tracking-widest">{copy.form.phone} <span className="text-athana-muted font-normal">{copy.form.optional}</span></label>
                 <input
                   {...register('phone')}
                   type="tel"
                   className="w-full bg-white/5 border border-white/10 rounded-lg p-4 text-white placeholder:text-gray-500 focus:outline-none focus:border-athana-accent focus:bg-white/10"
-                  placeholder="+41 79 000 00 00"
+                  placeholder={copy.form.phonePlaceholder}
                 />
               </div>
             </div>
@@ -427,7 +446,7 @@ export const EliteFilterForm: React.FC<EliteFilterFormProps> = ({ onStepChange }
           className="flex items-center gap-2 text-athana-muted hover:text-white disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
         >
           <ChevronLeft size={20} />
-          Retour
+          {copy.nav.back}
         </button>
         {step < 5 ? (
           <button
@@ -436,7 +455,7 @@ export const EliteFilterForm: React.FC<EliteFilterFormProps> = ({ onStepChange }
             disabled={(step === 1 && !ambition) || (step === 2 && !stage) || (step === 3 && !budget)}
             className="flex items-center gap-2 px-6 py-3 bg-athana-accent text-black font-bold rounded hover:bg-white transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Suivant
+            {copy.nav.next}
             <ChevronRight size={20} />
           </button>
         ) : (
@@ -446,11 +465,17 @@ export const EliteFilterForm: React.FC<EliteFilterFormProps> = ({ onStepChange }
             onClick={() => setHasClickedEnvoyer(true)}
             className="flex items-center gap-2 px-6 py-3 bg-athana-accent text-black font-bold rounded hover:bg-white transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isSubmitting ? 'Envoi...' : 'Envoyer'}
+            {isSubmitting ? copy.nav.submitting : copy.nav.submit}
             <Send size={20} />
           </button>
         )}
       </div>
+      {submitError && (
+        <p className="mt-4 text-sm text-red-400 flex items-center gap-2">
+          <AlertCircle size={14} />
+          {submitError}
+        </p>
+      )}
     </form>
     </>
   );

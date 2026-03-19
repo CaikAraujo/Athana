@@ -4,8 +4,11 @@ import React from 'react';
 import { Mail, MapPin, Phone, Terminal } from 'lucide-react';
 import { Reveal } from './ui/Section';
 import { ContactForm } from './ContactForm';
+import { useTranslation } from 'react-i18next';
 
 export const Contact: React.FC = () => {
+  const { t } = useTranslation('home');
+
   return (
     <section id="contact" className="py-32 bg-athana-dark relative border-t border-white/5">
       <div className="max-w-7xl mx-auto px-6">
@@ -14,14 +17,14 @@ export const Contact: React.FC = () => {
           <div className="space-y-12">
             <Reveal>
               <h2 className="font-display text-5xl md:text-7xl font-bold text-white leading-tight">
-                CONSTRUISONS <br />
-                L'<span className="text-athana-accent">IMPOSSIBLE.</span>
+                {t('contact.titleLine1')} <br />
+                <span className="text-athana-accent">{t('contact.titleLine2')}</span>
               </h2>
             </Reveal>
 
             <Reveal delay={200}>
               <p className="text-xl text-athana-muted font-light">
-                Vous avez un défi technique complexe ou une idée disruptive ? Notre équipe d'ingénieurs est prête.
+                {t('contact.subtitle')}
               </p>
             </Reveal>
 

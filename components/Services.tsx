@@ -1,213 +1,107 @@
 'use client';
 
-import React, { useState } from 'react';
-import { ArrowRight, Sparkles } from 'lucide-react';
+import React from 'react';
+import { ArrowRight, Compass, Cpu, Rocket, Target } from 'lucide-react';
 import { Reveal } from './ui/Section';
-import { useModal } from '../src/context/ModalContext';
-import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+type ProcessVariant = 'diagnostic' | 'engineering' | 'optimization' | 'launch';
 
-const CAPABILITIES = [
-  {
-    id: 'backend',
-    title: 'Ingénierie & Systèmes',
-    subtitle: '(APIs)',
-    description: "Développement de solutions backend robustes et d'APIs sécurisées. L'infrastructure invisible et infaillible qui propulse vos opérations.",
-    price: 'Sur devis personnalisé',
-    features: [
-      'Architecture Microservices',
-      'APIs REST & GraphQL',
-      'Sécurité & Cryptographie',
-      'Bases de données Haute Dispo',
-    ],
-    highlight: false,
-    buttonText: "Planifier une architecture",
-    link: null
-  },
-  {
-    id: 'web',
-    title: 'Plateformes Web',
-    subtitle: '& E-commerce',
-    description: "Conception de sites vitrines et d'écosystèmes e-commerce haut de gamme. Un design d'excellence allié à une performance technique irréprochable.",
-    price: 'À partir de CHF 1.900',
-    features: [
-      'Sites Vitrines Premium',
-      'E-commerce Headless',
-      'Web Apps Progressives (PWA)',
-      'Design System Sur Mesure',
-    ],
-    highlight: true,
-    buttonText: "Créer un projet web",
-    link: '/services#web'
-  },
-  {
-    id: 'growth',
-    title: 'Acquisition & Performance',
-    subtitle: '(SEO/Ads)',
-    description: "Stratégies d'acquisition data-driven. Nous optimisons votre visibilité et pilotons vos campagnes publicitaires pour un ROI maximal.",
-    price: 'À partir de CHF 450 / mois',
-    features: [
-      'Audit SEO Technique',
-      'Campagnes Google Ads',
-      'Tracking & Analytics',
-      'Optimisation de Conversion',
-    ],
-    highlight: false,
-    buttonText: "Booster la visibilité",
-    link: '/services#seo'
-  }
-];
+interface ProcessStep {
+  number: string;
+  title: string;
+  heading: string;
+  benefits: [string, string];
+  variant: ProcessVariant;
+}
 
-export const Services: React.FC = () => {
-  const [hoveredPlan, setHoveredPlan] = useState<string | null>(null);
-  const { openModal } = useModal();
+const stepVariants: ProcessVariant[] = ['diagnostic', 'engineering', 'optimization', 'launch'];
+
+const ProcessIcon: React.FC<{ variant: ProcessVariant }> = ({ variant }) => {
+  const Icon = variant === 'diagnostic'
+    ? Compass
+    : variant === 'engineering'
+      ? Cpu
+      : variant === 'optimization'
+        ? Target
+        : Rocket;
 
   return (
-    <section id="services" className="py-32 relative overflow-hidden" style={{ backgroundColor: '#0B132B' }}>
+    <div className="relative h-12 w-12 rounded-full border border-white/20 bg-white/[0.03] flex items-center justify-center transition-all duration-300 group-hover:border-athana-accent/70 group-hover:bg-athana-accent/10">
+      <Icon className="h-6 w-6 text-white/85 transition-all duration-300 group-hover:text-athana-accent group-hover:[filter:drop-shadow(0_0_10px_rgba(197,160,89,0.55))]" strokeWidth={1.9} />
+    </div>
+  );
+};
+
+export const Services: React.FC = () => {
+  const { t, i18n } = useTranslation('home');
+  const translatedSteps = t('process.steps', { returnObjects: true }) as Array<Omit<ProcessStep, 'variant'> & { benefits: [string, string] }>;
+  const fallbackSteps = i18n.getResource('fr', 'home', 'process.steps') as typeof translatedSteps;
+  const safeSteps = Array.isArray(translatedSteps) && translatedSteps.length > 0 ? translatedSteps : fallbackSteps;
+  const processSteps: ProcessStep[] = safeSteps.map((step, index) => ({
+    ...step,
+    variant: stepVariants[index] ?? 'launch',
+  }));
+
+  return (
+    <section id="services" className="py-32 md:py-36 relative overflow-hidden" style={{ backgroundColor: '#0B132B' }}>
 
       {/* Background Ambience */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-        <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] rounded-full blur-[120px] opacity-20" style={{ backgroundColor: '#C5A059' }}></div>
-        <div className="absolute bottom-[-10%] left-[-5%] w-[500px] h-[500px] rounded-full blur-[120px] opacity-10" style={{ backgroundColor: '#141E38' }}></div>
-        {/* Grid Pattern */}
-        <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))] opacity-30"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_92%_88%,rgba(212,175,55,0.14),rgba(212,175,55,0.05)_24%,rgba(212,175,55,0.02)_38%,transparent_58%)]"></div>
+        <div className="absolute inset-0 bg-[linear-gradient(to_top_left,rgba(10,10,10,0.05),rgba(10,10,10,0)_35%)]"></div>
+        <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center opacity-[0.04]"></div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 relative z-10">
-
-        {/* Header */}
+      <div className="max-w-[1500px] mx-auto px-6 md:px-10 relative z-10">
         <Reveal className="text-center mb-20">
-          <div className="inline-block mb-4">
-            <span className="text-xs font-bold tracking-[0.2em] uppercase flex items-center gap-2" style={{ color: '#C5A059' }}>
-              <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: '#C5A059' }}></span>
-              CAPABILITÉS
-            </span>
-          </div>
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 font-display text-white">
-            Nos Domaines d'Expertise.
+          <span className="inline-flex items-center rounded-full border border-athana-accent/40 bg-athana-accent/10 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.25em] text-athana-accent">
+            {t('process.badge')}
+          </span>
+          <h2 className="mt-6 text-4xl md:text-6xl lg:text-7xl font-display font-bold text-white leading-[1.08]">
+            {t('process.title')}
           </h2>
-          <p className="text-lg max-w-3xl mx-auto font-light leading-relaxed" style={{ color: '#94A3B8' }}>
-            L'intelligence technique derrière vos ambitions. Découvrez nos solutions de développement pour structurer, automatiser et garantir à votre entreprise une présence digitale inébranlable.
+          <p className="mt-5 text-base md:text-xl max-w-4xl mx-auto font-light leading-relaxed text-white/75">
+            {t('process.subtitle')}
           </p>
         </Reveal>
 
-        {/* Cards Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
-          {CAPABILITIES.map((service, index) => (
-            <Reveal key={service.id} delay={index * 150} className={`h-full ${service.highlight ? 'lg:-mt-6 lg:-mb-6 z-20' : 'z-10'}`}>
+        <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-4 gap-8 mb-16">
+          {processSteps.map((step, index) => (
+            <Reveal key={step.number} delay={index * 90} className="h-full">
               <div
-                onMouseEnter={() => setHoveredPlan(service.id)}
-                onMouseLeave={() => setHoveredPlan(null)}
-                className={`
-                  h-full flex flex-col p-8 md:p-10 rounded-2xl transition-all duration-500 relative group
-                  ${service.highlight ? 'lg:scale-105 shadow-2xl' : 'hover:translate-y-[-5px]'}
-                `}
-                style={{
-                  backgroundColor: '#141E38',
-                  border: service.highlight ? '1px solid #C5A059' : '1px solid rgba(255,255,255,0.05)',
-                  boxShadow: service.highlight
-                    ? '0 0 40px rgba(197, 160, 89, 0.15)'
-                    : (hoveredPlan === service.id ? '0 0 20px rgba(197, 160, 89, 0.05)' : '0 10px 30px rgba(0,0,0,0.2)')
-                }}
+                className="group h-full flex flex-col p-7 md:p-8 rounded-2xl border border-white/10 bg-athana-dark/60 transition-all duration-300 hover:border-athana-accent/70 hover:-translate-y-1"
+                style={{ boxShadow: '0 10px 28px rgba(0,0,0,0.25)' }}
               >
-                {/* Highlight Checkmark Badge */}
-                {service.highlight && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest flex items-center gap-2 shadow-lg" style={{ backgroundColor: '#C5A059', color: '#0B132B' }}>
-                    <Sparkles size={12} fill="currentColor" />
-                    RECOMMANDÉ
-                  </div>
-                )}
-
-                {/* Card Content */}
-                <div className="flex-grow">
-                  <h3 className="text-2xl font-bold text-white mb-1 font-display">{service.title}</h3>
-                  <p className="text-sm font-bold uppercase tracking-wider mb-6 opacity-90" style={{ color: '#C5A059' }}>{service.subtitle}</p>
-
-                  <p className="text-sm leading-relaxed mb-8" style={{ color: '#94A3B8' }}>
-                    {service.description}
-                  </p>
-
-                  <div className="mb-8 py-4 border-y border-white/5">
-                    <p className="text-white/50 text-[10px] uppercase tracking-widest mb-2">Investissement</p>
-                    <p className="text-lg font-medium whitespace-nowrap" style={{ color: service.highlight ? '#C5A059' : '#F8FAFC' }}>
-                      {service.price}
-                    </p>
-                  </div>
-
-                  {/* <ul className="space-y-4 mb-10">
-                    {service.features.map((feature, idx) => (
-                      <li key={idx} className="flex items-start gap-3">
-                        <div className="mt-1 flex-shrink-0">
-                          <Check size={16} style={{ color: '#C5A059' }} strokeWidth={2.5} />
-                        </div>
-                        <span className="text-sm leading-relaxed" style={{ color: '#F8FAFC' }}>
-                          {feature}
-                        </span>
-                      </li>
-                    ))}
-                  </ul> */}
+                <div className="flex items-start justify-between mb-6">
+                  <ProcessIcon variant={step.variant} />
+                  <p className="text-3xl font-display font-bold text-athana-accent">{step.number}</p>
                 </div>
 
-                {/* CTA Button or Link */}
-                {service.link ? (
-                  <Link
-                    to={service.link}
-                    className="w-full py-4 rounded-lg font-bold text-xs tracking-widest uppercase transition-all duration-300 flex items-center justify-center gap-2 group/btn"
-                    style={{
-                      backgroundColor: service.highlight ? '#C5A059' : 'transparent',
-                      color: service.highlight ? '#0B132B' : '#F8FAFC',
-                      border: service.highlight ? 'none' : '1px solid #C5A059'
-                    }}
-                    onMouseEnter={(e) => {
-                      if (!service.highlight) {
-                        e.currentTarget.style.backgroundColor = 'rgba(197, 160, 89, 0.1)';
-                      } else {
-                        e.currentTarget.style.backgroundColor = '#D4AF37';
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!service.highlight) {
-                        e.currentTarget.style.backgroundColor = 'transparent';
-                      } else {
-                        e.currentTarget.style.backgroundColor = '#C5A059';
-                      }
-                    }}
-                  >
-                    {service.buttonText}
-                    <ArrowRight size={14} className="transition-transform duration-300 group-hover/btn:translate-x-1" />
-                  </Link>
-                ) : (
-                  <button
-                    onClick={() => openModal(`Projet: ${service.title}`)}
-                    className="w-full py-4 rounded-lg font-bold text-xs tracking-widest uppercase transition-all duration-300 flex items-center justify-center gap-2 group/btn cursor-pointer"
-                    style={{
-                      backgroundColor: service.highlight ? '#C5A059' : 'transparent',
-                      color: service.highlight ? '#0B132B' : '#F8FAFC',
-                      border: service.highlight ? 'none' : '1px solid #C5A059'
-                    }}
-                    onMouseEnter={(e) => {
-                      if (!service.highlight) {
-                        e.currentTarget.style.backgroundColor = 'rgba(197, 160, 89, 0.1)';
-                      } else {
-                        e.currentTarget.style.backgroundColor = '#D4AF37';
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!service.highlight) {
-                        e.currentTarget.style.backgroundColor = 'transparent';
-                      } else {
-                        e.currentTarget.style.backgroundColor = '#C5A059';
-                      }
-                    }}
-                  >
-                    {service.buttonText}
-                    <ArrowRight size={14} className="transition-transform duration-300 group-hover/btn:translate-x-1" />
-                  </button>
-                )}
+                <p className="text-[10px] uppercase tracking-[0.24em] text-athana-accent/80 mb-4">{step.title}</p>
+                <h3 className="text-[1.9rem] md:text-[2.1rem] font-display font-bold text-white leading-tight mb-5">{step.heading}</h3>
+                <p className="text-sm md:text-[15px] leading-relaxed text-white/70 mb-3">{step.benefits[0]}</p>
+                <p className="text-sm leading-relaxed text-white/70">{step.benefits[1]}</p>
               </div>
             </Reveal>
           ))}
         </div>
 
+        <Reveal className="text-center pt-2">
+          <a
+            href={`https://wa.me/41783399895?text=${encodeURIComponent('Bonjour, je veux bâtir mon monument digital avec ATHANA.')}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex w-full sm:w-auto items-center justify-center rounded-xl px-8 py-4 text-center text-base font-display font-bold transition-all duration-300 hover:brightness-110"
+            style={{
+              backgroundColor: '#C5A059',
+              color: '#0B132B',
+              boxShadow: '0 0 26px rgba(197, 160, 89, 0.3)',
+            }}
+          >
+            {t('process.cta')}
+            <ArrowRight className="ml-3 h-4 w-4" />
+          </a>
+        </Reveal>
       </div>
     </section>
   );

@@ -1,153 +1,159 @@
 
 
+import { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Contact } from '../../components/Contact';
-import { ServicePricingSection, PricingTier } from '../../components/ServicePricingSection';
+import { ServicePricingSection } from '../../components/ServicePricingSection';
+import type { PricingTier } from '../../components/ServicePricingSection';
 import { Reveal } from '../../components/ui/Section';
+import { ServicesMethodologyBlock } from '../../components/services/ServicesMethodologyBlock';
+import { ServicesPerformanceAudit } from '../../components/services/ServicesPerformanceAudit';
+import { ServicesResourcesGrid } from '../../components/services/ServicesResourcesGrid';
+import { DEFAULT_LOCALE, isLocale, SUPPORTED_LOCALES, withLocalePath } from '../i18n/routing';
 
-const webDevTiers: PricingTier[] = [
-    {
-        name: 'Présence Premium',
-        description: 'Parfait pour présenter votre activité en ligne.',
-        price: 'Dès CHF 1.900',
-        features: ['Design réactif sur mesure', 'Jusqu\'à 5 pages', 'Optimisation SEO de base', 'Formulaire de contact', 'Hébergement 1 an inclus', 'Support 3 mois'],
-        buttonText: 'Demander un Audit',
-    },
-    {
-        name: 'Écosystème Croissance',
-        description: 'Solution complète pour développer votre entreprise.',
-        price: 'Dès CHF 2.900',
-        features: ['Design premium personnalisé', 'Jusqu\'à 10 pages', 'SEO avancé + Blog', 'Système de réservation', 'Intégrations (CRM, Email)', 'Analyses avancées', 'Support 6 mois'],
-        buttonText: 'Demander un Audit',
-        highlight: true,
-    },
-    {
-        name: 'E-commerce',
-        description: 'Boutique en ligne complète avec ventes intégrées.',
-        price: 'Dès CHF 4.500',
-        features: ['Design e-commerce exclusif', 'Config. initiale jusqu\'à 50 produits', 'Paiement sécurisé (Stripe/TWINT)', 'Gestion des stocks', 'Panneau d\'administration', 'SEO pour e-commerce', 'Support 12 mois'],
-        buttonText: 'Demander un Audit',
-    },
-];
+interface Pillar {
+    title: string;
+    subtitle: string;
+    copy: string;
+}
 
-const seoTiers: PricingTier[] = [
-    {
-        name: 'SEO Essentiel',
-        description: 'Idéal pour commencer votre référencement.',
-        price: 'CHF 600',
-        period: '/mois',
-        features: ['Audit SEO initial', 'Optimisation technique de base', '5 mots-clés cibles', 'Rapport mensuel', 'Support par email'],
-        buttonText: 'Demander un Audit',
-    },
-    {
-        name: 'SEO Avancé',
-        description: 'Stratégie complète de croissance organique.',
-        price: 'CHF 1.050',
-        period: '/mois',
-        features: ['Audit SEO complet', 'Optimisation technique avancée', '15 mots-clés cibles', 'Création de contenu (2 articles/mois)', 'Netlinking de base', 'Rapport détaillé'],
-        buttonText: 'Demander un Audit',
-        highlight: true,
-    },
-    {
-        name: 'SEO Premium',
-        description: 'Pour les entreprises aux grandes ambitions.',
-        price: 'CHF 1.850',
-        period: '/mois',
-        features: ['Stratégie SEO 360º', 'Mots-clés illimités', 'Contenu premium (4 articles/mois)', 'Netlinking avancé', 'Analyse des concurrents', 'Consultant dédié', 'Support prioritaire'],
-        buttonText: 'Demander un Audit',
-    },
-];
+interface PerformanceCopy {
+    badge: string;
+    title: string;
+    subtitle: string;
+    leftTitle: string;
+    leftCopy: string;
+    bullets: string[];
+    websiteLabel: string;
+    websitePlaceholder: string;
+    emailLabel: string;
+    emailPlaceholder: string;
+    info: string;
+    submitIdle: string;
+    submitLoading: string;
+    validationWebsite: string;
+    validationEmail: string;
+    validationUrl: string;
+    success: string;
+    error: string;
+    contactMessage: string;
+}
 
-const adsTiers: PricingTier[] = [
-    {
-        name: 'Google Ads Essentiel',
-        description: 'Idéal pour débuter avec le trafic payant.',
-        price: 'CHF 450',
-        period: '/mois',
-        features: ['Configuration du compte', 'Campagne Search (3 groupes)', 'Géolocalisation précise', 'Rapport mensuel', 'Support par email'],
-        buttonText: 'Demander un Audit',
-    },
-    {
-        name: 'Google Ads Avancé',
-        description: 'Stratégie complète de croissance.',
-        price: 'CHF 900',
-        period: '/mois',
-        features: ['Gestion complète des campagnes', 'Search + Display', 'Remarketing dynamique', 'Optimisation hebdomadaire', 'Rapport bimensuel', 'Consultant dédié'],
-        buttonText: 'Demander un Audit',
-        highlight: true,
-    },
-    {
-        name: 'Google Ads Premium',
-        description: 'Solution d\'entreprise pour grande échelle.',
-        price: 'CHF 1.650',
-        period: '/mois',
-        features: ['Stratégie multi-canal', 'Shopping + Vidéo (YouTube)', 'Optimisation IA', 'Tests A/B continus', 'Tableau de bord personnalisé', 'Support 24/7'],
-        buttonText: 'Demander un Audit',
-    },
-];
-
-const performanceTiers: PricingTier[] = [
-    {
-        name: 'Optimisation de Base',
-        description: 'Améliorez la vitesse essentielle du site.',
-        price: 'CHF 600',
-        features: ['Audit de performance', 'Optimisation des images', 'Cache navigateur', 'Minification CSS/JS', 'Rapport avant/après'],
-        buttonText: 'Demander un Audit',
-    },
-    {
-        name: 'Optimisation Avancée',
-        description: 'Performance maximale (Core Web Vitals).',
-        price: 'CHF 1.100',
-        features: ['Audit complet', 'Optimisation des images (WebP)', 'Cache avancé (Redis/Varnish)', 'Configuration CDN', 'Lazy loading intelligent', 'Garantie de score vert'],
-        buttonText: 'Demander un Audit',
-        highlight: true,
-    },
-    {
-        name: 'Optimisation Premium',
-        description: 'Solution définitive de vitesse.',
-        price: 'CHF 1.850',
-        features: ['Analyse d\'architecture', 'Refactorisation de code critique', 'CDN Enterprise', 'Monitoring RUM', 'Conseil technique', 'Formation équipe'],
-        buttonText: 'Demander un Audit',
-    },
-];
-
-const maintenanceTiers: PricingTier[] = [
-    {
-        name: 'Basique',
-        description: 'Maintenance essentielle pour la sécurité.',
-        price: 'CHF 120',
-        period: '/mois',
-        features: ['Mises à jour plugins/core', 'Sauvegarde hebdomadaire', 'Monitoring 24/7', 'Support par email'],
-        buttonText: 'Demander un Audit',
-    },
-    {
-        name: 'Pro',
-        description: 'Sécurité et performance garanties.',
-        price: 'CHF 290',
-        period: '/mois',
-        features: ['Mises à jour prioritaires', 'Sauvegarde quotidienne', 'Monitoring avancé', 'Heures de développement (2h)', 'Optimisation de performance', 'Support prioritaire'],
-        buttonText: 'Demander un Audit',
-        highlight: true,
-    },
-    {
-        name: 'Enterprise',
-        description: 'Gestion complète de votre environnement numérique.',
-        price: 'Sur Devis',
-        period: '/mois',
-        features: ['Mises à jour en temps réel', 'Sauvegardes multi-sites', 'Monitoring de sécurité proactif', 'Développement continu', 'SLA Garanti', 'Gestionnaire de compte'],
-        buttonText: 'Demander un Audit',
-    },
-];
-
-
+interface ServicesCopy {
+    methodologyBadge: string;
+    methodologyTitle: string;
+    methodologyDescription: string;
+    postMethodology: string;
+    ecosystemPillars: Pillar[];
+    webSection: { category: string; title: string; subtitle: string; tiers: PricingTier[] };
+    localOfferBeforeLink: string;
+    localOfferLink: string;
+    localWhatsappMessage: string;
+    adsSection: { category: string; title: string; subtitle: string; tiers: PricingTier[] };
+    maintenanceSection: { category: string; title: string; subtitle: string; tiers: PricingTier[] };
+    performance: PerformanceCopy;
+    resources: {
+        title: string;
+        accent: string;
+        subtitle: string;
+        cards: Array<{ title: string; description: string }>;
+    };
+}
 
 export default function ServicesPage() {
+    const { t, i18n } = useTranslation('servicesPage');
+    const { lang } = useParams();
+    const locale = isLocale(lang) ? lang : DEFAULT_LOCALE;
+    const toLocalePath = (path: string) => withLocalePath(locale, path);
+    const baseUrl = 'https://athana.ch';
+    const canonicalPath = withLocalePath(locale, '/services');
+    const [websiteUrl, setWebsiteUrl] = useState('');
+    const [auditEmail, setAuditEmail] = useState('');
+    const [isSubmittingAudit, setIsSubmittingAudit] = useState(false);
+    const [auditFeedback, setAuditFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+    const localizedContent = t('content', { returnObjects: true }) as ServicesCopy;
+    const fallbackContent = i18n.getResource('fr', 'servicesPage', 'content') as ServicesCopy;
+    const copy = localizedContent && Object.keys(localizedContent).length > 0 ? localizedContent : fallbackContent;
+
+    const handleAuditSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setAuditFeedback(null);
+
+        const normalizedUrl = websiteUrl.trim().startsWith('http')
+            ? websiteUrl.trim()
+            : `https://${websiteUrl.trim()}`;
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!websiteUrl.trim()) {
+            setAuditFeedback({ type: 'error', message: copy.performance.validationWebsite });
+            return;
+        }
+        if (!emailRegex.test(auditEmail.trim())) {
+            setAuditFeedback({ type: 'error', message: copy.performance.validationEmail });
+            return;
+        }
+
+        let hostname = 'Site non renseigné';
+        try {
+            hostname = new URL(normalizedUrl).hostname.replace(/^www\./, '');
+        } catch (_error) {
+            setAuditFeedback({ type: 'error', message: copy.performance.validationUrl });
+            return;
+        }
+
+        setIsSubmittingAudit(true);
+        try {
+            const response = await fetch('/api/contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: 'Audit Performance',
+                    company: hostname || 'Entreprise non renseignée',
+                    source: 'services-performance-audit',
+                    email: auditEmail.trim(),
+                    phone: 'N/A',
+                    message: copy.performance.contactMessage.replace('{{url}}', normalizedUrl),
+                    website: '',
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Erreur API');
+            }
+
+            setAuditFeedback({
+                type: 'success',
+                message: copy.performance.success,
+            });
+            setWebsiteUrl('');
+            setAuditEmail('');
+        } catch (_error) {
+            setAuditFeedback({
+                type: 'error',
+                message: copy.performance.error,
+            });
+        } finally {
+            setIsSubmittingAudit(false);
+        }
+    };
+
     return (
         <div className="bg-athana-black min-h-screen">
             <Helmet>
-                <title>Services & Tarifs | ATHANA</title>
-                <meta name="description" content="Solutions complètes de développement web : Sites vitrines, E-commerce, SEO et Google Ads. Transparence totale et prix clairs pour le marché Suisse." />
+                <title>{t('metaTitle')}</title>
+                <meta name="description" content={t('metaDescription')} />
+                <link rel="canonical" href={`${baseUrl}${canonicalPath}`} />
+                {SUPPORTED_LOCALES.map((supportedLocale) => (
+                    <link
+                        key={supportedLocale}
+                        rel="alternate"
+                        hrefLang={supportedLocale}
+                        href={`${baseUrl}${withLocalePath(supportedLocale, '/services')}`}
+                    />
+                ))}
+                <link rel="alternate" hrefLang="x-default" href={`${baseUrl}${withLocalePath(DEFAULT_LOCALE, '/services')}`} />
             </Helmet>
             {/* Page Header */}
             <section className="pt-40 pb-20 relative overflow-hidden">
@@ -159,24 +165,32 @@ export default function ServicesPage() {
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-athana-accent opacity-75"></span>
                                 <span className="relative inline-flex rounded-full h-2 w-2 bg-athana-accent"></span>
                             </span>
-                            CAPABILITÉS
+                            {t('headerBadge')}
                         </div>
                         <h1 className="text-5xl md:text-7xl font-display font-bold text-white mb-6">
-                            Nos Domaines <span className="text-athana-accent">d'Expertise.</span>
+                            {t('headerTitleBefore')} <span className="text-athana-accent">{t('headerTitleAccent')}</span>
                         </h1>
                         <p className="text-xl text-athana-muted max-w-3xl mx-auto font-light leading-relaxed">
-                            L'intelligence technique derrière vos ambitions. Découvrez nos solutions de développement pour structurer, automatiser et garantir à votre entreprise une présence digitale inébranlable.
+                            {t('headerSubtitle')}
                         </p>
                     </Reveal>
                 </div>
             </section>
 
+            <ServicesMethodologyBlock
+                badge={copy.methodologyBadge}
+                title={copy.methodologyTitle}
+                description={copy.methodologyDescription}
+                pillars={copy.ecosystemPillars}
+                postText={copy.postMethodology}
+            />
+
             <ServicePricingSection
                 id="web"
-                category="Développement"
-                title="Création de Sites & Apps"
-                subtitle="Choisissez la solution qui correspond à vos besoins et à votre budget."
-                tiers={webDevTiers}
+                category={copy.webSection.category}
+                title={copy.webSection.title}
+                subtitle={copy.webSection.subtitle}
+                tiers={copy.webSection.tiers}
                 colorTheme="athana"
             />
 
@@ -184,15 +198,15 @@ export default function ServicesPage() {
                 <div className="max-w-7xl mx-auto px-6">
                     <div className="text-center">
                         <p className="text-sm md:text-base text-athana-muted/90">
-                            Besoin d'une solution rapide pour votre activité locale ? Nous créons des landing pages haute performance dès CHF 1&apos;000 pour dynamiser vos appels.
+                            {copy.localOfferBeforeLink}
                             {' '}
                             <a
-                                href="https://wa.me/41783399895?text=Bonjour%2C%20je%20souhaite%20parler%20de%20mon%20projet%20local."
+                                href={`https://wa.me/41783399895?text=${encodeURIComponent(copy.localWhatsappMessage)}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="relative z-40 inline underline underline-offset-4 text-athana-accent hover:text-white transition-colors pointer-events-auto"
                             >
-                                Parlez-nous de votre projet local sur WhatsApp.
+                                {copy.localOfferLink}
                             </a>
                         </p>
                     </div>
@@ -200,68 +214,40 @@ export default function ServicesPage() {
             </section>
 
             <ServicePricingSection
-                id="seo"
-                category="Visibilité"
-                title="Optimisation SEO"
-                subtitle="Augmentez votre visibilité sur Google avec nos stratégies de recherche."
-                tiers={seoTiers}
-                colorTheme="green"
-            />
-
-            <ServicePricingSection
                 id="ads"
-                category="Trafic Payant"
-                title="Google Ads & Performance"
-                subtitle="Générez plus de leads et de ventes avec des campagnes optimisées. (Budget publicitaire non inclus)"
-                tiers={adsTiers}
+                category={copy.adsSection.category}
+                title={copy.adsSection.title}
+                subtitle={copy.adsSection.subtitle}
+                tiers={copy.adsSection.tiers}
                 colorTheme="orange"
             />
 
             <ServicePricingSection
-                id="performance"
-                category="Vitesse"
-                title="Optimisation de Performance"
-                subtitle="Accélérez votre site pour une meilleure expérience utilisateur et un meilleur SEO."
-                tiers={performanceTiers}
-                colorTheme="blue"
-            />
-
-            <ServicePricingSection
-                category="Support"
-                title="Maintenance & Sécurité"
-                subtitle="Gardez votre site toujours à jour, sécurisé et rapide."
-                tiers={maintenanceTiers}
+                category={copy.maintenanceSection.category}
+                title={copy.maintenanceSection.title}
+                subtitle={copy.maintenanceSection.subtitle}
+                tiers={copy.maintenanceSection.tiers}
                 colorTheme="purple"
             />
 
-            <section className="py-20 border-t border-white/5">
-                <div className="max-w-7xl mx-auto px-6">
-                    <Reveal>
-                        <div className="text-center mb-12">
-                            <h2 className="text-3xl md:text-4xl font-display font-bold text-white mb-4">
-                                Ressources Locales <span className="text-athana-accent">Genève</span>
-                            </h2>
-                            <p className="text-athana-muted max-w-2xl mx-auto">
-                                Guides et pages dédiées pour les entreprises genevoises qui recherchent une solution technique concrète.
-                            </p>
-                        </div>
-                    </Reveal>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <Link to="/services/developpement-web-sur-mesure-geneve" className="p-6 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors">
-                            <h3 className="text-white font-bold mb-2">Développement Web sur Mesure à Genève</h3>
-                            <p className="text-sm text-athana-muted">Landing dédiée pour les entreprises qui veulent un site ou une plateforme sur mesure.</p>
-                        </Link>
-                        <Link to="/services/integration-odoo-erp-geneve" className="p-6 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors">
-                            <h3 className="text-white font-bold mb-2">Intégration Odoo & ERP à Genève</h3>
-                            <p className="text-sm text-athana-muted">Page orientée intégration de systèmes pour fluidifier vos opérations.</p>
-                        </Link>
-                        <Link to="/services/application-web-securisee-suisse" className="p-6 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors">
-                            <h3 className="text-white font-bold mb-2">Application Web Sécurisée en Suisse</h3>
-                            <p className="text-sm text-athana-muted">Focus sécurité applicative et conformité nFADP pour équipes B2B.</p>
-                        </Link>
-                    </div>
-                </div>
-            </section>
+            <ServicesPerformanceAudit
+                copy={copy.performance}
+                websiteUrl={websiteUrl}
+                setWebsiteUrl={setWebsiteUrl}
+                auditEmail={auditEmail}
+                setAuditEmail={setAuditEmail}
+                isSubmittingAudit={isSubmittingAudit}
+                auditFeedback={auditFeedback}
+                onSubmit={handleAuditSubmit}
+            />
+
+            <ServicesResourcesGrid
+                title={copy.resources.title}
+                accent={copy.resources.accent}
+                subtitle={copy.resources.subtitle}
+                cards={copy.resources.cards}
+                toLocalePath={toLocalePath}
+            />
 
             <Contact />
         </div>
