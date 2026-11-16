@@ -40,13 +40,13 @@ export async function authenticate(emailInput: string, password: string) {
 }
 
 /** Returns the raw token (to be e-mailed) or null when the account does not exist — callers must not reveal which. */
-export async function createPasswordReset(emailInput: string) {
+export async function createPasswordReset(emailInput: string, ttlMs = 3600_000) {
   const parsed = email.safeParse(emailInput);
   if (!parsed.success) return null;
   const user = await db.user.findUnique({ where: { email: parsed.data } });
   if (!user || user.deletedAt || user.disabledAt) return null;
   const token = randomToken();
-  await db.passwordResetToken.create({ data: { userId: user.id, tokenHash: sha256(token), expiresAt: new Date(Date.now() + 3600_000) } });
+  await db.passwordResetToken.create({ data: { userId: user.id, tokenHash: sha256(token), expiresAt: new Date(Date.now() + ttlMs) } });
   return { user, token };
 }
 
