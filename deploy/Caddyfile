@@ -1,0 +1,10 @@
+# Reverse proxy with automatic HTTPS (Let's Encrypt). Replace the domain before use.
+athana.ch, www.athana.ch {
+	encode zstd gzip
+	@www host www.athana.ch
+	redir @www https://athana.ch{uri} permanent
+	reverse_proxy 127.0.0.1:3000
+	request_body {
+		max_size 20MB
+	}
+}

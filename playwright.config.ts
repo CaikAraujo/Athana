@@ -12,6 +12,7 @@ export default defineConfig({
   expect: { timeout: 10_000 },
   fullyParallel: false,
   workers: 1,
+  retries: 1, // absorbs the cold start of a freshly booted server
   reporter: [['list']],
   use: { baseURL: `http://localhost:${PORT}`, locale: 'fr-CH', trace: 'off', launchOptions: process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {} },
   projects: [

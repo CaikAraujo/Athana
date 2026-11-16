@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { run, formObject, type ActionState } from '@/lib/action';
 import { enforceRateLimit } from '@/lib/rate-limit';
 import { env } from '@/lib/env';
+import { getSetting } from '@/lib/settings';
 import { DEFAULT_LOCALE, isLocale, localePath } from '@/i18n/config';
 import { sendEmail, languageOf } from '@/modules/email/service';
 import { emit } from '@/modules/automation/events';
@@ -24,7 +25,8 @@ export async function loginAction(_: ActionState, fd: FormData): Promise<ActionS
   return run(async () => {
     const ip = await clientIp();
     await enforceRateLimit(`login:ip:${ip}`, 20, 900);
-    await enforceRateLimit(`login:acct:${String(f.email).toLowerCase().slice(0, 200)}`, 8, 900);
+    const { loginMaxAttempts } = await getSetting('security');
+    await enforceRateLimit(`login:acct:${String(f.email).toLowerCase().slice(0, 200)}`, loginMaxAttempts, 900);
     const user = await authenticate(String(f.email), String(f.password));
     await createSession(user.id);
     redirect(localePath(locale, safeNext(f.next, user.platformRole ? '/admin' : '/account')));
