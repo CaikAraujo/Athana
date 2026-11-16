@@ -166,3 +166,8 @@ dialog::backdrop { background: rgb(0 0 0 / 0.7); backdrop-filter: blur(3px); }
   body { background: #fff; color: #000; }
   .no-print { display: none !important; }
 }
+
+/* Without JavaScript nothing triggers the reveal: content must stay visible. */
+@media (scripting: none) {
+  .reveal { opacity: 1; transform: none; }
+}
