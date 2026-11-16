@@ -31,7 +31,7 @@ export function ClockButtons({ actions }: { actions: EntryType[] }) {
     <form action={formAction} className="grid gap-3">
       <input type="hidden" name="source" value={source} />
       {actions.map((a) => (
-        <button key={a} type="submit" name="action" value={a} disabled={pending} aria-busy={pending} className={`${ACTION_STYLE[a]} btn-block min-h-[72px] rounded-2xl text-lg`}>
+        <button key={a} type="submit" name="clock" value={a} disabled={pending} aria-busy={pending} className={`${ACTION_STYLE[a]} btn-block min-h-[72px] rounded-2xl text-lg`}>
           {pending && <span className="spinner" aria-hidden />}
           {t(ACTION_LABELS[a])}
         </button>

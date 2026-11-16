@@ -28,7 +28,7 @@ export async function clockAction(_: ActionState, fd: FormData): Promise<ActionS
     const hinted = String(fd.get('source') ?? '');
     const ua = (await headers()).get('user-agent') ?? '';
     const source = hinted === 'mobile' || (hinted !== 'web' && /Mobi|Android|iPhone|iPad/i.test(ua)) ? 'mobile' : 'web';
-    await clock(ctx, String(fd.get('action') ?? '') as EntryType, { source });
+    await clock(ctx, String(fd.get('clock') ?? '') as EntryType, { source });
     refresh();
   });
 }

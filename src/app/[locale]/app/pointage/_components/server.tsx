@@ -4,6 +4,7 @@ import { LOCALE_META, localePath, type Locale } from '@/i18n/config';
 import { formatDate, type TFn } from '@/i18n/translate';
 import { Link } from '@/i18n/client';
 import { Badge, Empty } from '@/components/ui';
+import { AppError } from '@/lib/errors';
 import { requireTenant } from '@/modules/tenancy/guard';
 import { resolveActor, type Actor, type PtActorRole } from '@/modules/pointage/actor';
 import { ANOMALY_LABELS, STATE_LABELS } from '@/modules/pointage/labels';
@@ -72,3 +73,17 @@ export function Pagination({ page, pages, to, t }: { page: number; pages: number
 
 export const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) ?? '';
 export type Search = Promise<Record<string, string | string[] | undefined>>;
+
+/** Resolves to null when the record does not exist or is outside the user's scope (bad id in the URL). */
+export async function orNull<T>(p: Promise<T>): Promise<T | null> {
+  try {
+    return await p;
+  } catch (err) {
+    if (err instanceof AppError && (err.code === 'not_found' || err.code === 'forbidden')) return null;
+    throw err;
+  }
+}
+
+export function NotFound({ t }: { t: TFn }) {
+  return <Empty title={t('Élément introuvable.')}>{t('Cet élément n’existe pas ou vous n’y avez pas accès.')}</Empty>;
+}

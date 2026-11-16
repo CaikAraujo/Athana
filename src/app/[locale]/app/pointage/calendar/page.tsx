@@ -15,7 +15,7 @@ export default async function CalendarPage({ params, searchParams }: { params: P
   const lead = isoWeekday(cal.from) - 1;
   const absences = cal.days.flatMap((d) => d.absences.map((a) => ({ ...a, date: d.date })));
   // One line per absence (first day shown) for the list under the grid.
-  const list = [...new Map(absences.map((a) => [a.id, a])).values()];
+  const list = absences.filter((a, i) => absences.findIndex((x) => x.id === a.id) === i);
   return (
     <>
       <PageHeader

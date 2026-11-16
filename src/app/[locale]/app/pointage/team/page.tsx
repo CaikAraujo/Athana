@@ -4,7 +4,7 @@ import { fullName, getDayDetail, getTeamStatus, scopeOptions } from '@/modules/p
 import { ABSENCE_LABELS, ENTRY_LABELS, SOURCE_LABELS, STATE_LABELS } from '@/modules/pointage/labels';
 import { addDays, formatDuration, isDateKey, localDateKey } from '@/modules/pointage/time';
 import { CorrectionForm, VoidEntryButton } from '../_components/client';
-import { Anomalies, Denied, StatusBadge, atLeast, fmtDay, fmtTime, href, one, pointagePage, type Search } from '../_components/server';
+import { Anomalies, Denied, NotFound, orNull, StatusBadge, atLeast, fmtDay, fmtTime, href, one, pointagePage, type Search } from '../_components/server';
 
 export default async function TeamPage({ params, searchParams }: { params: Promise<{ locale: string }>; searchParams: Search }) {
   const { locale, ctx, actor, t, timezone } = await pointagePage(params);
@@ -15,7 +15,8 @@ export default async function TeamPage({ params, searchParams }: { params: Promi
 
   if (employeeId) {
     const date = isDateKey(one(sp.date)) && one(sp.date) <= today ? one(sp.date) : today;
-    const detail = await getDayDetail(ctx, employeeId, date);
+    const detail = await orNull(getDayDetail(ctx, employeeId, date));
+    if (!detail) return <NotFound t={t} />;
     const day = detail.summary;
     return (
       <>

@@ -3,7 +3,7 @@ import { formatDateTime } from '@/i18n/translate';
 import { fullName, getTimesheet, listEntries, scopeOptions } from '@/modules/pointage/service';
 import { ENTRY_LABELS, SOURCE_LABELS } from '@/modules/pointage/labels';
 import { addDays, formatDuration, isDateKey, localDateKey, weekStart, ENTRY_TYPES, type EntryType } from '@/modules/pointage/time';
-import { Anomalies, Pagination, atLeast, fmtDay, fmtTime, href, one, pointagePage, type Search } from '../_components/server';
+import { Anomalies, NotFound, Pagination, orNull, atLeast, fmtDay, fmtTime, href, one, pointagePage, type Search } from '../_components/server';
 
 const WEEKS = 4;
 
@@ -36,10 +36,9 @@ export default async function HistoryPage({ params, searchParams }: { params: Pr
   const voided = one(sp.voided) === '1';
   const listFrom = isDateKey(one(sp.from)) ? one(sp.from) : undefined;
   const listTo = isDateKey(one(sp.to)) ? one(sp.to) : undefined;
-  const [sheet, entries] = await Promise.all([
-    getTimesheet(ctx, { employeeId, from, to }),
-    listEntries(ctx, { employeeId, type, includeVoided: voided, from: listFrom, to: listTo, page: one(sp.page) || 1, pageSize: 25 }),
-  ]);
+  const sheet = await orNull(getTimesheet(ctx, { employeeId, from, to }));
+  if (!sheet) return <NotFound t={t} />;
+  const entries = await listEntries(ctx, { employeeId, type, includeVoided: voided, from: listFrom, to: listTo, page: one(sp.page) || 1, pageSize: 25 });
   const own = employeeId === actor.employee?.id;
   const q = { employee: own ? undefined : employeeId, type, voided: voided ? 1 : undefined, from: listFrom, to: listTo };
   const weeks = [...sheet.weeks].reverse();
