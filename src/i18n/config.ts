@@ -15,7 +15,7 @@ export const LOCALE_META: Record<Locale, {
   language: Language; intl: string; hreflang: string; label: string; country: string;
   currency: string; timezone: string; taxRateBps: number; taxLabel: string;
 }> = {
-  'fr-ch': { language: 'fr', intl: 'fr-CH', hreflang: 'fr-CH', label: 'Suisse · Français', country: 'CH', currency: 'CHF', timezone: 'Europe/Zurich', taxRateBps: 810, taxLabel: 'TVA' },
+  'fr-ch': { language: 'fr', intl: 'fr-CH', hreflang: 'fr-CH', label: 'Suisse · Français', country: 'CH', currency: 'CHF', timezone: 'Europe/Zurich', taxRateBps: 0, taxLabel: 'TVA' },
   'fr-fr': { language: 'fr-FR', intl: 'fr-FR', hreflang: 'fr-FR', label: 'France · Français', country: 'FR', currency: 'EUR', timezone: 'Europe/Paris', taxRateBps: 0, taxLabel: 'TVA' },
   'pt-pt': { language: 'pt-PT', intl: 'pt-PT', hreflang: 'pt-PT', label: 'Portugal · Português', country: 'PT', currency: 'EUR', timezone: 'Europe/Lisbon', taxRateBps: 0, taxLabel: 'IVA' },
   'pt-br': { language: 'pt-BR', intl: 'pt-BR', hreflang: 'pt-BR', label: 'Brasil · Português', country: 'BR', currency: 'BRL', timezone: 'America/Sao_Paulo', taxRateBps: 0, taxLabel: 'Impostos' },
