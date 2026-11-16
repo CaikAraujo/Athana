@@ -1,0 +1,1173 @@
+// ATHANA platform — single PostgreSQL database, modular monolith.
+// Conventions:
+//  - Money is stored in minor units (Int) with an explicit currency code.
+//  - Localised content is stored as Json: { "fr": "...", "pt-PT": "...", "pt-BR": "...", "en": "..." }.
+//  - Price maps are Json: { "CHF": 39000, "EUR": 41000, "BRL": 249000 } (minor units).
+//  - Every tenant-owned table (Crm*, Pt*) carries organizationId and is only reached through
+//    tenant-scoped services (see src/modules/tenancy).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ───────────────────────────── Identity & access ─────────────────────────────
+
+enum PlatformRole {
+  SUPER_ADMIN
+  ADMIN
+  PROJECT_MANAGER
+  DEVELOPER
+  SUPPORT
+  FINANCE
+  MARKETING
+}
+
+enum OrgRole {
+  OWNER
+  ADMIN
+  MANAGER
+  MEMBER
+}
+
+model User {
+  id              String        @id @default(cuid())
+  email           String        @unique
+  passwordHash    String
+  name            String
+  phone           String?
+  locale          String        @default("fr-ch")
+  country         String?
+  platformRole    PlatformRole?
+  emailVerifiedAt DateTime?
+  disabledAt      DateTime?
+  deletedAt       DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  sessions        Session[]
+  resetTokens     PasswordResetToken[]
+  memberships     Membership[]
+  orders          Order[]
+  projects        Project[]     @relation("ProjectCustomer")
+  assignedProjects Project[]    @relation("ProjectAssignee")
+  notifications   Notification[]
+  dataRequests    DataRequest[]
+  tickets         Ticket[]
+
+  @@index([platformRole])
+}
+
+model Session {
+  id                   String    @id @default(cuid())
+  tokenHash            String    @unique
+  userId               String
+  user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  activeOrganizationId String?
+  ip                   String?
+  userAgent            String?
+  createdAt            DateTime  @default(now())
+  lastSeenAt           DateTime  @default(now())
+  expiresAt            DateTime
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  tokenHash String    @unique
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
+model Organization {
+  id         String   @id @default(cuid())
+  name       String
+  slug       String   @unique
+  country    String?
+  vatNumber  String?
+  address    String?
+  city       String?
+  postalCode String?
+  timezone   String   @default("Europe/Zurich")
+  // Per-product tenant settings, e.g. { pointage: { jurisdiction, retentionMonths, geolocation:false } }
+  settings   Json     @default("{}")
+  onboardedAt DateTime?
+  deletedAt  DateTime?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  memberships   Membership[]
+  subscriptions Subscription[]
+  orders        Order[]
+
+  crmCompanies  CrmCompany[]
+  crmContacts   CrmContact[]
+  crmPipelines  CrmPipeline[]
+  crmDeals      CrmDeal[]
+  crmActivities CrmActivity[]
+  crmTasks      CrmTask[]
+  crmProposals  CrmProposal[]
+
+  ptDepartments PtDepartment[]
+  ptEmployees   PtEmployee[]
+  ptSchedules   PtSchedule[]
+  ptEntries     PtTimeEntry[]
+  ptAbsences    PtAbsence[]
+}
+
+model Membership {
+  id             String       @id @default(cuid())
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  role           OrgRole      @default(MEMBER)
+  createdAt      DateTime     @default(now())
+
+  @@unique([userId, organizationId])
+  @@index([organizationId])
+}
+
+model AuditLog {
+  id             String   @id @default(cuid())
+  actorId        String?
+  organizationId String?
+  action         String
+  entity         String?
+  entityId       String?
+  meta           Json?
+  ip             String?
+  createdAt      DateTime @default(now())
+
+  @@index([organizationId, createdAt])
+  @@index([actorId, createdAt])
+  @@index([entity, entityId])
+}
+
+model Consent {
+  id            String   @id @default(cuid())
+  userId        String?
+  anonymousId   String
+  categories    Json // { necessary:true, analytics:bool, marketing:bool }
+  policyVersion String
+  ipHash        String?
+  userAgent     String?
+  createdAt     DateTime @default(now())
+
+  @@index([anonymousId])
+  @@index([userId])
+}
+
+enum DataRequestType {
+  EXPORT
+  DELETE
+}
+
+enum DataRequestStatus {
+  PENDING
+  COMPLETED
+  REJECTED
+}
+
+model DataRequest {
+  id          String            @id @default(cuid())
+  userId      String
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type        DataRequestType
+  status      DataRequestStatus @default(PENDING)
+  note        String?
+  processedAt DateTime?
+  processedBy String?
+  createdAt   DateTime          @default(now())
+
+  @@index([status])
+}
+
+// ───────────────────────────── Configuration ─────────────────────────────
+
+model Setting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+}
+
+/// A market binds a URL locale to language, currency and tax rules.
+model Market {
+  code             String  @id // url segment: fr-ch, fr-fr, pt-pt, pt-br, en
+  language         String  // dictionary: fr, fr-FR, pt-PT, pt-BR, en
+  country          String  // ISO 3166-1 alpha-2
+  currency         String
+  taxRateBps       Int     @default(0) // 810 = 8.1 %
+  taxLabel         String  @default("TVA")
+  pricesIncludeTax Boolean @default(false)
+  timezone         String  @default("Europe/Zurich")
+  paymentMethods   Json    @default("[]") // informational list shown at checkout
+  enabled          Boolean @default(true)
+  sortOrder        Int     @default(0)
+}
+
+// ───────────────────────────── Catalog ─────────────────────────────
+
+enum PublishStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum PackageTier {
+  BASIC
+  BUSINESS
+  PREMIUM
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  name        Json
+  description Json?
+  sortOrder   Int       @default(0)
+  published   Boolean   @default(true)
+  deletedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  products    Product[]
+}
+
+model Product {
+  id             String        @id @default(cuid())
+  slug           String        @unique
+  categoryId     String
+  category       Category      @relation(fields: [categoryId], references: [id])
+  name           String
+  tagline        Json
+  description    Json
+  features       Json          @default("[]") // [{fr,pt-PT,pt-BR}]
+  technologies   String[]
+  demoSlug       String? // internal demo under /demo/<slug>
+  demoUrl        String? // optional external demo
+  coverImage     String?
+  gallery        String[]
+  startingPrices Json          @default("{}")
+  deliveryDays   Int           @default(10)
+  languages      String[]
+  status         PublishStatus @default(DRAFT)
+  featured       Boolean       @default(false)
+  sortOrder      Int           @default(0)
+  seoTitle       Json?
+  seoDescription Json?
+  faq            Json          @default("[]") // [{q:{..}, a:{..}}]
+  deletedAt      DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  packages   Package[]
+  addons     Addon[]     @relation("ProductAddons")
+  related    Product[]   @relation("RelatedProducts")
+  relatedTo  Product[]   @relation("RelatedProducts")
+  orderItems OrderItem[]
+
+  @@index([status, deletedAt])
+  @@index([categoryId])
+}
+
+model Package {
+  id            String      @id @default(cuid())
+  productId     String
+  product       Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  tier          PackageTier
+  name          Json
+  description   Json
+  features      Json        @default("[]")
+  prices        Json // {CHF: 39000, ...}
+  deliveryDays  Int
+  pagesIncluded Int         @default(1)
+  revisions     Int         @default(1)
+  active        Boolean     @default(true)
+  orderItems    OrderItem[]
+
+  @@unique([productId, tier])
+}
+
+model Addon {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  name        Json
+  description Json
+  prices      Json
+  global      Boolean   @default(true) // offered on every product
+  active      Boolean   @default(true)
+  sortOrder   Int       @default(0)
+  products    Product[] @relation("ProductAddons")
+}
+
+// ───────────────────────────── Commerce ─────────────────────────────
+
+enum OrderStatus {
+  PENDING_PAYMENT
+  PAID
+  PAYMENT_FAILED
+  CANCELLED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+enum CouponType {
+  PERCENT
+  FIXED
+}
+
+model Coupon {
+  id             String     @id @default(cuid())
+  code           String     @unique
+  type           CouponType
+  value          Int // percent (1-100) or minor units
+  currency       String? // required for FIXED
+  campaign       String?
+  maxRedemptions Int?
+  redeemedCount  Int        @default(0)
+  minSubtotal    Int?
+  startsAt       DateTime?
+  endsAt         DateTime?
+  active         Boolean    @default(true)
+  createdAt      DateTime   @default(now())
+  orders         Order[]
+}
+
+model Order {
+  id                String        @id @default(cuid())
+  number            String        @unique
+  userId            String
+  user              User          @relation(fields: [userId], references: [id])
+  organizationId    String?
+  organization      Organization? @relation(fields: [organizationId], references: [id])
+  status            OrderStatus   @default(PENDING_PAYMENT)
+  currency          String
+  subtotal          Int
+  discount          Int           @default(0)
+  tax               Int           @default(0)
+  total             Int
+  taxRateBps        Int           @default(0)
+  taxLabel          String        @default("TVA")
+  pricesIncludeTax  Boolean       @default(false)
+  couponId          String?
+  coupon            Coupon?       @relation(fields: [couponId], references: [id])
+  billing           Json
+  market            String
+  paymentProvider   String?
+  providerSessionId String?       @unique
+  paidAt            DateTime?
+  cancelledAt       DateTime?
+  cancelReason      String?
+  internalNotes     String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  items    OrderItem[]
+  payments Payment[]
+  invoices Invoice[]
+
+  @@index([userId])
+  @@index([status, createdAt])
+}
+
+model OrderItem {
+  id         String   @id @default(cuid())
+  orderId    String
+  order      Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id])
+  packageId  String
+  package    Package  @relation(fields: [packageId], references: [id])
+  name       String // snapshot
+  tier       PackageTier
+  unitAmount Int
+  addons     Json     @default("[]") // snapshot [{slug,name,amount}]
+  total      Int
+  project    Project?
+
+  @@index([orderId])
+}
+
+model Payment {
+  id             String        @id @default(cuid())
+  orderId        String?
+  order          Order?        @relation(fields: [orderId], references: [id])
+  subscriptionId String?
+  subscription   Subscription? @relation(fields: [subscriptionId], references: [id])
+  provider       String
+  providerRef    String
+  amount         Int
+  currency       String
+  status         PaymentStatus @default(PENDING)
+  method         String?
+  refundedAmount Int           @default(0)
+  failureReason  String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  refunds        Refund[]
+
+  @@unique([provider, providerRef])
+  @@index([orderId])
+  @@index([subscriptionId])
+}
+
+model Refund {
+  id          String   @id @default(cuid())
+  paymentId   String
+  payment     Payment  @relation(fields: [paymentId], references: [id])
+  amount      Int
+  reason      String?
+  providerRef String?
+  createdById String
+  createdAt   DateTime @default(now())
+}
+
+model Invoice {
+  id             String   @id @default(cuid())
+  number         String   @unique
+  orderId        String?
+  order          Order?   @relation(fields: [orderId], references: [id])
+  subscriptionId String?
+  userId         String
+  currency       String
+  subtotal       Int
+  discount       Int      @default(0)
+  tax            Int
+  total          Int
+  taxRateBps     Int
+  taxLabel       String
+  billing        Json
+  lines          Json // [{description, quantity, unitAmount, total}]
+  seller         Json // snapshot of company details at issue time
+  issuedAt       DateTime @default(now())
+
+  @@index([userId])
+}
+
+/// Idempotency ledger: a provider event is processed at most once.
+model WebhookEvent {
+  id          String    @id @default(cuid())
+  provider    String
+  eventId     String
+  type        String
+  processedAt DateTime?
+  error       String?
+  createdAt   DateTime  @default(now())
+
+  @@unique([provider, eventId])
+}
+
+// ───────────────────────────── Projects & delivery ─────────────────────────────
+
+enum ProjectStatus {
+  PAYMENT_PENDING
+  PAID
+  BRIEFING_PENDING
+  BRIEFING_SUBMITTED
+  PROJECT_QUEUED
+  IN_DEVELOPMENT
+  INTERNAL_REVIEW
+  CLIENT_REVIEW
+  REVISION_REQUESTED
+  APPROVED
+  DEPLOYMENT_PENDING
+  COMPLETED
+  MAINTENANCE
+}
+
+model Project {
+  id          String        @id @default(cuid())
+  reference   String        @unique
+  orderItemId String        @unique
+  orderItem   OrderItem     @relation(fields: [orderItemId], references: [id])
+  userId      String
+  user        User          @relation("ProjectCustomer", fields: [userId], references: [id])
+  name        String
+  status      ProjectStatus @default(PAYMENT_PENDING)
+  assigneeId  String?
+  assignee    User?         @relation("ProjectAssignee", fields: [assigneeId], references: [id])
+  dueAt       DateTime?
+  previewUrl  String?
+  liveUrl     String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  briefing  Briefing?
+  events    ProjectEvent[]
+  messages  Message[]
+  revisions Revision[]
+  files     FileAsset[]
+  tasks     Task[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([assigneeId])
+}
+
+model ProjectEvent {
+  id         String         @id @default(cuid())
+  projectId  String
+  project    Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  type       String // status_change | note | system
+  fromStatus ProjectStatus?
+  toStatus   ProjectStatus?
+  note       String?
+  internal   Boolean        @default(false)
+  actorId    String?
+  createdAt  DateTime       @default(now())
+
+  @@index([projectId, createdAt])
+}
+
+enum BriefingStatus {
+  DRAFT
+  SUBMITTED
+  CONFIRMED
+}
+
+model Briefing {
+  id          String         @id @default(cuid())
+  projectId   String         @unique
+  project     Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  data        Json           @default("{}")
+  status      BriefingStatus @default(DRAFT)
+  // Explicit, revocable consent to process this briefing with AI tooling (off by default).
+  aiConsent   Boolean        @default(false)
+  submittedAt DateTime?
+  confirmedAt DateTime?
+  updatedAt   DateTime       @updatedAt
+  files       FileAsset[]
+}
+
+model FileAsset {
+  id             String    @id @default(cuid())
+  ownerId        String
+  projectId      String?
+  project        Project?  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  briefingId     String?
+  briefing       Briefing? @relation(fields: [briefingId], references: [id], onDelete: SetNull)
+  organizationId String? // tenant attachments (CRM)
+  entityType     String?
+  entityId       String?
+  kind           String    @default("document") // logo | image | document
+  originalName   String
+  storageKey     String    @unique
+  mime           String
+  size           Int
+  createdAt      DateTime  @default(now())
+
+  @@index([projectId])
+  @@index([organizationId, entityType, entityId])
+}
+
+model Message {
+  id        String    @id @default(cuid())
+  projectId String?
+  project   Project?  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  ticketId  String?
+  ticket    Ticket?   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  senderId  String
+  fromStaff Boolean   @default(false)
+  internal  Boolean   @default(false) // staff-only note
+  body      String
+  createdAt DateTime  @default(now())
+
+  @@index([projectId, createdAt])
+  @@index([ticketId, createdAt])
+}
+
+enum RevisionStatus {
+  OPEN
+  IN_PROGRESS
+  DONE
+  REJECTED
+}
+
+model Revision {
+  id            String         @id @default(cuid())
+  projectId     String
+  project       Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  requestedById String
+  description   String
+  status        RevisionStatus @default(OPEN)
+  response      String?
+  createdAt     DateTime       @default(now())
+  resolvedAt    DateTime?
+
+  @@index([projectId])
+}
+
+enum TaskStatus {
+  OPEN
+  DONE
+}
+
+/// Internal ATHANA work queue created by automations.
+model Task {
+  id         String     @id @default(cuid())
+  type       String // order_review | production | delivery | maintenance_offer | data_request
+  title      String
+  projectId  String?
+  project    Project?   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  orderId    String?
+  assigneeId String?
+  status     TaskStatus @default(OPEN)
+  dueAt      DateTime?
+  createdAt  DateTime   @default(now())
+  doneAt     DateTime?
+
+  @@index([status, dueAt])
+}
+
+enum TicketStatus {
+  OPEN
+  ANSWERED
+  CLOSED
+}
+
+model Ticket {
+  id        String       @id @default(cuid())
+  userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subject   String
+  status    TicketStatus @default(OPEN)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  messages  Message[]
+
+  @@index([userId])
+  @@index([status])
+}
+
+// ───────────────────────────── Notifications & email ─────────────────────────────
+
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String
+  title     String
+  body      String?
+  link      String?
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, readAt, createdAt])
+}
+
+model EmailTemplate {
+  id       String @id @default(cuid())
+  key      String
+  language String // fr | pt-PT | pt-BR | en
+  subject  String
+  body     String // plain text with {{placeholders}}; rendered into the branded layout
+
+  @@unique([key, language])
+}
+
+model EmailLog {
+  id          String   @id @default(cuid())
+  to          String
+  templateKey String
+  language    String
+  subject     String
+  body        String
+  provider    String
+  status      String // sent | logged | failed
+  error       String?
+  createdAt   DateTime @default(now())
+
+  @@index([to, createdAt])
+}
+
+// ───────────────────────────── SaaS products & subscriptions ─────────────────────────────
+
+enum SaasStatus {
+  ACTIVE
+  COMING_SOON
+  HIDDEN
+}
+
+model SaasProduct {
+  key         String     @id // crm | pointage | pos | stock | booking | projects
+  name        String
+  tagline     Json
+  description Json
+  status      SaasStatus @default(COMING_SOON)
+  sortOrder   Int        @default(0)
+  plans       Plan[]
+  subscriptions Subscription[]
+}
+
+model Plan {
+  id             String      @id @default(cuid())
+  saasProductKey String
+  saasProduct    SaasProduct @relation(fields: [saasProductKey], references: [key])
+  key            String // STARTER | BUSINESS | PRO
+  name           String
+  prices         Json // monthly base price per currency (minor units)
+  seatPrices     Json        @default("{}") // optional extra price per additional seat/employee
+  includedSeats  Int         @default(1)
+  limits         Json        @default("{}") // { users, contacts, companies, employees, storageMb }
+  features       Json        @default("[]") // feature flags: ["proposals","export","reports"]
+  highlights     Json        @default("[]") // marketing bullet points, localised
+  stripePriceIds Json        @default("{}") // { CHF: "price_...", EUR: ... } filled by owner
+  trialDays      Int         @default(14)
+  active         Boolean     @default(true)
+  sortOrder      Int         @default(0)
+  subscriptions  Subscription[]
+
+  @@unique([saasProductKey, key])
+}
+
+enum SubscriptionStatus {
+  TRIALING
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  INCOMPLETE
+}
+
+model Subscription {
+  id                 String             @id @default(cuid())
+  organizationId     String
+  organization       Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  saasProductKey     String
+  saasProduct        SaasProduct        @relation(fields: [saasProductKey], references: [key])
+  planId             String
+  plan               Plan               @relation(fields: [planId], references: [id])
+  status             SubscriptionStatus @default(TRIALING)
+  currency           String
+  seats              Int                @default(1)
+  currentPeriodStart DateTime           @default(now())
+  currentPeriodEnd   DateTime
+  cancelAtPeriodEnd  Boolean            @default(false)
+  canceledAt         DateTime?
+  renewalNoticeAt    DateTime?
+  provider           String?
+  providerSubId      String?            @unique
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  payments           Payment[]
+
+  @@unique([organizationId, saasProductKey])
+  @@index([status, currentPeriodEnd])
+}
+
+// ───────────────────────────── ATHANA CRM (tenant-scoped) ─────────────────────────────
+
+enum CrmLifecycle {
+  LEAD
+  PROSPECT
+  CUSTOMER
+  INACTIVE
+}
+
+model CrmCompany {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  name           String
+  website        String?
+  industry       String?
+  phone          String?
+  email          String?
+  address        String?
+  city           String?
+  country        String?
+  notes          String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  contacts       CrmContact[]
+  deals          CrmDeal[]
+  activities     CrmActivity[]
+
+  @@index([organizationId, name])
+}
+
+model CrmContact {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  firstName      String
+  lastName       String       @default("")
+  email          String?
+  phone          String?
+  jobTitle       String?
+  lifecycle      CrmLifecycle @default(LEAD)
+  source         String?
+  companyId      String?
+  company        CrmCompany?  @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  ownerId        String?
+  notes          String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  deals          CrmDeal[]
+  activities     CrmActivity[]
+  tasks          CrmTask[]
+
+  @@index([organizationId, lastName])
+  @@index([organizationId, lifecycle])
+  @@index([organizationId, email])
+}
+
+model CrmPipeline {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  name           String
+  isDefault      Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+  stages         CrmStage[]
+  deals          CrmDeal[]
+
+  @@index([organizationId])
+}
+
+model CrmStage {
+  id          String      @id @default(cuid())
+  pipelineId  String
+  pipeline    CrmPipeline @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
+  name        String
+  position    Int
+  probability Int         @default(50)
+  deals       CrmDeal[]
+
+  @@index([pipelineId, position])
+}
+
+enum CrmDealStatus {
+  OPEN
+  WON
+  LOST
+}
+
+model CrmDeal {
+  id              String        @id @default(cuid())
+  organizationId  String
+  organization    Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  title           String
+  value           Int           @default(0)
+  currency        String        @default("EUR")
+  status          CrmDealStatus @default(OPEN)
+  pipelineId      String
+  pipeline        CrmPipeline   @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
+  stageId         String
+  stage           CrmStage      @relation(fields: [stageId], references: [id])
+  contactId       String?
+  contact         CrmContact?   @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  companyId       String?
+  company         CrmCompany?   @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  ownerId         String?
+  expectedCloseAt DateTime?
+  closedAt        DateTime?
+  lostReason      String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  activities      CrmActivity[]
+  tasks           CrmTask[]
+  proposals       CrmProposal[]
+
+  @@index([organizationId, status])
+  @@index([organizationId, stageId])
+}
+
+model CrmActivity {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  type           String // note | call | email | meeting
+  body           String
+  occurredAt     DateTime     @default(now())
+  userId         String
+  contactId      String?
+  contact        CrmContact?  @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  companyId      String?
+  company        CrmCompany?  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  dealId         String?
+  deal           CrmDeal?     @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
+
+  @@index([organizationId, occurredAt])
+}
+
+model CrmTask {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  title          String
+  description    String?
+  dueAt          DateTime?
+  doneAt         DateTime?
+  assigneeId     String?
+  contactId      String?
+  contact        CrmContact?  @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  dealId         String?
+  deal           CrmDeal?     @relation(fields: [dealId], references: [id], onDelete: SetNull)
+  createdAt      DateTime     @default(now())
+
+  @@index([organizationId, doneAt, dueAt])
+}
+
+model CrmProposal {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  number         String
+  title          String
+  dealId         String?
+  deal           CrmDeal?     @relation(fields: [dealId], references: [id], onDelete: SetNull)
+  recipient      String?
+  lines          Json         @default("[]") // [{description, quantity, unitAmount}]
+  currency       String       @default("EUR")
+  total          Int          @default(0)
+  status         String       @default("draft") // draft | sent | accepted | rejected
+  validUntil     DateTime?
+  notes          String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@unique([organizationId, number])
+}
+
+// ───────────────────────────── ATHANA Pointage (tenant-scoped) ─────────────────────────────
+
+enum PtRole {
+  ADMIN
+  MANAGER
+  EMPLOYEE
+}
+
+model PtDepartment {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  name           String
+  managerId      String? // PtEmployee id
+  createdAt      DateTime     @default(now())
+  employees      PtEmployee[]
+
+  @@unique([organizationId, name])
+}
+
+model PtSchedule {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  name           String
+  // [{ day: 1..7 (ISO), start: "08:00", end: "17:00", breakMinutes: 60 }]
+  days           Json
+  weeklyMinutes  Int
+  createdAt      DateTime     @default(now())
+  employees      PtEmployee[]
+
+  @@index([organizationId])
+}
+
+model PtEmployee {
+  id             String        @id @default(cuid())
+  organizationId String
+  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userId         String? // linked login (optional until invited)
+  firstName      String
+  lastName       String
+  email          String?
+  role           PtRole        @default(EMPLOYEE)
+  departmentId   String?
+  department     PtDepartment? @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  scheduleId     String?
+  schedule       PtSchedule?   @relation(fields: [scheduleId], references: [id], onDelete: SetNull)
+  vacationDays   Int           @default(20)
+  active         Boolean       @default(true)
+  createdAt      DateTime      @default(now())
+  entries        PtTimeEntry[]
+  absences       PtAbsence[]
+
+  @@unique([organizationId, userId])
+  @@index([organizationId, active])
+}
+
+enum PtEntryType {
+  CLOCK_IN
+  CLOCK_OUT
+  BREAK_START
+  BREAK_END
+}
+
+model PtTimeEntry {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  employeeId     String
+  employee       PtEmployee   @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  type           PtEntryType
+  at             DateTime // always server time (UTC); never trusted from the client
+  source         String       @default("web") // web | mobile | manual
+  note           String?
+  createdById    String? // set when a manager adds/corrects an entry manually
+  voidedAt       DateTime? // corrections never delete: they void and re-create
+  voidedById     String?
+  createdAt      DateTime     @default(now())
+
+  @@index([organizationId, at])
+  @@index([employeeId, at])
+}
+
+enum PtAbsenceType {
+  VACATION
+  SICK
+  UNPAID
+  OTHER
+}
+
+enum PtAbsenceStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model PtAbsence {
+  id             String          @id @default(cuid())
+  organizationId String
+  organization   Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  employeeId     String
+  employee       PtEmployee      @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  type           PtAbsenceType
+  startDate      DateTime        @db.Date
+  endDate        DateTime        @db.Date
+  status         PtAbsenceStatus @default(PENDING)
+  note           String?
+  decidedById    String?
+  decidedAt      DateTime?
+  createdAt      DateTime        @default(now())
+
+  @@index([organizationId, startDate])
+  @@index([employeeId, startDate])
+}
+
+// ───────────────────────────── Content & marketing ─────────────────────────────
+
+model BlogPost {
+  id             String        @id @default(cuid())
+  slug           String
+  language       String // fr | pt-PT | pt-BR | en — each article is written per language (no duplicates)
+  title          String
+  excerpt        String
+  body           String // Markdown subset
+  coverImage     String?
+  status         PublishStatus @default(DRAFT)
+  publishedAt    DateTime?
+  seoTitle       String?
+  seoDescription String?
+  // Articles that are translations of each other share a group (drives hreflang).
+  translationKey String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@unique([language, slug])
+  @@index([status, publishedAt])
+}
+
+model Faq {
+  id        String  @id @default(cuid())
+  scope     String  @default("home") // home | templates | crm | pointage
+  question  Json
+  answer    Json
+  sortOrder Int     @default(0)
+  published Boolean @default(true)
+
+  @@index([scope, sortOrder])
+}
+
+/// Real customer testimonials only — the table ships empty.
+model Testimonial {
+  id        String   @id @default(cuid())
+  author    String
+  role      String?
+  company   String?
+  content   String
+  language  String
+  published Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Banner {
+  id       String    @id @default(cuid())
+  message  Json
+  linkPath String?
+  active   Boolean   @default(false)
+  startsAt DateTime?
+  endsAt   DateTime?
+}
+
+/// Admin-editable page content (legal pages, commercial blocks). Body is Markdown subset.
+model ContentPage {
+  id       String @id @default(cuid())
+  key      String // mentions-legales | confidentialite | cgv | cookies
+  language String
+  title    String
+  body     String
+  updatedAt DateTime @updatedAt
+
+  @@unique([key, language])
+}
+
+/// Runtime translation overrides edited in the admin (falls back to the JSON dictionaries).
+model TranslationOverride {
+  id       String @id @default(cuid())
+  language String
+  source   String
+  value    String
+
+  @@unique([language, source])
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  CLOSED
+}
+
+model Lead {
+  id        String     @id @default(cuid())
+  kind      String     @default("contact") // contact | quote | campaign
+  name      String
+  email     String
+  phone     String?
+  company   String?
+  message   String
+  interest  String?
+  budget    String?
+  market    String
+  utm       Json?
+  status    LeadStatus @default(NEW)
+  createdAt DateTime   @default(now())
+
+  @@index([status, createdAt])
+}
+
+/// Fixed-window rate limiting shared by all app instances.
+model RateLimit {
+  key     String   @id
+  count   Int
+  resetAt DateTime
+}
