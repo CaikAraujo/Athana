@@ -137,7 +137,9 @@ export async function confirmBriefing(userId: string, projectId: string) {
 
 /**
  * Structured export of an order for the production workflow (including AI-assisted development).
- * Personal data is only included when the client consented to AI processing of the briefing.
+ * Without the client's consent to AI processing, contact details and the free-text fields (which may
+ * contain personal data) are redacted, so the file is safe to hand to an AI tool; structured project
+ * requirements are always included. Staff can still read the full briefing in the admin.
  */
 export async function exportProjectBrief(actor: Actor, projectId: string) {
   if (!can(actor.platformRole, 'projects.view')) throw forbidden();
@@ -155,7 +157,7 @@ export async function exportProjectBrief(actor: Actor, projectId: string) {
       company: { name: data.companyName, sector: data.sector, country: data.country, address: redact(data.address) },
       contact: { name: redact(data.contactName), email: redact(data.email), phone: redact(data.phone) },
       project: { language: data.projectLanguage, domain: data.domain, colors: data.colors, references: data.references, goal: data.goal, audience: data.audience, pages: data.pages, features: data.features, socials: data.socials, products: data.products },
-      content: { texts: data.texts, extra: data.extra, inTheirOwnWords: data.ownWords },
+      content: { texts: redact(data.texts), extra: redact(data.extra), inTheirOwnWords: redact(data.ownWords) },
       files: (p.briefing?.files ?? []).map((f) => ({ id: f.id, kind: f.kind, name: f.originalName, mime: f.mime, size: f.size })),
     },
   };

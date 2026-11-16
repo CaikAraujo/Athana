@@ -90,7 +90,7 @@ export const stripeProvider: PaymentProvider = {
       }],
       locale: STRIPE_LOCALES[locale] ?? 'auto',
       success_url: successUrl, cancel_url: cancelUrl,
-    }, { idempotencyKey: `order-checkout-${order.id}` });
+    });
     if (!session.url) throw new AppError('Stripe did not return a checkout URL.', 'not_configured');
     return { url: session.url, sessionId: session.id };
   },

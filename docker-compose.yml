@@ -27,11 +27,20 @@ services:
     restart: "no"
 
   app:
-    build: .
+    build:
+      context: .
+      # NEXT_PUBLIC_* values are inlined at build time: they must be passed here, not only at runtime.
+      args:
+        NEXT_PUBLIC_GA4_ID: ${NEXT_PUBLIC_GA4_ID:-}
+        NEXT_PUBLIC_GTM_ID: ${NEXT_PUBLIC_GTM_ID:-}
+        NEXT_PUBLIC_GOOGLE_ADS_ID: ${NEXT_PUBLIC_GOOGLE_ADS_ID:-}
+        NEXT_PUBLIC_GOOGLE_ADS_PURCHASE_LABEL: ${NEXT_PUBLIC_GOOGLE_ADS_PURCHASE_LABEL:-}
+        NEXT_PUBLIC_META_PIXEL_ID: ${NEXT_PUBLIC_META_PIXEL_ID:-}
     restart: unless-stopped
     env_file: ${ENV_FILE:-.env.production}
     environment:
       DATABASE_URL: postgresql://athana:${POSTGRES_PASSWORD}@db:5432/athana
+      STORAGE_DIR: /data/storage
     ports:
       - "127.0.0.1:3000:3000"
     volumes:

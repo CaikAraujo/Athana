@@ -6,6 +6,7 @@ import { requireUser } from '@/modules/auth/session';
 import { projectProgress } from '@/modules/projects/service';
 import { Card, Empty, PageHeader, Progress, Stat } from '@/components/ui';
 import { OrderBadge, ProjectBadge } from '@/components/app/status';
+import { TrackEvent } from '@/components/site/Consent';
 
 export default async function AccountHome({ params, searchParams }: { params: Promise<{ locale: string }>; searchParams: Promise<{ welcome?: string }> }) {
   const locale = assertLocale((await params).locale);
@@ -22,6 +23,7 @@ export default async function AccountHome({ params, searchParams }: { params: Pr
   return (
     <>
       <PageHeader title={t('Bonjour {name}', { name: user.name.split(' ')[0] })} subtitle={t('Voici l’état de vos projets et de vos services.')} />
+      {(await searchParams).welcome && <TrackEvent event="sign_up" onceKey={`signup-${user.id}`} />}
       {(await searchParams).welcome && <p className="alert alert-ok mb-5">{t('Votre compte est créé. Bienvenue chez ATHANA !')}</p>}
       {todo.map((x) => (
         <p key={x.id} className="alert alert-warn mb-3 flex flex-wrap items-center justify-between gap-3">

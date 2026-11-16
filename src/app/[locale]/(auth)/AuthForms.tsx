@@ -2,7 +2,6 @@
 
 import { ActionForm, Checkbox, Input, Submit } from '@/components/ui/form';
 import { Link, useLocale, useT } from '@/i18n/client';
-import { track } from '@/modules/analytics/track';
 import { forgotPasswordAction, loginAction, registerAction, resetPasswordAction } from '@/modules/auth/actions';
 
 export function LoginForm({ next }: { next?: string }) {
@@ -24,7 +23,7 @@ export function RegisterForm({ next }: { next?: string }) {
   const t = useT();
   const locale = useLocale();
   return (
-    <ActionForm action={registerAction} className="space-y-4" onDone={() => track('sign_up')}>
+    <ActionForm action={registerAction} className="space-y-4">
       <input type="hidden" name="locale" value={locale} />
       {next && <input type="hidden" name="next" value={next} />}
       <Input label={t('Nom complet')} name="name" autoComplete="name" required />

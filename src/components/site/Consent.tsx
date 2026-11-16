@@ -46,7 +46,7 @@ export function ConsentManager({ ids, policyVersion }: { ids: Ids; policyVersion
   return (
     <>
       {consent?.analytics && ids.gtm && (
-        <Script id="gtm" strategy="afterInteractive">{`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s);j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer',${JSON.stringify(ids.gtm)});`}</Script>
+        <Script id="gtm" strategy="afterInteractive">{`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}window.gtag=gtag;gtag('consent','default',{analytics_storage:'granted',ad_storage:${consent.marketing ? "'granted'" : "'denied'"},ad_user_data:${consent.marketing ? "'granted'" : "'denied'"},ad_personalization:${consent.marketing ? "'granted'" : "'denied'"}});(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s);j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer',${JSON.stringify(ids.gtm)});`}</Script>
       )}
       {consent?.analytics && !ids.gtm && gtagId && (
         <>

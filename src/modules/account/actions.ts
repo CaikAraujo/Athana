@@ -12,7 +12,7 @@ import { enforceRateLimit } from '@/lib/rate-limit';
 import { getMarket } from '@/lib/settings';
 import { m } from '@/i18n/translate';
 import { DEFAULT_LOCALE, isLocale, localePath, type Locale } from '@/i18n/config';
-import { assertUser } from '@/modules/auth/session';
+import { assertUser, getSession } from '@/modules/auth/session';
 import { changePassword } from '@/modules/auth/service';
 import { createOrganization } from '@/modules/tenancy/context';
 import { switchOrganization } from '@/modules/tenancy/guard';
@@ -41,7 +41,7 @@ export async function changePasswordAction(_: ActionState, fd: FormData): Promis
   return run(async () => {
     const user = await assertUser();
     await enforceRateLimit(`pwd:${user.id}`, 8, 3600);
-    await changePassword(user.id, String(fd.get('current')), String(fd.get('password')));
+    await changePassword(user.id, String(fd.get('current')), String(fd.get('password')), (await getSession())?.id);
   });
 }
 

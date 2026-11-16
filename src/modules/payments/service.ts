@@ -182,6 +182,10 @@ export async function refundPayment(paymentId: string, amount: number, actorId: 
   const payment = await db.payment.findUnique({ where: { id: paymentId } });
   if (!payment || payment.status === 'PENDING' || payment.status === 'FAILED') throw new AppError(m('Paiement non remboursable.'));
   if (!Number.isInteger(amount) || amount <= 0 || amount > payment.amount - payment.refundedAmount) throw new AppError(m('Montant de remboursement invalide.'));
+  if (payment.subscriptionId && payment.provider === 'stripe') {
+    // Subscription payments are stored by invoice reference: refund them from the Stripe dashboard (the charge.refunded webhook is not linked to them yet).
+    throw new AppError(m('Les paiements d’abonnement se remboursent depuis le tableau de bord du prestataire de paiement.'));
+  }
   const provider = getProvider(payment.provider);
   const { providerRef } = await provider.refund({ payment, amount, reason });
   const refunded = payment.refundedAmount + amount;

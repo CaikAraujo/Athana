@@ -323,6 +323,7 @@ describe('briefing and project workflow (mandatory scenario)', () => {
     expect(brief.aiProcessingConsent).toBe(false);
     expect(brief.briefing.contact.email).toMatch(/redacted/);
     expect(brief.briefing.project.goal).toBe('Présenter la boulangerie');
+    expect(brief.briefing.content.inTheirOwnWords).toMatch(/redacted/);
     await expect(exportProjectBrief(customer, project.id)).rejects.toThrow();
 
     // Access control: other customers see nothing; staff need the right permission.

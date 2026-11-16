@@ -3,7 +3,14 @@ import { db } from '@/lib/db';
 import { hashPassword, randomToken, sha256, verifyPassword } from '@/lib/crypto';
 import { AppError } from '@/lib/errors';
 import { audit } from '@/lib/audit';
-import { SETTING_DEFAULTS } from '@/lib/settings';
+import { SETTING_DEFAULTS, getSetting } from '@/lib/settings';
+import { m } from '@/i18n/translate';
+
+/** Password policy: the admin setting can raise the minimum, never lower it below the built-in floor. */
+async function assertPasswordPolicy(password: string) {
+  const min = Math.max(SETTING_DEFAULTS.security.passwordMinLength, (await getSetting('security')).passwordMinLength);
+  if (password.length < min) throw new AppError(m('Le mot de passe est trop court.'), 'invalid', { password: m('Le mot de passe est trop court.') });
+}
 
 const email = z.string().trim().toLowerCase().email('Adresse e-mail invalide.').max(254);
 
@@ -17,6 +24,7 @@ export const registerSchema = z.object({
 
 export async function registerUser(input: z.input<typeof registerSchema>) {
   const data = registerSchema.parse(input);
+  await assertPasswordPolicy(data.password);
   const existing = await db.user.findUnique({ where: { email: data.email } });
   if (existing) throw new AppError('Un compte existe déjà avec cette adresse e-mail.', 'conflict', { email: 'Un compte existe déjà avec cette adresse e-mail.' });
   const user = await db.user.create({
@@ -51,9 +59,7 @@ export async function createPasswordReset(emailInput: string, ttlMs = 3600_000) 
 }
 
 export async function resetPassword(token: string, newPassword: string) {
-  if (newPassword.length < SETTING_DEFAULTS.security.passwordMinLength) {
-    throw new AppError('Le mot de passe doit contenir au moins 10 caractères.', 'invalid');
-  }
+  await assertPasswordPolicy(newPassword);
   const row = await db.passwordResetToken.findUnique({ where: { tokenHash: sha256(token) } });
   if (!row || row.usedAt || row.expiresAt < new Date()) {
     throw new AppError('Ce lien est invalide ou a expiré.', 'invalid');
@@ -68,10 +74,14 @@ export async function resetPassword(token: string, newPassword: string) {
   await audit({ actorId: row.userId, action: 'user.password_reset', entity: 'User', entityId: row.userId });
 }
 
-export async function changePassword(userId: string, current: string, next: string) {
+export async function changePassword(userId: string, current: string, next: string, keepSessionId?: string) {
   const user = await db.user.findUniqueOrThrow({ where: { id: userId } });
   if (!(await verifyPassword(current, user.passwordHash))) throw new AppError('Mot de passe actuel incorrect.', 'invalid');
-  if (next.length < SETTING_DEFAULTS.security.passwordMinLength) throw new AppError('Le mot de passe doit contenir au moins 10 caractères.', 'invalid');
-  await db.user.update({ where: { id: userId }, data: { passwordHash: await hashPassword(next) } });
+  await assertPasswordPolicy(next);
+  await db.$transaction([
+    db.user.update({ where: { id: userId }, data: { passwordHash: await hashPassword(next) } }),
+    // Every other device is signed out; the current session is kept.
+    db.session.deleteMany({ where: { userId, ...(keepSessionId ? { id: { not: keepSessionId } } : {}) } }),
+  ]);
   await audit({ actorId: userId, action: 'user.password_change', entity: 'User', entityId: userId });
 }
