@@ -47,6 +47,12 @@ export function track(event: AnalyticsEvent, params: Record<string, unknown> = {
     if (window.gtag) window.gtag('event', event, params);
     else window.dataLayer.push({ event, ...params });
   }
+  // Google Ads purchase conversion (only when both the Ads ID and the conversion label are configured).
+  const adsId = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID;
+  const adsLabel = process.env.NEXT_PUBLIC_GOOGLE_ADS_PURCHASE_LABEL;
+  if (event === 'purchase' && consent.marketing && window.gtag && adsId && adsLabel) {
+    window.gtag('event', 'conversion', { send_to: `${adsId}/${adsLabel}`, value: params.value, currency: params.currency, transaction_id: params.transaction_id });
+  }
   if (consent.marketing && window.fbq && META_EVENTS[event]) window.fbq('track', META_EVENTS[event], params);
   window.dispatchEvent(new CustomEvent('athana:track', { detail: { event, params } }));
 }
