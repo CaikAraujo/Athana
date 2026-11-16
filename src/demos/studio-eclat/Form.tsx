@@ -26,7 +26,7 @@ const T = {
   check: 'mt-0.5 size-5 shrink-0 accent-[#a4533c]',
   button:
     'inline-flex w-full items-center justify-center rounded-full bg-[#3d2330] px-9 py-4 text-xs font-semibold uppercase tracking-[0.22em] text-[#fbeee8] transition hover:bg-[#a4533c] sm:w-auto',
-  success: 'rounded-[2rem] bg-[#3d2330] p-8 text-[#fbeee8]',
+  success: 'rounded-[2rem] bg-[#3d2330] p-8 text-[#fbeee8] [&_:focus-visible]:outline-[#f0b9a3]!',
   successTitle: 'font-[family-name:var(--serif)] text-3xl italic',
   reset: 'mt-5 text-xs uppercase tracking-[0.2em] underline underline-offset-4',
 };

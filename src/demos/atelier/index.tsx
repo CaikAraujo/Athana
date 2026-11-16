@@ -164,7 +164,7 @@ function PageHead({ eyebrow, title, lead }: { eyebrow: string; title: string; le
 function FinalCta() {
   return (
     <section className="mx-auto max-w-6xl px-5 py-16 sm:py-24">
-      <div className="relative overflow-hidden rounded-[2rem] border-2 border-[#0d0f1a] bg-[#2b3bff] px-6 py-12 text-white sm:px-14 sm:py-16">
+      <div className="relative overflow-hidden rounded-[2rem] border-2 border-[#0d0f1a] bg-[#2b3bff] px-6 py-12 text-white [&_:focus-visible]:outline-[#d9ff5b]! sm:px-14 sm:py-16">
         <div aria-hidden="true" className="absolute -right-16 -top-16 size-64 rounded-full border-[28px] border-[#d9ff5b]" />
         <h2 className="relative max-w-2xl font-display text-3xl font-bold tracking-tight sm:text-5xl">Voyez votre propre planning dans Atelier.</h2>
         <p className="relative mt-4 max-w-xl text-lg text-white/85">Une démonstration de trente minutes, sur vos cas concrets, sans engagement.</p>
@@ -249,7 +249,7 @@ function Home() {
             <h3 className="mt-5 font-display text-2xl font-bold">Marge par affaire</h3>
             <p className="mt-2 text-[#0d0f1a]/75">Sachez ce que chaque commande rapporte, avant la clôture.</p>
           </article>
-          <article className="rounded-3xl border-2 border-[#0d0f1a] bg-[#0d0f1a] p-7 text-white md:col-span-4">
+          <article className="rounded-3xl border-2 border-[#0d0f1a] bg-[#0d0f1a] p-7 text-white md:col-span-4 [&_:focus-visible]:outline-[#d9ff5b]!">
             <Zap aria-hidden="true" className="size-8 text-[#d9ff5b]" />
             <h3 className="mt-5 font-display text-2xl font-bold">Des automatisations qui travaillent pour vous</h3>
             <p className="mt-2 max-w-lg text-white/75">« Quand un ordre passe en contrôle, prévenir la qualité. » Écrivez vos règles comme vous les diriez.</p>
@@ -476,7 +476,7 @@ export default function Demo({ page }: { page: string }) {
     <div className="min-h-dvh bg-[#f4f3ee] font-sans text-[#0d0f1a] [&_:focus-visible]:outline-2 [&_:focus-visible]:outline-offset-2 [&_:focus-visible]:outline-[#2b3bff]">
       <Nav items={items} home={base} />
       <main>{known === 'fonctionnalites' ? <Features /> : known === 'tarifs' ? <Tarifs /> : known === 'contact' ? <Contact /> : <Home />}</main>
-      <footer className="border-t-2 border-[#0d0f1a] bg-[#0d0f1a] text-white">
+      <footer className="border-t-2 border-[#0d0f1a] bg-[#0d0f1a] text-white [&_:focus-visible]:outline-[#d9ff5b]!">
         <div className="mx-auto grid max-w-6xl gap-10 px-5 py-14 sm:grid-cols-[1.5fr_1fr_1fr]">
           <div>
             <p className="font-display text-2xl font-bold">Atelier</p>

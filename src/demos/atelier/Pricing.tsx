@@ -57,7 +57,7 @@ export default function Pricing({ contactHref, compact = false }: { contactHref:
             <li
               key={p.name}
               className={`flex flex-col rounded-3xl border-2 border-[#0d0f1a] p-7 ${
-                p.featured ? 'bg-[#0d0f1a] text-white shadow-[8px_8px_0_#2b3bff]' : 'bg-white'
+                p.featured ? 'bg-[#0d0f1a] text-white shadow-[8px_8px_0_#2b3bff] [&_:focus-visible]:outline-[#d9ff5b]!' : 'bg-white'
               }`}
             >
               <div className="flex items-center justify-between gap-2">
