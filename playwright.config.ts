@@ -25,6 +25,6 @@ export default defineConfig({
     url: `http://localhost:${PORT}/api/health`,
     reuseExistingServer: true,
     timeout: 60_000,
-    env: { PAYMENTS_MODE: 'test', ALLOW_TEST_PAYMENTS: 'true', SESSION_SECRET: 'e2e-only-secret-0123456789abcdef0123456789abcdef', EMAIL_PROVIDER: 'log', APP_URL: `http://localhost:${PORT}`, CRON_SECRET: 'e2e-cron-secret' },
+    env: { ADMIN_HOST: `admin.localhost:${PORT}`, PAYMENTS_MODE: 'test', ALLOW_TEST_PAYMENTS: 'true', SESSION_SECRET: 'e2e-only-secret-0123456789abcdef0123456789abcdef', EMAIL_PROVIDER: 'log', APP_URL: `http://localhost:${PORT}`, CRON_SECRET: 'e2e-cron-secret' },
   },
 });

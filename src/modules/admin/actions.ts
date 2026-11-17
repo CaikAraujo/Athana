@@ -10,6 +10,7 @@ import { AppError } from '@/lib/errors';
 import { audit } from '@/lib/audit';
 import { hashPassword, randomToken } from '@/lib/crypto';
 import { env } from '@/lib/env';
+import { adminBaseUrl } from '@/lib/admin-host';
 import { parseAmount } from '@/lib/money';
 import { setSetting, SETTING_DEFAULTS, type SettingKey } from '@/lib/settings';
 import { m } from '@/i18n/translate';
@@ -514,7 +515,7 @@ export async function saveStaffAction(_: ActionState, fd: FormData): Promise<Act
         : await db.user.create({ data: { email, name: String(f.name || email).trim().slice(0, 120), passwordHash: await hashPassword(randomToken(24)), platformRole: role } });
       if (!existing) {
         const reset = await createPasswordReset(email, 7 * 86400_000);
-        await sendEmail({ to: email, templateKey: 'invitation', language: 'fr', vars: { name: user.name, organization: 'ATHANA (administration)', inviteUrl: env.appUrl + localePath(DEFAULT_LOCALE, `/reset-password?token=${reset!.token}`) } });
+        await sendEmail({ to: email, templateKey: 'invitation', language: 'fr', vars: { name: user.name, organization: 'ATHANA (administration)', inviteUrl: adminBaseUrl(env.appUrl) + localePath(DEFAULT_LOCALE, `/reset-password?token=${reset!.token}`) } });
       }
       await audit({ actorId: actor.id, action: 'staff.create', entity: 'User', entityId: user.id, meta: { role } });
     }

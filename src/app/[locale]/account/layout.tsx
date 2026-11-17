@@ -1,5 +1,7 @@
 import { LayoutDashboard, User, Building2, ShoppingBag, CreditCard, FileText, FolderKanban, Bell, LifeBuoy, Repeat, History, Shield, AppWindow } from 'lucide-react';
 import { db } from '@/lib/db';
+import { env } from '@/lib/env';
+import { adminBaseUrl, adminHost } from '@/lib/admin-host';
 import { assertLocale, getT } from '@/i18n/server';
 import { requireUser } from '@/modules/auth/session';
 import { AppShell } from '@/components/app/AppShell';
@@ -21,7 +23,7 @@ export default async function AccountLayout({ children, params }: { children: Re
       { title: t('Facturation'), items: [{ href: '/account/payments', label: t('Paiements'), icon: i(CreditCard) }, { href: '/account/invoices', label: t('Factures'), icon: i(FileText) }, { href: '/account/subscriptions', label: t('Abonnements'), icon: i(Repeat) }] },
       ...(subs.length ? [{ title: t('Mes logiciels'), items: subs.map((s) => ({ href: `/app/${s.saasProductKey}`, label: s.saasProduct.name, icon: i(AppWindow) })) }] : []),
       { title: t('Compte'), items: [{ href: '/account/profile', label: t('Mes données'), icon: i(User) }, { href: '/account/companies', label: t('Entreprises'), icon: i(Building2) }, { href: '/account/notifications', label: t('Notifications'), icon: i(Bell) }, { href: '/account/support', label: t('Support'), icon: i(LifeBuoy) }, { href: '/account/activity', label: t('Historique'), icon: i(History) }] },
-      ...(user.platformRole ? [{ title: 'ATHANA', items: [{ href: '/admin', label: t('Administration'), icon: i(Shield) }] }] : []),
+      ...(user.platformRole ? [{ title: 'ATHANA', items: [{ href: adminHost() ? `${adminBaseUrl(env.appUrl)}/${locale}/admin` : '/admin', label: t('Administration'), icon: i(Shield) }] }] : []),
     ]}>
       {children}
     </AppShell>

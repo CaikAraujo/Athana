@@ -9,7 +9,16 @@ import { DEFAULT_LOCALE, isLocale, localePath } from '@/i18n/config';
 import { sendEmail, languageOf } from '@/modules/email/service';
 import { emit } from '@/modules/automation/events';
 import { authenticate, createPasswordReset, registerUser, resetPassword } from './service';
+import { headers } from 'next/headers';
+import { adminHost, normalizeHost } from '@/lib/admin-host';
 import { clientIp, createSession, destroySession } from './session';
+
+/** Staff land in the back office only where it is served (the admin host when one is configured). */
+async function staffHome() {
+  const h = await headers();
+  const configured = adminHost();
+  return !configured || normalizeHost(h.get('x-forwarded-host') ?? h.get('host')) === configured ? '/admin' : '/account';
+}
 
 const loc = (v: unknown) => (isLocale(String(v)) ? (String(v) as Parameters<typeof localePath>[0]) : DEFAULT_LOCALE);
 
@@ -29,7 +38,7 @@ export async function loginAction(_: ActionState, fd: FormData): Promise<ActionS
     await enforceRateLimit(`login:acct:${String(f.email).toLowerCase().slice(0, 200)}`, loginMaxAttempts, 900);
     const user = await authenticate(String(f.email), String(f.password));
     await createSession(user.id);
-    redirect(localePath(locale, safeNext(f.next, user.platformRole ? '/admin' : '/account')));
+    redirect(localePath(locale, safeNext(f.next, user.platformRole ? await staffHome() : '/account')));
   }, locale);
 }
 

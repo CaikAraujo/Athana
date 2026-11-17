@@ -33,7 +33,42 @@ export const localStorage: StorageAdapter = {
   remove: (key) => unlink(resolveKey(key)).catch(() => {}),
 };
 
-export const storage: StorageAdapter = localStorage;
+/**
+ * Vercel Blob adapter (private store). Used automatically when BLOB_READ_WRITE_TOKEN is present,
+ * or when STORAGE_DRIVER=vercel-blob: serverless hosts have no persistent local disk.
+ * Blobs are private: they are only ever read by the server and streamed through /api/files/[id].
+ */
+export const vercelBlobStorage: StorageAdapter = {
+  async put(key, data) {
+    resolveKey(key);
+    const { put } = await import('@vercel/blob');
+    await put(key, data, { access: 'private', addRandomSuffix: false });
+  },
+  async get(key) {
+    resolveKey(key);
+    const { get } = await import('@vercel/blob');
+    const res = await get(key, { access: 'private', useCache: false });
+    if (!res?.stream) throw new Error('File not found in blob storage');
+    return Buffer.from(await new Response(res.stream).arrayBuffer());
+  },
+  async remove(key) {
+    resolveKey(key);
+    const { del } = await import('@vercel/blob');
+    await del(key).catch(() => {});
+  },
+};
+
+function driver(): StorageAdapter {
+  const choice = process.env.STORAGE_DRIVER || (process.env.BLOB_READ_WRITE_TOKEN ? 'vercel-blob' : 'local');
+  return choice === 'vercel-blob' ? vercelBlobStorage : localStorage;
+}
+
+/** Active storage backend, resolved per call so configuration changes need no code change. */
+export const storage: StorageAdapter = {
+  put: (key, data) => driver().put(key, data),
+  get: (key) => driver().get(key),
+  remove: (key) => driver().remove(key),
+};
 
 const EXT: Record<string, string> = {
   'image/png': 'png', 'image/jpeg': 'jpg', 'image/webp': 'webp', 'image/svg+xml': 'svg', 'application/pdf': 'pdf', 'text/plain': 'txt',

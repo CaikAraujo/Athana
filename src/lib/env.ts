@@ -15,7 +15,9 @@ function required(name: string, devFallback?: string): string {
 export const env = {
   isProd,
   get appUrl() {
-    return (process.env.APP_URL || 'http://localhost:3000').replace(/\/$/, '');
+    // On Vercel the deployment URL is known: it is used when APP_URL is not set explicitly.
+    const vercel = process.env.VERCEL_ENV === 'production' ? process.env.VERCEL_PROJECT_PRODUCTION_URL : process.env.VERCEL_URL;
+    return (process.env.APP_URL || (vercel ? `https://${vercel}` : 'http://localhost:3000')).replace(/\/$/, '');
   },
   get sessionSecret() {
     const s = required('SESSION_SECRET', 'dev-only-secret-change-me-0123456789abcdef');

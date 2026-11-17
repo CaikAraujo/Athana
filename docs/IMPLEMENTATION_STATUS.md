@@ -28,6 +28,8 @@ Legenda: ✅ implementado e testado · 🟡 implementado, verificação parcial 
 | 13 | Marketing: camada de eventos independente do fornecedor, GA4 / GTM / Google Ads / Meta Pixel sujeitos a consentimento, páginas de campanha, captura UTM, leads | 🟡 | Banner de consentimento e eventos testados; **etiquetas não verificadas com identificadores reais** |
 | 14 | Automações: compra, briefing, mudança de estado, aprovação, renovação; modelos de e-mail em 3 línguas | ✅ | Testes (tarefas, notificações e e-mails registados) |
 | 15 | Segurança: *hash* scrypt, sessões, RBAC, isolamento multi-empresa, limitação de pedidos, validação de ficheiros, CSP, auditoria, RGPD | ✅ | Testes + `docs/SECURITY.md` |
+| 8 | Painel administrativo em *host* próprio (`ADMIN_HOST`, por exemplo `admin.athana.ch`) | ✅ | Teste unitário da regra + E2E (site público devolve 404 em `/admin`) |
+| 16 | Publicação na Vercel: compilação com migrações, proteção contra publicação incompleta, tarefa diária, armazenamento Vercel Blob | 🟡 | Proteção testada localmente; **adaptador Blob e compilação na Vercel por validar** |
 | 16 | Docker, docker-compose, Caddy, cópias de segurança, CI, `.env.example`, documentação | 🟡 | **Imagem Docker e CI não executados** (sem Docker no ambiente; CI ainda não correu no GitHub) |
 
 ## 2. Em desenvolvimento
@@ -64,7 +66,7 @@ Nada em curso.
 |---|---|
 | `npm run typecheck` | Sem erros |
 | `npm run i18n:check` | 1 808 / 1 808 textos em pt-PT e pt-BR, sem divergências de variáveis |
-| `npm test` (Vitest, base de dados real) | 77 testes em 3 ficheiros, todos a passar |
+| `npm test` (Vitest, base de dados real) | 78 testes em 3 ficheiros, todos a passar |
 | `npm run test:e2e` (Playwright, *build* de produção) | 13 testes + 1 de preparação, todos a passar (computador e telemóvel) |
 | `npm run build` | Compila; 343 páginas estáticas geradas |
 

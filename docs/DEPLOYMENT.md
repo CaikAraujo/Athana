@@ -338,3 +338,47 @@ Requer o Chromium do Playwright (`npx playwright install chromium`). O script im
 ## 13. Integração contínua
 
 `.github/workflows/ci.yml` corre em cada push para `main` e em cada pull request: `npm ci`, `prisma generate`, verificação de tipos, verificação de traduções, testes Vitest, migrações + seed, compilação, verificação das imagens e testes E2E. **Ainda não foi executado no GitHub.** Não existe workflow de deploy. Detalhes em [TESTING.md](TESTING.md).
+
+---
+
+## Anexo A — Publicação na Vercel (projeto atual de athana.ch)
+
+O repositório está ligado a um projeto Vercel cujo ramo de produção é `main`. Cada *push* para `main` desencadeia uma publicação de produção; os outros ramos geram pré-visualizações.
+
+### O que o repositório já faz
+
+- `vercel.json` declara o *framework* Next.js, instala com `npm ci` e compila com `node scripts/vercel-build.mjs`.
+- `scripts/vercel-build.mjs`:
+  - **em produção, recusa compilar se faltar configuração obrigatória** (ver tabela). A compilação falha de propósito e a Vercel mantém no ar a versão anterior — um projeto meio configurado nunca substitui o site em funcionamento;
+  - quando existe base de dados, aplica as migrações (`prisma migrate deploy`) e o *seed* idempotente, usando a ligação direta (`DATABASE_URL_UNPOOLED` ou `POSTGRES_URL_NON_POOLING`) se o fornecedor a disponibilizar;
+  - compila a aplicação.
+- Tarefa diária declarada em `vercel.json` (`/api/cron/daily`, 03:00 UTC). A Vercel envia `Authorization: Bearer <CRON_SECRET>` quando a variável `CRON_SECRET` existe.
+- Ficheiros dos clientes: com `BLOB_READ_WRITE_TOKEN` definido, o armazenamento passa automaticamente para um *store* **privado** do Vercel Blob (`src/modules/storage/service.ts`). Este adaptador não foi testado contra o serviço real.
+
+### O que tem de ser feito no painel da Vercel (proprietário)
+
+| Passo | Onde | Notas |
+|---|---|---|
+| Framework Preset = Next.js; Output Directory sem *override* | Settings → Build & Deployment | O projeto estava configurado para o site antigo (Vite, pasta `dist`) |
+| Criar base de dados PostgreSQL | Storage → Create → Neon (ou outro fornecedor) | Define `DATABASE_URL` (e a variante sem *pooling*) automaticamente |
+| Criar um *Blob store* privado | Storage → Create → Blob | Define `BLOB_READ_WRITE_TOKEN` |
+| `SESSION_SECRET` | Settings → Environment Variables | Aleatório, 32+ caracteres |
+| `APP_URL=https://athana.ch` | idem (Production) | Sem esta variável é usado o endereço do projeto na Vercel |
+| Pagamentos | idem | `STRIPE_SECRET_KEY` + `STRIPE_WEBHOOK_SECRET` + `PAYMENTS_MODE=stripe`; **ou**, para abrir sem cobrança real, `PAYMENTS_MODE=test` + `ALLOW_TEST_PAYMENTS=true` |
+| `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD` | idem | Cria o super administrador na primeira publicação; remover depois |
+| `CRON_SECRET`, `RESEND_API_KEY`, `EMAIL_PROVIDER=resend`, `ALLOW_INDEXING=true` | idem (Production) | Sem Resend, os e-mails ficam apenas registados |
+| `ADMIN_HOST=admin.athana.ch` e adicionar o domínio `admin.athana.ch` ao projeto | Environment Variables + Settings → Domains | Ver Anexo B |
+
+Limites a conhecer na Vercel: o corpo de um pedido não pode exceder cerca de 4,5 MB, pelo que o limite de envio de ficheiros deve ser reduzido para 4 MB em Admin → Paramètres → Fichiers.
+
+## Anexo B — Painel administrativo em `admin.athana.ch`
+
+Com a variável `ADMIN_HOST` definida:
+
+- o site público responde **404** em `/admin` e em `/api/admin/*` (não revela que existe um painel);
+- o *host* de administração só serve o painel e as páginas de início de sessão e de recuperação de palavra-passe; qualquer outro endereço é reencaminhado para o site público; a raiz abre o painel;
+- os *cookies* de sessão são próprios de cada *host*: a equipa inicia sessão separadamente em `admin.athana.ch`, e uma sessão do site público não dá acesso ao painel (e vice-versa);
+- as ligações para o painel nos e-mails internos e no convite de novos membros apontam para o *host* de administração;
+- as respostas do *host* de administração levam `X-Robots-Tag: noindex, nofollow`.
+
+É o mesmo código e a mesma publicação: basta adicionar o domínio ao projeto e definir a variável. O acesso pode ainda ser restringido por IP ou VPN ao nível do alojamento (na Vercel: Firewall). Sem `ADMIN_HOST`, o painel continua em `/admin` no domínio principal (comportamento em desenvolvimento). A regra está em `src/lib/admin-host.ts` e é aplicada em `src/proxy.ts`; testes em `tests/platform.test.ts` e `e2e/purchase.spec.ts`.

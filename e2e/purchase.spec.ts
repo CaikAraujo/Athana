@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { ADMIN, db, login, refuseCookies, register } from './helpers';
+import { ADMIN, ADMIN_URL, db, login, refuseCookies, register } from './helpers';
 
 test.beforeAll(async () => { await db.rateLimit.deleteMany(); });
 
@@ -60,9 +60,10 @@ test('mandatory scenario: account → template → package → test payment → 
   await expect(page.getByText('Ce briefing est confirmé')).toBeVisible();
 
   // 7-8. The administrator sees the order and changes the project status.
-  const adminCtx = await browser.newContext();
+  const adminCtx = await browser.newContext({ baseURL: ADMIN_URL });
   const admin = await adminCtx.newPage();
-  await login(admin, ADMIN.email, ADMIN.password);
+  await login(admin, ADMIN.email, ADMIN.password, ADMIN_URL);
+  await expect(admin).toHaveURL(/admin\.localhost.*\/fr-ch\/admin/);
   await admin.goto('/fr-ch/admin/orders');
   await admin.getByRole('link', { name: order.number }).click();
   await expect(admin.getByText('Bistrot du Test').or(admin.getByText(customer.email)).first()).toBeVisible();
@@ -117,12 +118,19 @@ test('declined test payment leaves the order unpaid and retryable', async ({ pag
 
 test('access control: customers cannot reach the admin; anonymous APIs are closed', async ({ page, request }) => {
   await register(page);
-  await page.goto('/fr-ch/admin');
-  await expect(page).toHaveURL(/\/fr-ch\/compte/);
-  await page.goto('/fr-ch/admin/orders');
-  await expect(page).toHaveURL(/\/fr-ch\/compte/);
+  // The public host does not serve the back office at all.
+  expect((await page.goto('/fr-ch/admin'))!.status()).toBe(404);
+  expect((await page.goto('/fr-ch/admin/orders'))!.status()).toBe(404);
+  // On the admin host a customer session does not exist (host-only cookies): sign-in is required…
+  await page.goto(`${ADMIN_URL}/fr-ch/admin/orders`);
+  await expect(page).toHaveURL(/admin\.localhost.*connexion/);
+  // …and the admin host serves nothing but the back office.
+  const adminHostHeader = { host: new URL(ADMIN_URL).host }; // Node cannot resolve *.localhost, so the host is set explicitly
+  const away = await request.get('/fr-ch/modeles', { maxRedirects: 0, headers: adminHostHeader });
+  expect(away.status()).toBe(307); // sent back to the public site
   expect((await request.get('/api/files/whatever')).status()).toBe(401);
-  expect((await request.get('/api/admin/reports')).status()).toBe(403);
+  expect((await request.get('/api/admin/reports')).status()).toBe(404);
+  expect((await request.get('/api/admin/reports', { headers: adminHostHeader })).status()).toBe(403);
   expect((await request.get('/api/cron/daily')).status()).toBe(401);
   expect((await request.get('/api/crm/export?type=contacts')).status()).toBeGreaterThanOrEqual(401);
   expect((await request.post('/api/webhooks/test', { data: '{}', headers: { 'x-athana-signature': 't=1,v1=bad' } })).status()).toBe(400);

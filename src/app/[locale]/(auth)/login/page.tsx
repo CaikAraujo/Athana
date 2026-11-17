@@ -1,4 +1,6 @@
 import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
+import { adminHost, normalizeHost } from '@/lib/admin-host';
 import { assertLocale, getT } from '@/i18n/server';
 import { localePath } from '@/i18n/config';
 import { getUser } from '@/modules/auth/session';
@@ -8,7 +10,11 @@ export default async function LoginPage({ params, searchParams }: { params: Prom
   const locale = assertLocale((await params).locale);
   const { next, reset } = await searchParams;
   const user = await getUser();
-  if (user) redirect(localePath(locale, user.platformRole ? '/admin' : '/account'));
+  if (user) {
+    const h = await headers();
+    const onAdmin = !adminHost() || normalizeHost(h.get('x-forwarded-host') ?? h.get('host')) === adminHost();
+    redirect(localePath(locale, user.platformRole && onAdmin ? '/admin' : '/account'));
+  }
   const t = await getT(locale);
   return (
     <>

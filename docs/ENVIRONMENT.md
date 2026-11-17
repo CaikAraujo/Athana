@@ -167,3 +167,13 @@ Vários parâmetros estão na base de dados e editam-se no backoffice (Admin →
 `security.passwordMinLength` é aplicado no registo, na recuperação e na alteração de palavra-passe (`assertPasswordPolicy` em `src/modules/auth/service.ts`). Pode **aumentar** o mínimo acima do piso de 10 caracteres fixado no código, nunca baixá-lo.
 
 Moedas, taxas de imposto e meios de pagamento apresentados estão na tabela `Market` (Admin → Definições → Mercados).
+
+
+## Variáveis acrescentadas depois da primeira versão
+
+| Variável | Obrigatória | Função |
+|---|---|---|
+| `ADMIN_HOST` | Não | *Host* dedicado ao painel administrativo (ex.: `admin.athana.ch`). Quando definida, `/admin` só é servido nesse *host*. Ver `docs/DEPLOYMENT.md`, Anexo B |
+| `BLOB_READ_WRITE_TOKEN` | Em produção na Vercel | *Token* de um *store* privado do Vercel Blob; ativa automaticamente o armazenamento Blob |
+| `STORAGE_DRIVER` | Não | Força o armazenamento: `local` ou `vercel-blob` |
+| `DATABASE_URL_UNPOOLED` / `POSTGRES_URL_NON_POOLING` | Não | Ligação direta usada pelas migrações na compilação da Vercel, se existir |

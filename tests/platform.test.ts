@@ -20,6 +20,7 @@ import { inviteMember, removeMember } from '@/modules/tenancy/members';
 import { storeUpload, validateUpload } from '@/modules/storage/service';
 import { localePath, internalSegment, switchLocalePath } from '@/i18n/config';
 import { pick, interpolate } from '@/i18n/translate';
+import { adminBaseUrl, hostPolicy } from '@/lib/admin-host';
 
 const uid = () => Math.random().toString(36).slice(2, 10);
 const BILLING = { fullName: 'Test Client', email: 'client@example.test', address: 'Rue de Test 1', postalCode: '1200', city: 'Genève', country: 'CH' };
@@ -78,6 +79,25 @@ describe('helpers', () => {
     expect(pick({ fr: 'A', 'pt-PT': 'B' }, 'pt-BR')).toBe('B');
     expect(pick({ fr: 'A' }, 'pt-PT')).toBe('A');
     expect(interpolate('Bonjour {name} {x}', { name: 'Z' })).toBe('Bonjour Z {x}');
+  });
+  it('admin host: the back office is isolated on its own host when ADMIN_HOST is set', () => {
+    const H = 'admin.athana.ch';
+    // Not configured → single host, everything allowed.
+    expect(hostPolicy('athana.ch', ['admin', 'orders'], null)).toBe('allow');
+    // Public host never serves /admin; admin host serves only /admin and sign-in.
+    expect(hostPolicy('athana.ch', ['admin'], H)).toBe('not_found');
+    expect(hostPolicy('athana.ch', ['modeles'], H)).toBe('allow');
+    expect(hostPolicy('ADMIN.athana.ch', ['admin', 'orders'], H)).toBe('allow');
+    expect(hostPolicy(H, ['connexion'], H)).toBe('allow');
+    expect(hostPolicy(H, ['nova-senha'], H)).toBe('allow');
+    expect(hostPolicy(H, [], H)).toBe('to_admin_home');
+    expect(hostPolicy(H, ['compte'], H)).toBe('to_public_site');
+    expect(hostPolicy(H, ['app', 'crm'], H)).toBe('to_public_site');
+    expect(hostPolicy('evil.example', ['admin'], H)).toBe('not_found');
+    process.env.ADMIN_HOST = H;
+    expect(adminBaseUrl('https://athana.ch')).toBe('https://admin.athana.ch');
+    delete process.env.ADMIN_HOST;
+    expect(adminBaseUrl('https://athana.ch')).toBe('https://athana.ch');
   });
   it('csv: escaping and formula injection', () => {
     const csv = toCsv([['=SUM(A1)', 'a;b', 'q"q', 5]]);

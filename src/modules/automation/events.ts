@@ -1,6 +1,7 @@
 import type { ProjectStatus } from '@prisma/client';
 import { db } from '@/lib/db';
 import { env } from '@/lib/env';
+import { adminBaseUrl } from '@/lib/admin-host';
 import { getSetting } from '@/lib/settings';
 import { sendEmail, languageOf } from '@/modules/email/service';
 import { localePath, isLocale, DEFAULT_LOCALE, LOCALE_META, type Locale } from '@/i18n/config';
@@ -23,6 +24,7 @@ export type DomainEvent =
   | { type: 'lead.created'; leadId: string };
 
 const url = (locale: string, path: string) => env.appUrl + localePath(isLocale(locale) ? locale : DEFAULT_LOCALE, path);
+const adminUrl = (path: string) => adminBaseUrl(env.appUrl) + localePath(DEFAULT_LOCALE, path);
 const loc = (l: string): Locale => (isLocale(l) ? l : DEFAULT_LOCALE);
 
 export const PROJECT_STATUS_LABEL: Record<ProjectStatus, string> = {
@@ -64,7 +66,7 @@ async function handle(e: DomainEvent) {
       await notify(order.userId, 'order', t('Paiement reçu — commande {n}', { n: order.number }), t('Remplissez le briefing pour lancer votre projet.'), first ? `/account/projects/${first.id}/briefing` : '/account/orders');
       await db.task.create({ data: { type: 'order_review', title: `Nouvelle commande ${order.number} — vérifier et planifier`, orderId: order.id, dueAt: new Date(Date.now() + 86400_000) } });
       await notifyStaff(['SUPER_ADMIN', 'ADMIN', 'PROJECT_MANAGER', 'FINANCE'], 'order', `Nouvelle commande payée ${order.number}`, `/admin/orders/${order.id}`);
-      await sendEmail({ to: env.adminEmail, templateKey: 'admin_new_order', language: 'fr', vars: { orderNumber: order.number, customer: order.user.name, total: formatMoney(order.total, order.currency, 'fr-ch'), adminUrl: url('fr-ch', `/admin/orders/${order.id}`) } });
+      await sendEmail({ to: env.adminEmail, templateKey: 'admin_new_order', language: 'fr', vars: { orderNumber: order.number, customer: order.user.name, total: formatMoney(order.total, order.currency, 'fr-ch'), adminUrl: adminUrl(`/admin/orders/${order.id}`) } });
       break;
     }
     case 'order.payment_failed': {
@@ -83,7 +85,7 @@ async function handle(e: DomainEvent) {
       const project = await db.project.findUniqueOrThrow({ where: { id: e.projectId }, include: { user: true } });
       await db.task.create({ data: { type: 'production', title: `Briefing reçu — planifier la production de ${project.reference}`, projectId: project.id, dueAt: new Date(Date.now() + 2 * 86400_000) } });
       await notifyStaff(['SUPER_ADMIN', 'ADMIN', 'PROJECT_MANAGER'], 'briefing', `Briefing envoyé pour ${project.reference}`, `/admin/projects/${project.id}`);
-      await sendEmail({ to: env.adminEmail, templateKey: 'admin_briefing_submitted', language: 'fr', vars: { reference: project.reference, customer: project.user.name, adminUrl: url('fr-ch', `/admin/projects/${project.id}`) } });
+      await sendEmail({ to: env.adminEmail, templateKey: 'admin_briefing_submitted', language: 'fr', vars: { reference: project.reference, customer: project.user.name, adminUrl: adminUrl(`/admin/projects/${project.id}`) } });
       await sendEmail({ to: project.user.email, templateKey: 'briefing_received', language: languageOf(project.user.locale), vars: { name: project.user.name, reference: project.reference, projectUrl: url(project.user.locale, `/account/projects/${project.id}`) } });
       break;
     }
@@ -150,7 +152,7 @@ async function handle(e: DomainEvent) {
     case 'lead.created': {
       const lead = await db.lead.findUniqueOrThrow({ where: { id: e.leadId } });
       await notifyStaff(['SUPER_ADMIN', 'ADMIN', 'MARKETING', 'SUPPORT', 'PROJECT_MANAGER'], 'lead', `Nouveau lead : ${lead.name}`, '/admin/leads');
-      await sendEmail({ to: env.adminEmail, templateKey: 'admin_new_lead', language: 'fr', vars: { name: lead.name, email: lead.email, company: lead.company ?? '-', phone: lead.phone ?? '-', kind: lead.kind, message: lead.message, adminUrl: url('fr-ch', '/admin/leads') } });
+      await sendEmail({ to: env.adminEmail, templateKey: 'admin_new_lead', language: 'fr', vars: { name: lead.name, email: lead.email, company: lead.company ?? '-', phone: lead.phone ?? '-', kind: lead.kind, message: lead.message, adminUrl: adminUrl('/admin/leads') } });
       await sendEmail({ to: lead.email, templateKey: 'lead_ack', language: languageOf(lead.market), vars: { name: lead.name } });
       break;
     }

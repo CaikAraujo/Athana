@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { hostPolicy, adminHost, normalizeHost } from '@/lib/admin-host';
 import { DEFAULT_LOCALE, SEGMENTS, internalSegment, isLocale, localePath, type Locale } from '@/i18n/config';
 
 const LOCALE_COOKIE = 'athana_locale';
@@ -27,6 +28,13 @@ function detectLocale(req: NextRequest): Locale {
 export function proxy(req: NextRequest) {
   const { pathname, search } = req.nextUrl;
   const parts = pathname.split('/').filter(Boolean);
+  const host = req.headers.get('x-forwarded-host') ?? req.headers.get('host');
+  const onAdminHost = !!adminHost() && normalizeHost(host) === adminHost();
+
+  // Back-office API routes only exist on the admin host (when one is configured).
+  if (parts[0] === 'api') {
+    return hostPolicy(host, ['admin']) === 'allow' ? NextResponse.next() : NextResponse.json({ error: 'not_found' }, { status: 404 });
+  }
 
   if (!isLocale(parts[0])) {
     const url = req.nextUrl.clone();
@@ -36,6 +44,18 @@ export function proxy(req: NextRequest) {
 
   const locale = parts[0];
   const first = parts[1];
+  const decision = hostPolicy(host, parts.slice(1));
+  if (decision === 'not_found') {
+    // The public site does not reveal that a back office exists.
+    const url = req.nextUrl.clone();
+    url.pathname = `/${locale}/__not-found`;
+    return NextResponse.rewrite(url, { status: 404 });
+  }
+  if (decision === 'to_admin_home') return NextResponse.redirect(new URL(`/${locale}/admin`, req.url), 307);
+  if (decision === 'to_public_site') {
+    const base = (process.env.APP_URL || '').replace(/\/$/, '');
+    return base ? NextResponse.redirect(base + pathname + search, 307) : NextResponse.json({ error: 'not_found' }, { status: 404 });
+  }
   let res: NextResponse;
   if (first) {
     const internal = internalSegment(locale, first);
@@ -53,10 +73,11 @@ export function proxy(req: NextRequest) {
     res = NextResponse.next();
   }
   res.headers.set('x-athana-path', pathname);
+  if (onAdminHost) res.headers.set('X-Robots-Tag', 'noindex, nofollow');
   return res;
 }
 
 export const config = {
   // Everything except API routes, Next internals, template demos and static files.
-  matcher: ['/((?!api|_next|demo|images|favicon|icon|robots.txt|sitemap.xml|.*\\.[a-zA-Z0-9]{2,5}$).*)'],
+  matcher: ['/((?!api|_next|demo|images|favicon|icon|robots.txt|sitemap.xml|.*\\.[a-zA-Z0-9]{2,5}$).*)', '/api/admin/:path*'],
 };
