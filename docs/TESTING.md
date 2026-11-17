@@ -130,7 +130,7 @@ Resultados registados pelo autor do código no ambiente de desenvolvimento; não
 |---|---|
 | Vitest | **77 testes a passar em 3 ficheiros** (24 + 22 + 31) |
 | Playwright | **13 testes + 1 de preparação a passar**, nos projetos `desktop` e `mobile` |
-| `i18n:check` | 1804 frases de origem, 1804 traduzidas em pt-PT e em pt-BR, 0 em falta, 0 marcadores divergentes; 399 frases usadas por componentes de cliente (reexecutado ao escrever este documento) |
+| `i18n:check` | 1808 frases de origem, 1808 traduzidas em pt-PT e em pt-BR, 0 em falta, 0 marcadores divergentes; 399 frases usadas por componentes de cliente (reexecutado ao atualizar este documento) |
 
 ## 6. Integração contínua
 

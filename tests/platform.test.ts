@@ -354,12 +354,17 @@ describe('briefing and project workflow (mandatory scenario)', () => {
     expect((await db.project.findUniqueOrThrow({ where: { id: project.id } })).status).toBe('REVISION_REQUESTED');
     await expect(approveProject(customer.id, project.id)).rejects.toThrow();
     await setProjectStatus(manager, project.id, 'CLIENT_REVIEW');
+    // The BUSINESS package includes 2 revision cycles: a third request is refused.
+    await requestRevision(customer.id, project.id, 'Deuxième série de modifications');
+    await setProjectStatus(manager, project.id, 'CLIENT_REVIEW');
+    await expect(requestRevision(customer.id, project.id, 'Troisième série de modifications')).rejects.toThrow(/épuisés/);
+    expect((await db.project.findUniqueOrThrow({ where: { id: project.id } })).dueAt).not.toBeNull(); // set when the briefing was confirmed
     await approveProject(customer.id, project.id);
     expect(await db.task.count({ where: { projectId: project.id, type: { in: ['delivery', 'maintenance_offer'] } } })).toBe(2);
     await setProjectStatus(manager, project.id, 'COMPLETED');
     expect((await db.project.findUniqueOrThrow({ where: { id: project.id } })).status).toBe('COMPLETED');
     const events = await db.projectEvent.findMany({ where: { projectId: project.id }, orderBy: { createdAt: 'asc' } });
-    expect(events.map((e) => e.toStatus)).toEqual(['PAID', 'BRIEFING_PENDING', 'BRIEFING_SUBMITTED', 'PROJECT_QUEUED', 'IN_DEVELOPMENT', 'CLIENT_REVIEW', 'REVISION_REQUESTED', 'CLIENT_REVIEW', 'APPROVED', 'COMPLETED']);
+    expect(events.map((e) => e.toStatus)).toEqual(['PAID', 'BRIEFING_PENDING', 'BRIEFING_SUBMITTED', 'PROJECT_QUEUED', 'IN_DEVELOPMENT', 'CLIENT_REVIEW', 'REVISION_REQUESTED', 'CLIENT_REVIEW', 'REVISION_REQUESTED', 'CLIENT_REVIEW', 'APPROVED', 'COMPLETED']);
   });
 
   it('includes personal data in the export only with explicit AI consent', async () => {

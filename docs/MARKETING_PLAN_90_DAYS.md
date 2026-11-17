@@ -102,7 +102,7 @@ A plataforma dispara os eventos abaixo através de uma camada única (`src/modul
 | `form_submit` | Envio do formulário de orçamento ou de uma página de campanha | `form` (`quote` ou `campaign`), `interest` | `Lead` |
 | `contact` | Envio do formulário de contacto | `form`, `interest` | `Contact` |
 | `subscribe` | Clique num botão de teste gratuito (`step = trial`); regresso após ativação paga (`step = activated`) | `plan`, `step` | `Subscribe` |
-| `sign_up` | Criação de conta | — | `CompleteRegistration` |
+| `sign_up` | Primeira abertura da área de cliente logo após a criação da conta, uma vez por conta | — | `CompleteRegistration` |
 
 Existe ainda um evento `cta_click` definido no código, mas nenhuma página o dispara.
 
@@ -113,7 +113,7 @@ Existe ainda um evento `cta_click` definido no código, mas nenhuma página o di
 - **Só visitantes que aceitaram os cookies são medidos.** O GA4 e as plataformas de anúncios mostram menos do que a realidade. **A referência é o painel de administração**: encomendas, pagamentos, leads e subscrições.
 - `purchase` só dispara se o cliente regressar à página de confirmação. Compare sempre com Admin → Commandes.
 - `add_to_cart`, `begin_checkout`, `briefing_submit` e `subscribe` (passo `trial`) disparam **no clique**, mesmo que o servidor recuse a seguir (formulário incompleto, por exemplo). Podem sobrestimar ligeiramente.
-- `sign_up` é enviado no momento em que o registo redireciona para a área de cliente: confirme no GA4 (DebugView) que chega de facto.
+- `sign_up` não é enviado para contas criadas por convite (colegas convidados para o CRM ou o Pointage, membros da equipa), que definem a palavra-passe por uma ligação e não passam pelo formulário de registo.
 - O `page_view` é enviado pela plataforma em cada página e o GA4 também envia um automaticamente ao carregar: verifique se a primeira página de cada visita não fica contada duas vezes e, se ficar, desative o envio automático na configuração.
 - As páginas de demonstração em ecrã inteiro (`/demo/<slug>`) não têm faixa de cookies nem medição. O interesse por um modelo mede-se pela sua ficha (`view_item`).
 - **Atribuição dos leads:** os parâmetros `utm_*` do endereço são guardados durante 30 dias (com acordo de medição) e gravados em cada lead; o painel mostra `utm_source/utm_campaign`. **As encomendas e os registos não guardam UTM**: a atribuição das vendas vem do GA4 e das plataformas de anúncios, ou de um cupão por canal (secção 12).
@@ -144,7 +144,7 @@ Definem-se nas variáveis de ambiente do servidor e exigem uma nova publicação
 | `NEXT_PUBLIC_META_PIXEL_ID` | Pixel da Meta |
 | `NEXT_PUBLIC_GTM_ID` | Tag Manager — **alternativa**, ver nota |
 
-Nota sobre o Tag Manager: se `NEXT_PUBLIC_GTM_ID` estiver definido, substitui as etiquetas GA4 e Google Ads diretas; os eventos passam a ser apenas colocados no `dataLayer`, e as etiquetas, os acionadores, a conversão de compra do Google Ads e o respeito pelo acordo de marketing têm de ser configurados dentro do Tag Manager. **Para o lançamento, é mais simples não usar o Tag Manager** e definir diretamente os identificadores GA4 e Google Ads.
+Nota sobre o Tag Manager: se `NEXT_PUBLIC_GTM_ID` estiver definido, substitui as etiquetas GA4 e Google Ads diretas. A plataforma comunica ao contentor o estado do consentimento (medição e marketing) e coloca os eventos na camada de dados, mas as etiquetas, os acionadores e a conversão de compra do Google Ads têm de ser configurados e testados dentro do Tag Manager; esta via não foi verificada com um contentor real. **Para o lançamento, é mais simples não usar o Tag Manager** e definir diretamente os identificadores GA4 e Google Ads.
 
 ### Consentimento
 

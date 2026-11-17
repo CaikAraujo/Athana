@@ -131,6 +131,11 @@ export async function confirmBriefing(userId: string, projectId: string) {
     await tx.briefing.update({ where: { id: briefing.id }, data: { status: 'CONFIRMED', confirmedAt: new Date() } });
     const project = await tx.project.findUniqueOrThrow({ where: { id: projectId } });
     if (project.status === 'BRIEFING_SUBMITTED') await transition(projectId, 'PROJECT_QUEUED', userId, undefined, tx);
+    // Estimated delivery = package lead time in working days from the confirmed briefing (staff can adjust it).
+    if (!project.dueAt) {
+      const item = await tx.orderItem.findUniqueOrThrow({ where: { id: project.orderItemId }, include: { package: true } });
+      await tx.project.update({ where: { id: projectId }, data: { dueAt: addWorkingDays(new Date(), item.package.deliveryDays) } });
+    }
   });
   await emit({ type: 'project.status_changed', projectId, from: 'BRIEFING_SUBMITTED', to: 'PROJECT_QUEUED' });
 }
@@ -163,6 +168,15 @@ export async function exportProjectBrief(actor: Actor, projectId: string) {
   };
 }
 
+export function addWorkingDays(from: Date, days: number): Date {
+  const d = new Date(from);
+  for (let left = days; left > 0; ) {
+    d.setUTCDate(d.getUTCDate() + 1);
+    if (d.getUTCDay() !== 0 && d.getUTCDay() !== 6) left--;
+  }
+  return d;
+}
+
 // ── Revisions & approval ────────────────────────────────────────────────────
 
 export async function requestRevision(userId: string, projectId: string, description: string) {
@@ -171,6 +185,10 @@ export async function requestRevision(userId: string, projectId: string, descrip
   if (project.status !== 'CLIENT_REVIEW') throw new AppError(m('Les révisions sont possibles lorsque le projet est en attente de votre validation.'));
   const text = description.trim();
   if (text.length < 10) throw new AppError(m('Décrivez la révision souhaitée (10 caractères minimum).'));
+  // The package defines how many revision cycles are included; beyond that the request goes through the project messages.
+  if (project.revisions.filter((r) => r.status !== 'REJECTED').length >= project.orderItem.package.revisions) {
+    throw new AppError(m('Les cycles de révision inclus dans votre pack sont épuisés. Écrivez-nous via la messagerie du projet pour un complément.'), 'limit');
+  }
   await db.revision.create({ data: { projectId, requestedById: userId, description: text.slice(0, 5000) } });
   await transition(projectId, 'REVISION_REQUESTED', userId);
   await emit({ type: 'project.message', projectId, fromStaff: false });

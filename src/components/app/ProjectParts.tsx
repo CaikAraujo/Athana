@@ -6,8 +6,8 @@ import { PROJECT_STATUS_LABEL } from '@/modules/automation/events';
 
 /** Simplified client-facing milestones mapped from the 13 internal statuses. */
 const MILESTONES: { label: string; reached: ProjectStatus[] }[] = [
-  { label: 'Paiement', reached: ['PAID', 'BRIEFING_PENDING'] },
-  { label: 'Briefing', reached: ['BRIEFING_SUBMITTED', 'PROJECT_QUEUED'] },
+  { label: 'Paiement', reached: ['PAID'] },
+  { label: 'Briefing', reached: ['BRIEFING_PENDING', 'BRIEFING_SUBMITTED', 'PROJECT_QUEUED'] },
   { label: 'Réalisation', reached: ['IN_DEVELOPMENT', 'INTERNAL_REVIEW'] },
   { label: 'Validation', reached: ['CLIENT_REVIEW', 'REVISION_REQUESTED', 'APPROVED'] },
   { label: 'Mise en ligne', reached: ['DEPLOYMENT_PENDING', 'COMPLETED', 'MAINTENANCE'] },

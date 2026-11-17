@@ -215,7 +215,7 @@ Efeitos de `checkout.completed`: encomenda `PAID`, registo `Payment`, incremento
 | Locales encaminhados | `fr-ch`, `fr-fr`, `pt-pt`, `pt-br` (`LOCALES` em `src/i18n/config.ts`). `en` está em `PREPARED_LOCALES`, com `en.json` vazio: **preparado, não ativo**. |
 | Estilo gettext | A frase de origem em francês é a chave: `t('Texte en français')`, com interpolação `t('Bonjour {name}', { name })`. |
 | `m('…')` | Marca uma frase para extração sem a traduzir (mensagens de `AppError`, zod, mapas de etiquetas). É traduzida no momento de mostrar. |
-| Dicionários | `src/i18n/messages/pt-PT.json` e `pt-BR.json` (1804 frases cada, completos). `fr-FR.json` e `en.json` estão vazios: `fr-fr` usa as frases de origem. `pt-BR` recorre a `pt-PT` em caso de falta. |
+| Dicionários | `src/i18n/messages/pt-PT.json` e `pt-BR.json` (1808 frases cada, completos). `fr-FR.json` e `en.json` estão vazios: `fr-fr` usa as frases de origem. `pt-BR` recorre a `pt-PT` em caso de falta. |
 | Servidor | `const t = await getT(locale)` (`src/i18n/server.ts`). O dicionário é JSON + substituições da tabela `TranslationOverride` (editável no backoffice). |
 | Cliente | `useT()` (`src/i18n/client.tsx`). Só as 399 frases usadas em componentes `'use client'` são enviadas ao browser, segundo `src/i18n/generated/client-keys.json`. |
 | Ferramenta | `npm run i18n:check` (`scripts/i18n-check.ts`) extrai as chamadas `t('…')` e `m('…')` de `src/` (exceto `src/demos`), falha se faltar uma tradução pt-PT/pt-BR, se os marcadores `{x}` não coincidirem ou se `client-keys.json` estiver desatualizado. `-- --write` regenera os ficheiros de `generated/`. |
@@ -272,7 +272,7 @@ Tarefas internas (`Task`, visíveis em Admin → Tarefas) são criadas pelas aut
 
 `GET /api/admin/projects/[id]/brief` (permissão `projects.view`) devolve um ficheiro `<referência>-brief.json` com o esquema `athana.project-brief/v1`: projeto, produto (modelo, escalão, demonstração, tecnologias, opções, páginas e revisões incluídas), briefing e lista de ficheiros. Cada exportação é registada no `AuditLog`.
 
-Redação sem consentimento de IA: quando `aiConsent` é falso, os campos `contact.name`, `contact.email`, `contact.phone` e `company.address` são substituídos por `[redacted — no AI consent]`. O nome da empresa e os campos de texto livre (objetivo, público, textos, "pelas suas palavras"…) são exportados em qualquer caso; se o cliente lá escreveu dados pessoais, eles constam do ficheiro. O campo `aiProcessingConsent` indica o estado do consentimento.
+Redação sem consentimento de IA: quando `aiConsent` é falso, são substituídos por `[redacted — no AI consent]` os campos `contact.name`, `contact.email`, `contact.phone`, `company.address` e os três campos de conteúdo livre `content.texts`, `content.extra` e `content.inTheirOwnWords`. O nome da empresa, o setor, o país e os requisitos do projeto (objetivo, público, páginas, funcionalidades, referências, redes sociais, produtos) são exportados em qualquer caso; são também campos de texto preenchidos pelo cliente, pelo que podem conter dados pessoais se ele os lá escreveu. O campo `aiProcessingConsent` indica o estado do consentimento. A equipa continua a ver o briefing completo no backoffice.
 
 Nada é enviado automaticamente a nenhum serviço de IA. O ficheiro é descarregado por um membro da equipa, que decide o que fazer com ele.
 

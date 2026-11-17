@@ -202,6 +202,8 @@ O dinheiro é devolvido através do prestador (Stripe); em modo de teste nada é
 
 O reembolso **não** altera o estado do projeto nem gera nota de crédito: se o trabalho deve parar, avise o cliente pela mensagem do projeto e trate a contabilidade fora da plataforma.
 
+Os pagamentos de **subscrições** não se reembolsam no painel: não têm botão de reembolso, e a plataforma recusa a operação para pagamentos Stripe de subscrições («Les paiements d’abonnement se remboursent depuis le tableau de bord du prestataire de paiement.»). Faça-os no painel do Stripe; o reembolso não fica refletido na plataforma.
+
 ## 6. Projetos
 
 **Ventes → Projets** (Vendas → Projetos) — `/admin/projects`.
@@ -249,7 +251,7 @@ Com `projects.manage`, cartão **Organisation**:
 | **URL d’aperçu (client)** | Tem de começar por `https://`. O cliente vê a ligação **Ouvrir l’aperçu** quando o projeto está em «À valider par vous». |
 | **URL du site en ligne** | Tem de começar por `https://`. Assim que é preenchida, o cliente vê «Votre site est en ligne». |
 
-O prazo **não é calculado automaticamente** a partir dos dias de entrega do pack: tem de ser introduzido à mão. A opção «Livraison express» também não altera nada sozinha — é o gestor que dá prioridade.
+O prazo é **preenchido automaticamente** quando o cliente confirma o briefing: data da confirmação + dias úteis de entrega do pack. O gestor pode alterá-lo à mão. A opção «Livraison express» não altera nada sozinha — é o gestor que dá prioridade e ajusta a data.
 
 ### Mensagens e notas internas
 
@@ -284,9 +286,9 @@ Botão **Exporter (JSON)** no cartão do briefing. Descarrega `PRJ-…-brief.jso
 **Regra do consentimento.** No briefing, o cliente pode marcar a caixa «J’autorise ATHANA à traiter ce briefing à l’aide d’outils d’intelligence artificielle…». É facultativa.
 
 - Com consentimento: o JSON contém todos os dados.
-- Sem consentimento: o nome do contacto, o e-mail, o telefone e a morada são substituídos por `[redacted — no AI consent]`.
+- Sem consentimento: são substituídos por `[redacted — no AI consent]` os dados de contacto (nome do responsável, e-mail, telefone, morada) e os três campos de texto livre que podem conter dados pessoais — textos do site, informações complementares e «com as suas próprias palavras».
 
-Atenção: os campos de texto livre (textos do site, «com as suas próprias palavras», informações complementares) são exportados tal como estão, com ou sem consentimento. **Se `aiProcessingConsent` for `false`, leia esses campos e retire qualquer dado pessoal antes de passar o ficheiro a uma ferramenta de IA.** Cada exportação fica no registo de auditoria (`project.brief_export`) com o valor do consentimento.
+Os requisitos estruturados do projeto (nome e setor da empresa, país, língua, domínio, cores, referências, objetivo, público-alvo, páginas, funcionalidades, redes sociais, serviços ou produtos) e a lista de ficheiros são sempre exportados. Um cliente pode ter escrito dados pessoais também nesses campos: **com `aiProcessingConsent` a `false`, releia o ficheiro antes de o passar a uma ferramenta de IA.** Para ler o briefing completo, a equipa usa o ecrã do projeto, onde nada é ocultado. Cada exportação fica no registo de auditoria (`project.brief_export`) com o valor do consentimento.
 
 ## 7. Clientes
 
@@ -483,7 +485,7 @@ A chave de tradução liga as versões do mesmo artigo: dê a mesma chave (por e
 
 ### FAQ
 
-**FAQ** — pergunta e resposta nas três línguas, **Emplacement** (por omissão `home`, a página inicial), ordem e **Publiée**. As perguntas das fichas de produto ficam guardadas em cada produto e não são editáveis aqui.
+**FAQ** — pergunta e resposta nas três línguas, **Emplacement** (página inicial, página do ATHANA CRM ou página do ATHANA Pointage), ordem e **Publiée**. O *seed* só cria perguntas para a página inicial. As perguntas das fichas de produto ficam guardadas em cada produto e não são editáveis aqui.
 
 ### Banners
 
@@ -557,7 +559,7 @@ Cartão **Intégrations** — só de leitura. As credenciais definem-se nas vari
 | **Confidentialité et rétention** | Versão da política (alterá-la volta a pedir o consentimento de cookies); conservação dos leads (meses) | `2026-11`; 24 |
 | **Automatisations** | «Créer une tâche “proposer la maintenance” quand un projet est approuvé» | Ligada |
 
-O painel recusa um comprimento mínimo de palavra-passe inferior a 10 e uma sessão inferior a 1 dia. Acrescentar um tipo de ficheiro à lista não basta: o servidor só aceita os nove tipos que sabe verificar pelo conteúdo.
+O painel recusa um comprimento mínimo de palavra-passe inferior a 10 e uma sessão inferior a 1 dia. O mínimo definido aqui aplica-se ao registo, à alteração e à reposição de palavras-passe (o texto de ajuda dos formulários continua a dizer «10 caractères minimum»). Quando um utilizador altera a palavra-passe, as suas sessões noutros dispositivos são encerradas. Acrescentar um tipo de ficheiro à lista não basta: o servidor só aceita os nove tipos que sabe verificar pelo conteúdo.
 
 ### Equipa
 
@@ -628,7 +630,7 @@ Depois: confirme que o preço «a partir de» coincide com o pack mais barato e 
 
 1. **Encomenda paga.** Chega a tarefa «Nouvelle commande … — vérifier et planifier». Abra a encomenda, verifique o pack e as opções e abra o projeto ligado. Atribua um responsável e uma data em **Organisation**.
 2. **Briefing.** O cliente preenche e envia o briefing (tarefa «Briefing reçu — planifier la production»). Leia-o no cartão **Briefing** e veja os ficheiros em **Fichiers**. Se faltar informação, peça-a por mensagem; o cliente pode corrigir o briefing até o confirmar definitivamente, momento em que o projeto passa a «En file d’attente».
-3. **Verificar o consentimento de IA.** Veja o indicador **Consentement IA**. Se for «non», os dados de contacto vêm ocultados na exportação, e é sua responsabilidade retirar dados pessoais dos campos de texto livre antes de usar qualquer ferramenta de IA.
+3. **Verificar o consentimento de IA.** Veja o indicador **Consentement IA**. Se for «non», a exportação oculta os dados de contacto e os textos livres do cliente: a ferramenta de IA recebe apenas os requisitos estruturados, e os textos do cliente têm de ser integrados à mão, a partir do ecrã do projeto. Releia sempre o ficheiro antes de o usar.
 4. **Exportar o brief** com **Exporter (JSON)**. O ficheiro indica o modelo (`product.template`), a demonstração (`product.demo`), o pack, as páginas e revisões incluídas, as opções e as respostas do cliente.
 5. **Partir do código da demonstração.** O ponto de partida do site do cliente é o código do modelo comprado, em `src/demos/<slug>/`. Copie-o para o repositório do projeto do cliente e use o JSON como especificação: textos, cores, páginas, funcionalidades. Os ficheiros do cliente descarregam-se um a um no cartão **Fichiers**. A plataforma não gera o site: exporta a especificação; a produção, com ou sem assistente de IA, é feita fora dela.
 6. **Estados.** «En développement» ao começar; «Revue interne» para o controlo de qualidade (o cliente não é avisado). Compare o resultado com o número de páginas e as opções da encomenda.

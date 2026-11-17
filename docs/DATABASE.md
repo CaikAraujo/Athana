@@ -206,6 +206,6 @@ Cria o cupão `TEST10` (10 %, campanha `sandbox`). É necessário para os testes
 
 Ver [DEPLOYMENT.md](DEPLOYMENT.md), secção de cópias de segurança. Em resumo:
 
-- `deploy/backup.sh` faz `pg_dump --format=custom` da base de dados e um `tar.gz` do volume de uploads, com retenção local de 30 dias;
-- `deploy/restore.sh <ficheiro.dump>` substitui a base de dados (`pg_restore --clean --if-exists`), com confirmação manual; não restaura os uploads;
+- `deploy/backup.sh` faz `pg_dump --format=custom` da base de dados e um `tar.gz` da pasta de uploads (a partir do contentor `app`), com retenção local de 30 dias;
+- `deploy/restore.sh <ficheiro.dump> [uploads.tar.gz]` substitui a base de dados (`pg_restore --clean --if-exists`), com confirmação manual, e, se for indicado o segundo argumento, extrai o arquivo de uploads;
 - a base de dados e a pasta de uploads têm de ser guardadas **juntas**: `FileAsset.storageKey` aponta para ficheiros no disco.

@@ -23,7 +23,7 @@ Legenda: ✅ implementado e testado · 🟡 implementado, verificação parcial 
 | 9 | ATHANA CRM (multi-empresa): contactos, empresas, leads, pipelines configuráveis, negócios, atividades, tarefas, calendário, propostas, anexos, pesquisa, relatórios, exportação, equipa, limites por plano, *onboarding* | ✅ | `tests/crm.test.ts` (22 testes, isolamento entre duas empresas); páginas percorridas no navegador |
 | 10 | ATHANA Pointage (multi-empresa): 3 perfis, registo de ponto com hora do servidor, controlo de duplicados, pausas, horas extraordinárias, ausências, férias, calendário, relatórios, CSV e PDF, auditoria, fusos horários, retenção | ✅ | `tests/pointage.test.ts` (31 testes); páginas percorridas no navegador |
 | 11 | Subscrições SaaS: período de teste, ativação, renovação, falha de pagamento, cancelamento no fim do período, reativação, avisos de renovação, preço por lugar | ✅ | Testes de serviço + E2E (teste gratuito → ativação → cancelamento) |
-| 12 | 4 mercados (`/fr-ch`, `/fr-fr`, `/pt-pt`, `/pt-br`), 1 806 textos traduzidos para pt-PT e pt-BR, endereços localizados, deteção com escolha manual prioritária, moedas, datas, fusos | ✅ | `npm run i18n:check`; E2E de línguas |
+| 12 | 4 mercados (`/fr-ch`, `/fr-fr`, `/pt-pt`, `/pt-br`), 1 808 textos traduzidos para pt-PT e pt-BR, endereços localizados, deteção com escolha manual prioritária, moedas, datas, fusos | ✅ | `npm run i18n:check`; E2E de línguas |
 | 13 | SEO: metadados, canónicas, `hreflang`, sitemap, robots, Open Graph, dados estruturados (Organization, Product, Service, SoftwareApplication, FAQ, Breadcrumb, BlogPosting), blogue, redirecionamentos dos endereços antigos | ✅ | E2E de SEO |
 | 13 | Marketing: camada de eventos independente do fornecedor, GA4 / GTM / Google Ads / Meta Pixel sujeitos a consentimento, páginas de campanha, captura UTM, leads | 🟡 | Banner de consentimento e eventos testados; **etiquetas não verificadas com identificadores reais** |
 | 14 | Automações: compra, briefing, mudança de estado, aprovação, renovação; modelos de e-mail em 3 línguas | ✅ | Testes (tarefas, notificações e e-mails registados) |
@@ -40,6 +40,12 @@ Nada em curso.
 |---|---|
 | PayPal | ⬜ Não implementado (existe a interface de fornecedor de pagamentos) |
 | TWINT, Multibanco, MB WAY, Pix | 🟡 Passam pelo Stripe Checkout sem código próprio; dependem da elegibilidade da conta Stripe — por verificar |
+| Impostos nas subscrições | ⬜ A taxa do mercado aplica-se às encomendas de modelos; as subscrições são cobradas ao preço do plano, sem imposto. A decidir com o parecer fiscal |
+| Imposto segundo o país do cliente | ⬜ A taxa depende do mercado do site (`/fr-ch`, `/pt-pt`…), não do país de faturação; o número de IVA é guardado mas não validado |
+| Eliminação de conta (RGPD) | 🟡 Anonimiza a conta e apaga briefings e ficheiros; não apaga os dados de CRM/Pointage da empresa nem os dados de faturação das encomendas (conservação legal). Recusada enquanto existir uma subscrição ativa |
+| Opção «Livraison express» | 🟡 Vendida como opção, sem efeito automático no prazo (tratamento manual) |
+| Destaques dos planos na página de preços | 🟡 Não editáveis no painel; rever se os limites forem alterados |
+| Demonstrações em português | 🟡 9 das 10 demonstrações estão em francês |
 | Faturas de subscrições | ⬜ As renovações criam pagamentos, mas não documentos de fatura (as faturas existem para encomendas) |
 | Mudança de plano com subscrição Stripe ativa | ⬜ Bloqueada de propósito (regras de proporcionalidade a validar); funciona em período de teste |
 | Sincronização de lugares do Pointage com o Stripe | ⬜ O número de lugares é atualizado na plataforma; a quantidade no Stripe não é alterada automaticamente |
@@ -57,7 +63,7 @@ Nada em curso.
 | Conjunto | Resultado |
 |---|---|
 | `npm run typecheck` | Sem erros |
-| `npm run i18n:check` | 1 806 / 1 806 textos em pt-PT e pt-BR, sem divergências de variáveis |
+| `npm run i18n:check` | 1 808 / 1 808 textos em pt-PT e pt-BR, sem divergências de variáveis |
 | `npm test` (Vitest, base de dados real) | 77 testes em 3 ficheiros, todos a passar |
 | `npm run test:e2e` (Playwright, *build* de produção) | 13 testes + 1 de preparação, todos a passar (computador e telemóvel) |
 | `npm run build` | Compila; 343 páginas estáticas geradas |

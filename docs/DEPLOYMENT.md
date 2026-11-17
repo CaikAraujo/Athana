@@ -83,9 +83,9 @@ git checkout <ramo ou tag a publicar>
 
 cp .env.example .env.production
 # Editar .env.production (ver ENVIRONMENT.md):
-#   - acrescentar POSTGRES_PASSWORD=<forte>
+#   - descomentar e preencher POSTGRES_PASSWORD=<forte>
 #   - APP_URL, SESSION_SECRET, PAYMENTS_MODE, chaves Stripe, Resend, CRON_SECRET, ALLOW_INDEXING
-#   - REMOVER a linha STORAGE_DIR ou pô-la a /data/storage
+#   - NEXT_PUBLIC_* se houver etiquetas de marketing (são lidas na construção da imagem)
 #   - SEED_ADMIN_EMAIL / SEED_ADMIN_PASSWORD para a primeira execução
 chmod 600 .env.production
 
@@ -98,21 +98,18 @@ curl -s http://127.0.0.1:3000/api/health
 Notas sobre `.env.production`:
 
 - `DATABASE_URL` é substituída pelo compose (aponta para o serviço `db`); o valor no ficheiro é ignorado nos contentores.
-- A opção `--env-file` serve para a interpolação do compose (`POSTGRES_PASSWORD`); `env_file:` dentro do compose entrega as variáveis aos contentores. É o mesmo ficheiro.
-- `STORAGE_DIR`: os valores de `env_file` sobrepõem-se ao `ENV` da imagem. Se ficar `./storage`, os uploads são escritos fora do volume.
+- A opção `--env-file` serve para a interpolação do compose (`POSTGRES_PASSWORD` e os *build args* `NEXT_PUBLIC_*`); `env_file:` dentro do compose entrega as variáveis aos contentores. É o mesmo ficheiro.
+- `STORAGE_DIR`: o compose força `/data/storage` no serviço `app`; o valor do ficheiro é ignorado.
 
 ### Etiquetas de marketing na imagem
 
-As variáveis `NEXT_PUBLIC_*` são incorporadas em `next build`. O `Dockerfile` aceita-as como `ARG`, mas o `docker-compose.yml` usa `build: .` sem `args`. Para as ativar, uma de duas opções:
+As variáveis `NEXT_PUBLIC_*` são incorporadas em `next build`. O `Dockerfile` aceita-as como `ARG` e o `docker-compose.yml` passa-as como `build.args` do serviço `app`, com os valores do ficheiro dado em `--env-file`. Para as ativar ou alterar: definir em `.env.production` e reconstruir.
 
 ```bash
-# a) construir a imagem à mão
-docker build -t athana-app:<tag> \
-  --build-arg NEXT_PUBLIC_GA4_ID=G-XXXX \
-  --build-arg NEXT_PUBLIC_META_PIXEL_ID=1234 .
+docker compose --env-file .env.production up -d --build
 ```
 
-ou b) acrescentar um bloco `build: { context: ., args: { NEXT_PUBLIC_GA4_ID: ${NEXT_PUBLIC_GA4_ID}, … } }` aos serviços do compose (alteração de configuração ainda por fazer).
+Alterar estas variáveis sem reconstruir a imagem não tem efeito. Ao construir a imagem fora do compose, passar `--build-arg NEXT_PUBLIC_GA4_ID=… ` etc.
 
 ### HTTPS com Caddy
 
@@ -231,22 +228,22 @@ Resposta esperada: `{"ok":true,"billing":{…},"pointage":{…},"purgedLeads":0}
 
 ### `deploy/backup.sh`
 
-Gera em `BACKUP_DIR` (por omissão `/var/backups/athana`):
+O script muda para a pasta do projeto, usa `docker compose --env-file $ENV_FILE` (por omissão `.env.production`) e gera em `BACKUP_DIR` (por omissão `/var/backups/athana`):
 
 - `db-<data>.dump` — `pg_dump --format=custom` do serviço `db`;
-- `uploads-<data>.tar.gz` — conteúdo do volume `athana_uploads`;
+- `uploads-<data>.tar.gz` — conteúdo de `/data/storage`, lido dentro do contentor `app` (`exec -T app tar`);
 
 e apaga ficheiros com mais de `KEEP_DAYS` dias (30).
 
-Dois cuidados, porque o script não os trata:
+```cron
+15 2 * * * /opt/athana/deploy/backup.sh >> /var/log/athana-backup.log 2>&1
+```
 
-- usa `docker compose exec`, por isso tem de ser executado **a partir da pasta do projeto**. O exemplo de cron no cabeçalho do script não muda de pasta; usar:
+Cuidados:
 
-  ```cron
-  15 2 * * * cd /opt/athana && ./deploy/backup.sh >> /var/log/athana-backup.log 2>&1
-  ```
-
-- o nome do volume `athana_uploads` pressupõe que o projeto compose se chama `athana` (pasta `athana` ou `-p athana`). Com outro nome, ajustar o script.
+- os serviços `db` e `app` têm de estar a correr; com `app` parado, o arquivo de uploads fica vazio ou o script falha;
+- para staging, indicar o ficheiro e o destino: `ENV_FILE=.env.staging BACKUP_DIR=/var/backups/athana-staging ./deploy/backup.sh` (e o mesmo nome de projeto compose usado no arranque, se for diferente do da pasta);
+- verificar de vez em quando o tamanho dos ficheiros gerados: um `pg_dump` falhado pode deixar um ficheiro vazio.
 
 ### Cópia externa
 
@@ -256,19 +253,13 @@ Uma cópia no mesmo servidor não protege contra a perda do servidor. Copiar os 
 
 ```bash
 cd /opt/athana
-./deploy/restore.sh /var/backups/athana/db-<data>.dump     # pede para escrever "restore"
+./deploy/restore.sh /var/backups/athana/db-<data>.dump /var/backups/athana/uploads-<data>.tar.gz
+# pede para escrever "restore"
 ```
 
-O script para a aplicação, executa `pg_restore --clean --if-exists --no-owner` e volta a arrancá-la. **Não restaura os uploads.** Para esses:
+O script para a aplicação, executa `pg_restore --clean --if-exists --no-owner`, volta a arrancá-la e, se for dado o segundo argumento, extrai o arquivo de uploads para `/data/storage` dentro do contentor `app`. Sem o segundo argumento, só a base de dados é restaurada.
 
-```bash
-docker compose stop app
-docker run --rm -v athana_uploads:/data -v /var/backups/athana:/backup alpine \
-  sh -c "rm -rf /data/* && tar xzf /backup/uploads-<data>.tar.gz -C /data"
-docker compose start app
-```
-
-Restaurar a base de dados e os uploads da **mesma data**.
+A extração **não apaga** os ficheiros já existentes: ficheiros criados depois da cópia ficam no volume sem linha correspondente na base de dados (órfãos, sem efeito funcional). Restaurar a base de dados e os uploads da **mesma data**.
 
 ### Ensaios de restauro
 
@@ -327,7 +318,7 @@ Recomenda-se construir a imagem numa pipeline, publicá-la num registo com tag p
 |---|---|
 | A nova versão tem um defeito e as migrações foram aditivas | **Voltar à imagem anterior.** `git checkout <tag anterior>` e `docker compose --env-file .env.production up -d --build app`, ou, com imagens em registo, repor a tag anterior no compose e `up -d app`. A base de dados fica como está: a versão antiga ignora colunas e tabelas novas. Não voltar a correr `migrate` com o código antigo não é problema (`migrate deploy` só aplica migrações que existam na pasta). |
 | Uma migração falhou a meio | O serviço `migrate` termina com erro e `app` não é recriada: a versão antiga continua a servir. Ver `docker compose logs migrate`, corrigir, e se necessário marcar o estado com `npx prisma migrate resolve --rolled-back <nome>` ou `--applied <nome>`. |
-| A migração aplicada é incompatível com a versão antiga, ou houve corrupção de dados | **Último recurso: restaurar a cópia de segurança** feita antes do deploy (`deploy/restore.sh` + uploads) e repor a imagem anterior. Perdem-se os dados criados desde a cópia; os pagamentos entretanto recebidos têm de ser reconciliados à mão a partir do Stripe Dashboard. |
+| A migração aplicada é incompatível com a versão antiga, ou houve corrupção de dados | **Último recurso: restaurar a cópia de segurança** feita antes do deploy (`deploy/restore.sh` com os dois ficheiros) e repor a imagem anterior. Perdem-se os dados criados desde a cópia; os pagamentos entretanto recebidos têm de ser reconciliados à mão a partir do Stripe Dashboard. |
 | Erro de configuração | Corrigir `.env.production` e `docker compose --env-file .env.production up -d app`. |
 
 Depois de qualquer reversão: `/api/health`, login, uma página do catálogo, um pagamento de teste em staging, e o estado das entregas de webhook no Stripe (reenviar as que falharam).

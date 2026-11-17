@@ -309,7 +309,7 @@ Antes de ter conta, use o formulário de contacto (`/pt-pt/contacto`).
 | Cartão | O que pode fazer |
 |---|---|
 | **Informações pessoais** | Alterar nome, telefone, país e a língua/país do site. O e-mail não é editável: para o mudar, contacte o suporte. |
-| **Palavra-passe** | Indicar a palavra-passe atual e a nova (mínimo 10 caracteres), **Alterar a palavra-passe**. |
+| **Palavra-passe** | Indicar a palavra-passe atual e a nova (mínimo 10 caracteres), **Alterar a palavra-passe**. As sessões abertas noutros dispositivos são encerradas; a sessão atual mantém-se. |
 | **Exportar os meus dados** | **Descarregar os meus dados** (Télécharger mes données): descarrega de imediato um ficheiro JSON com a conta, as empresas a que pertence, encomendas, projetos (briefing, mensagens, revisões, lista de ficheiros), pedidos de suporte, consentimentos e notificações. Se precisar de mais, use **Pedir uma exportação completa à equipa**. |
 | **Eliminar os meus dados** | **Pedir a eliminação dos meus dados** (Demander la suppression de mes données), com uma nota facultativa. |
 

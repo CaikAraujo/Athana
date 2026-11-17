@@ -12,7 +12,7 @@ Ficheiro: `src/lib/crypto.ts`.
 | Formato guardado | `scrypt$N$r$p$<sal base64>$<hash base64>` — os parâmetros ficam com o hash, o que permite aumentá-los no futuro sem invalidar as contas existentes. |
 | Normalização | Unicode NFKC antes do hash. |
 | Comparação | `timingSafeEqual`. |
-| Comprimento mínimo | 10 caracteres no registo, na recuperação e na alteração (`src/modules/auth/service.ts`); 12 para o administrador criado pelo seed. Máximo de 200 no registo. |
+| Comprimento mínimo | 10 caracteres no código (piso), aplicado no registo, na recuperação e na alteração por `assertPasswordPolicy` (`src/modules/auth/service.ts`). A definição `security.passwordMinLength` do backoffice pode aumentar este mínimo, nunca baixá-lo. 12 para o administrador criado pelo seed. Máximo de 200 no registo. |
 | Contas criadas por convite | Recebem uma palavra-passe aleatória inutilizável e uma ligação para definirem a sua (`src/modules/tenancy/members.ts`, `saveStaffAction`). |
 
 Não há regras de complexidade nem verificação contra listas de palavras-passe comprometidas.
@@ -29,7 +29,7 @@ Ficheiro: `src/modules/auth/session.ts`.
 | Duração | `security.sessionDays` (30 por omissão). Não é renovada com a utilização. |
 | Validação | Em cada pedido: sessão existente, não expirada, utilizador não desativado nem eliminado. |
 | Logout | Apaga a linha da sessão e o cookie. |
-| Revogação | Recuperação de palavra-passe apaga **todas** as sessões do utilizador (`resetPassword`). Desativar um cliente ou um membro da equipa apaga as suas sessões. Remover um membro de uma organização limpa a organização ativa das suas sessões. |
+| Revogação | Recuperação de palavra-passe apaga **todas** as sessões do utilizador (`resetPassword`). Alterar a palavra-passe na área de cliente termina todas as outras sessões e mantém a atual (`changePassword`). Desativar um cliente ou um membro da equipa apaga as suas sessões. Remover um membro de uma organização limpa a organização ativa das suas sessões. |
 | Limpeza | Sessões expiradas são apagadas pela tarefa diária. |
 
 Outros cookies: `athana_cart` (httpOnly; só identificadores), `athana_aid` (httpOnly; identificador anónimo do consentimento), `athana_locale`, `athana_consent` e `athana_utm` (legíveis por JavaScript, sem dados sensíveis).
@@ -155,7 +155,7 @@ Cabeçalhos definidos em `next.config.ts` para todas as respostas:
 
 | Cabeçalho | Valor |
 |---|---|
-| `Content-Security-Policy` | `default-src 'self'`; `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://connect.facebook.net`; `style-src 'self' 'unsafe-inline'`; `img-src 'self' data: blob: https:`; `font-src 'self' data:`; `connect-src 'self'` + domínios Google Analytics/Tag Manager + `https://www.facebook.com`; `frame-src 'self'`; `frame-ancestors 'self'`; `base-uri 'self'`; `form-action 'self' https://checkout.stripe.com`; `object-src 'none'` |
+| `Content-Security-Policy` | `default-src 'self'`; `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.googleadservices.com https://connect.facebook.net`; `style-src 'self' 'unsafe-inline'`; `img-src 'self' data: blob: https:`; `font-src 'self' data:`; `connect-src 'self'` + domínios Google Analytics/Tag Manager, `*.doubleclick.net`, `www.googleadservices.com`, `www.google.com` e `www.facebook.com`; `frame-src 'self'`; `frame-ancestors 'self'`; `base-uri 'self'`; `form-action 'self' https://checkout.stripe.com`; `object-src 'none'` |
 | `Strict-Transport-Security` | `max-age=63072000; includeSubDomains; preload` |
 | `X-Content-Type-Options` | `nosniff` |
 | `Referrer-Policy` | `strict-origin-when-cross-origin` |
@@ -208,8 +208,8 @@ Entrega (`GET /api/files/[id]`): exige sessão. Acesso permitido ao autor do upl
 | Idempotência: `WebhookEvent` único por (`provider`, `eventId`), inserido na mesma transação dos efeitos. | `processWebhook` |
 | Verificação de montante e moeda contra a encomenda antes de a marcar como paga. | `apply` → `checkout.completed` |
 | Uma encomenda paga não é reprocessada; métodos de pagamento diferido só cumprem a encomenda em `async_payment_succeeded`. | `apply`, `mapStripeEvent` |
-| Chaves de idempotência nas chamadas ao Stripe (criação do checkout de encomenda e reembolsos). | `stripeProvider` |
-| Reembolsos: permissão `finance.manage`, nunca acima do montante pago menos o já reembolsado, registados em `Refund` e no `AuditLog`. | `refundPayment` |
+| Chave de idempotência nos reembolsos enviados ao Stripe. A criação do checkout não usa chave fixa: cada nova tentativa de pagamento recebe uma sessão nova. | `stripeProvider` |
+| Reembolsos: permissão `finance.manage`, nunca acima do montante pago menos o já reembolsado, registados em `Refund` e no `AuditLog`. Pagamentos de subscrições Stripe são recusados com mensagem explícita (reembolsar no painel do Stripe). | `refundPayment` |
 | O endpoint e a página de teste respondem 404 quando `PAYMENTS_MODE` não é `test`; o modo de teste é recusado em produção sem `ALLOW_TEST_PAYMENTS`. | `src/app/api/webhooks/test/route.ts`, `src/lib/env.ts` |
 | A simulação de pagamento exige que o utilizador seja dono da encomenda ou administrador da organização. | `sandboxPayAction` |
 
@@ -263,7 +263,7 @@ O que existe no código:
 | Tratamento do pedido de eliminação | `processDataRequestAction` (permissão `customers.manage`): apaga sessões, ficheiros (base de dados e disco), notificações, consentimentos e leads com o mesmo e-mail; esvazia os briefings; substitui o texto das mensagens por `[supprimé]`; anonimiza a conta (e-mail `deleted-<id>@deleted.invalid`, nome "Compte supprimé", telefone e país removidos, palavra-passe aleatória, conta desativada). |
 | O que é conservado | Encomendas, pagamentos e faturas, pelo dever legal de conservação contabilística. Os dados de faturação copiados nesses documentos mantêm-se. |
 | Retenção automática | Tarefa diária: leads `NEW` ou `CLOSED` com mais de `privacy.retentionMonthsLeads` meses (24); marcações e ausências decididas do Pointage para lá de `retentionMonths` de cada organização (6 a 240 meses), com entrada de auditoria; sessões expiradas, tokens antigos e contadores do limitador. |
-| Consentimento de IA | `Briefing.aiConsent`, desligado por omissão, definido pelo cliente no formulário. Sem ele, a exportação do brief oculta nome, e-mail e telefone do contacto e a morada. Nenhum dado é enviado automaticamente a serviços de IA. |
+| Consentimento de IA | `Briefing.aiConsent`, desligado por omissão, definido pelo cliente no formulário. Sem ele, a exportação do brief oculta nome, e-mail e telefone do contacto, a morada e os três campos de conteúdo livre (textos, informações adicionais, "pelas suas palavras"). Nenhum dado é enviado automaticamente a serviços de IA. |
 | Minimização | O Pointage não tem geolocalização nem biometria: os tipos fixam ambos em `false` e as definições não os aceitam (`src/modules/pointage/settings.ts`). A hora das marcações é sempre a do servidor. |
 | Consentimento nos formulários | O formulário de contacto exige a caixa de acordo; o registo e o checkout exigem a aceitação das condições. |
 | Páginas legais | `ContentPage` com as chaves `mentions-legales`, `confidentialite`, `cgv`, `cookies`, em francês, pt-PT e pt-BR, editáveis no backoffice. **São modelos de trabalho, não textos validados por um jurista.** |
@@ -298,9 +298,7 @@ O que existe no código:
 | **Sem autenticação de dois fatores (2FA)**, nem para a equipa ATHANA. | Acrescentar TOTP, com prioridade para as contas com `platformRole`. Até lá, palavras-passe longas e únicas e poucas contas `SUPER_ADMIN`. |
 | **Sem verificação de e-mail no registo.** A coluna `User.emailVerifiedAt` existe mas não é usada. Qualquer pessoa pode criar uma conta com um e-mail que não lhe pertence. | Enviar ligação de confirmação e exigi-la antes do primeiro pagamento ou do início de um teste. |
 | **O registo revela se um e-mail já tem conta** (mensagem explícita), ao contrário do login e da recuperação. Limitado a 10 tentativas por hora e por IP. | Responder de forma neutra e avisar o titular por e-mail. |
-| **Alterar a palavra-passe na área de cliente não termina as outras sessões** (só a recuperação o faz). | Apagar as outras sessões em `changePassword`. |
 | Um utilizador já registado que é convidado para uma organização é **adicionado de imediato**, sem aceitar. | Introduzir convites pendentes com aceitação. |
-| A definição `security.passwordMinLength` do backoffice **não tem efeito**: o código usa o valor fixo 10. | Ler a definição nos três fluxos ou retirar o campo. |
 | Sem regras de complexidade nem verificação contra palavras-passe comprometidas. | Verificar contra a API k-anonymity do Have I Been Pwned. |
 | As sessões não são renovadas nem listadas ao utilizador; não há "terminar sessão em todos os dispositivos". | Acrescentar gestão de sessões no perfil. |
 | Os inícios de sessão (com ou sem sucesso) **não são registados** no `AuditLog`, e a coluna `AuditLog.ip` nunca é preenchida. | Registar logins e IP. |
@@ -311,7 +309,7 @@ O que existe no código:
 |---|---|
 | **A CSP permite `'unsafe-inline'`** em `script-src` e `style-src`. Reduz muito a proteção contra XSS dada pela CSP; a defesa real é o escape do React. | Migrar para CSP com *nonce* por pedido (o proxy pode gerá-lo). |
 | `img-src` aceita qualquer origem `https:`. | Restringir quando as origens de imagens estiverem estabilizadas. |
-| A CSP não inclui os domínios de conversão do Google Ads (`googleadservices.com`, `googleads.g.doubleclick.net`). Se o Google Ads for ativado, alguns pedidos podem ser bloqueados. Não foi testado com identificadores reais. | Testar em staging e ajustar `connect-src`. |
+| A CSP inclui os domínios habituais do Google Ads (`googleadservices.com`, `*.doubleclick.net`, `google.com`), mas **não foi testada com identificadores reais**; etiquetas adicionais (por exemplo dentro de um contentor GTM) podem usar outros domínios e ser bloqueadas. | Testar em staging com a consola do browser aberta e ajustar a CSP. |
 | O cabeçalho HSTS inclui `preload` e `includeSubDomains`: todos os subdomínios de athana.ch passam a exigir HTTPS. | Confirmar que nenhum subdomínio depende de HTTP antes de submeter à lista de *preload*. |
 | O IP do cliente é lido de `X-Forwarded-For` sem lista de proxies de confiança. Exposta diretamente, a aplicação aceitaria um valor forjado e os limites por IP seriam contornáveis. | Manter a aplicação sempre atrás do Caddy (o compose só publica em `127.0.0.1`). |
 | **O limitador é de janela fixa**: permite até o dobro do limite em torno da mudança de janela, e cada verificação escreve na base de dados. | Suficiente para o arranque; passar a janela deslizante ou Redis com mais tráfego. |
@@ -329,7 +327,7 @@ O que existe no código:
 | `EmailLog` guarda o corpo completo de todos os e-mails, **incluindo as ligações de recuperação de palavra-passe e de convite**, e não tem retenção. Quem ler a base de dados durante a validade do token (1 hora; 7 dias nos convites) pode usá-lo. O backoffice só mostra os assuntos. | Mascarar os tokens ao registar e limpar `EmailLog` periodicamente. |
 | `AuditLog`, `EmailLog`, `Consent`, `Notification` e `WebhookEvent` **não têm retenção automática**. | Definir prazos e acrescentar à tarefa diária. |
 | A eliminação de conta **não trata os dados de organizações**: a organização, as suas subscrições e os dados do CRM/Pointage mantêm-se, bem como o assunto dos tickets e os dados de faturação das encomendas. Não cancela subscrições ativas. | Definir o procedimento para o último `OWNER` e completar a ação. |
-| Na exportação do brief sem consentimento de IA, só são ocultados nome, e-mail, telefone e morada. **O nome da empresa e os textos livres são exportados**; podem conter dados pessoais. | Tratar o ficheiro como dado pessoal, ou ocultar também os textos livres. |
+| Na exportação do brief sem consentimento de IA são ocultados os contactos, a morada e os campos `texts`, `extra` e `ownWords`. **O nome da empresa e os requisitos do projeto (objetivo, público, páginas, funcionalidades, referências, redes sociais, produtos) são sempre exportados**; são campos de texto e podem conter dados pessoais. | Rever o ficheiro antes de o usar fora da plataforma quando `aiProcessingConsent` é `false`. |
 | Isolamento entre empresas apenas aplicativo. | Considerar Row Level Security como segunda barreira. |
 
 ### Pagamentos

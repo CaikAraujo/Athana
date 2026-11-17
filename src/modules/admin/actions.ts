@@ -326,6 +326,9 @@ export async function processDataRequestAction(_: ActionState, fd: FormData): Pr
       await db.dataRequest.update({ where: { id: req.id }, data: { status: 'REJECTED', processedAt: new Date(), processedBy: actor.id, note: String(fd.get('note') ?? '').slice(0, 1000) || req.note } });
     } else if (req.type === 'DELETE') {
       if (req.user.platformRole) throw new AppError(m('Un compte interne ne peut pas être supprimé par cette procédure.'));
+      // Company data (CRM, Pointage) belongs to the organization: its subscriptions must be closed before the owner's account is anonymised.
+      const live = await db.subscription.count({ where: { status: { not: 'CANCELED' }, organization: { memberships: { some: { userId: req.userId, role: 'OWNER' } } } } });
+      if (live > 0) throw new AppError(m('Ce client est propriétaire d’une entreprise avec un abonnement en cours. Résiliez d’abord l’abonnement.'));
       const files = await db.fileAsset.findMany({ where: { ownerId: req.userId } });
       await db.$transaction([
         db.session.deleteMany({ where: { userId: req.userId } }),

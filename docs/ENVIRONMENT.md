@@ -47,11 +47,11 @@ Com `EMAIL_PROVIDER=log`, nenhum e-mail sai do servidor. As mensagens (incluindo
 
 | Variável | Obrigatória | Finalidade | Onde obter | Se faltar |
 |---|---|---|---|---|
-| `STORAGE_DIR` | Não | Pasta dos uploads privados. Em produção tem de estar num volume persistente. | — | `./storage`. O `Dockerfile` define `/data/storage`. |
+| `STORAGE_DIR` | Não | Pasta dos uploads privados. Em produção tem de estar num volume persistente. | — | `./storage`. O `Dockerfile` define `/data/storage` e o `docker-compose.yml` força esse valor no serviço `app`. |
 | `CRON_SECRET` | Para a tarefa diária | Protege `GET /api/cron/daily` (`Authorization: Bearer <CRON_SECRET>`). | `openssl rand -hex 32` | O endpoint responde sempre 401 e a manutenção diária não corre (avisos de renovação, fecho de períodos de teste, limpezas, retenção). |
 | `ALLOW_INDEXING` | Não | `true` faz `robots.txt` permitir a indexação e publicar o sitemap. | — | Qualquer outro valor: `robots.txt` responde `Disallow: /`. |
 
-Atenção com `STORAGE_DIR` em Docker: o `docker-compose.yml` carrega `.env.production` com `env_file`, e esses valores sobrepõem-se ao `ENV STORAGE_DIR=/data/storage` da imagem. Se `.env.production` for copiado de `.env.example`, **remover a linha `STORAGE_DIR="./storage"` ou alterá-la para `/data/storage`**. Caso contrário os uploads seriam escritos fora do volume e perdidos na recriação do contentor.
+`STORAGE_DIR` em Docker: o `docker-compose.yml` define `STORAGE_DIR: /data/storage` no bloco `environment` do serviço `app`, que tem prioridade sobre `env_file`. O valor `./storage` de `.env.example` serve só para desenvolvimento e é ignorado no contentor. Fora do compose (outro orquestrador, `docker run`), garantir que a variável aponta para o volume.
 
 `ALLOW_INDEXING` só controla o `robots.txt`. As áreas privadas, as demonstrações e as landing pages de campanha têm sempre `noindex` nos metadados, independentemente desta variável. As páginas públicas de staging não têm meta `noindex`: ficam protegidas apenas pelo `robots.txt`. Para staging, recomenda-se ainda autenticação básica no proxy.
 
@@ -64,10 +64,10 @@ Só são carregadas depois do consentimento do visitante e apenas se o identific
 | `NEXT_PUBLIC_GA4_ID` | Google Analytics 4 (`G-XXXXXXXXXX`). | Google Analytics → Admin → Fluxos de dados. |
 | `NEXT_PUBLIC_GTM_ID` | Google Tag Manager (`GTM-XXXXXXX`). Se estiver definido, tem prioridade: as etiquetas GA4 e Google Ads diretas não são carregadas. | Google Tag Manager. |
 | `NEXT_PUBLIC_GOOGLE_ADS_ID` | Google Ads (`AW-XXXXXXXXX`). | Google Ads → Ferramentas → Conversões. |
-| `NEXT_PUBLIC_GOOGLE_ADS_PURCHASE_LABEL` | Etiqueta de conversão de compra. **Lida em `env.ts` mas não usada em nenhum outro ponto do código**: não é enviado nenhum evento de conversão com `send_to`. | — |
+| `NEXT_PUBLIC_GOOGLE_ADS_PURCHASE_LABEL` | Etiqueta da conversão de compra do Google Ads. Com esta variável e `NEXT_PUBLIC_GOOGLE_ADS_ID` definidas, e com consentimento de marketing, o evento `purchase` envia também `conversion` com `send_to: <ID>/<etiqueta>` (`src/modules/analytics/track.ts`). | Google Ads → Conversões → detalhes da etiqueta. |
 | `NEXT_PUBLIC_META_PIXEL_ID` | Meta Pixel. | Meta Events Manager. |
 
-**São incorporadas na compilação.** O Next.js substitui `process.env.NEXT_PUBLIC_*` pelo valor no momento de `next build`. Alterá-las depois exige nova compilação. Com Docker, têm de ser passadas como *build args* (o `Dockerfile` declara os cinco `ARG`). O `docker-compose.yml` atual **não passa** estes argumentos: defini-los apenas em `.env.production` não tem efeito na imagem construída pelo compose. Ver [DEPLOYMENT.md](DEPLOYMENT.md).
+**São incorporadas na compilação.** O Next.js substitui `process.env.NEXT_PUBLIC_*` pelo valor no momento de `next build`. Alterá-las depois exige nova compilação. Com Docker, têm de ser passadas como *build args*: o `Dockerfile` declara os cinco `ARG` e o `docker-compose.yml` passa-os ao construir o serviço `app`, lendo-os do ficheiro indicado em `--env-file`. Basta por isso defini-las em `.env.production` e reconstruir (`up -d --build`). Ver [DEPLOYMENT.md](DEPLOYMENT.md).
 
 ### Seed (primeira instalação)
 
@@ -93,8 +93,8 @@ Sem as duas variáveis de administrador: fora de produção, o seed cria `admin@
 
 | Variável | Finalidade |
 |---|---|
-| `POSTGRES_PASSWORD` | Palavra-passe do PostgreSQL do compose. Obrigatória (o compose recusa arrancar sem ela). **Não consta de `.env.example`**: acrescentar a `.env.production`. |
-| `ENV_FILE` | Ficheiro carregado pelos serviços `app` e `migrate`. Por omissão `.env.production`. |
+| `POSTGRES_PASSWORD` | Palavra-passe do PostgreSQL do compose. Obrigatória (o compose recusa arrancar sem ela). Está em `.env.example` como linha comentada: descomentar e preencher em `.env.production`. |
+| `ENV_FILE` | Ficheiro carregado pelos serviços `app` e `migrate`, e usado por `deploy/backup.sh` e `deploy/restore.sh`. Por omissão `.env.production`. |
 | `BACKUP_DIR`, `KEEP_DAYS` | Destino e retenção de `deploy/backup.sh` (`/var/backups/athana`, 30 dias). |
 
 ## 2. Valores recomendados por ambiente
@@ -126,7 +126,7 @@ Sem as duas variáveis de administrador: fora de produção, o seed cria `admin@
 | `PAYMENTS_MODE` | `test` com `ALLOW_TEST_PAYMENTS=true`; ou `stripe` com chaves `sk_test_…` para validar a integração real |
 | `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` | chaves do **modo de teste** do Stripe, se `PAYMENTS_MODE=stripe` |
 | `EMAIL_PROVIDER` | `log`, ou `resend` com um domínio/remetente de testes |
-| `STORAGE_DIR` | `/data/storage` (volume próprio de staging) |
+| `STORAGE_DIR` | não é preciso definir com o compose (forçado a `/data/storage`, volume próprio de staging) |
 | `CRON_SECRET` | aleatório, próprio de staging |
 | `ALLOW_INDEXING` | `false` |
 | `NEXT_PUBLIC_*` | vazias, ou identificadores de propriedades de teste |
@@ -144,7 +144,7 @@ Sem as duas variáveis de administrador: fora de produção, o seed cria `admin@
 | `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` | `sk_live_…` / `whsec_…` do endpoint de produção |
 | `EMAIL_PROVIDER` | `resend` |
 | `RESEND_API_KEY`, `EMAIL_FROM`, `CONTACT_EMAIL` | chave de produção; remetente num domínio verificado |
-| `STORAGE_DIR` | `/data/storage` (volume persistente incluído nas cópias de segurança) |
+| `STORAGE_DIR` | não é preciso definir com o compose (forçado a `/data/storage`, volume persistente incluído nas cópias de segurança) |
 | `CRON_SECRET` | aleatório |
 | `ALLOW_INDEXING` | `true` |
 | `NEXT_PUBLIC_*` | identificadores reais, passados na compilação |
@@ -164,6 +164,6 @@ Vários parâmetros estão na base de dados e editam-se no backoffice (Admin →
 | `privacy` | Versão da política e retenção de leads em meses. | `2026-11`, 24 |
 | `maintenance` | Criar tarefa de proposta de manutenção quando um projeto é aprovado. | ativo |
 
-`security.passwordMinLength` pode ser editado, mas o registo, a recuperação e a alteração de palavra-passe usam o valor fixo de `SETTING_DEFAULTS` (10). Alterar esta definição no backoffice não tem efeito atualmente.
+`security.passwordMinLength` é aplicado no registo, na recuperação e na alteração de palavra-passe (`assertPasswordPolicy` em `src/modules/auth/service.ts`). Pode **aumentar** o mínimo acima do piso de 10 caracteres fixado no código, nunca baixá-lo.
 
 Moedas, taxas de imposto e meios de pagamento apresentados estão na tabela `Market` (Admin → Definições → Mercados).

@@ -101,9 +101,9 @@ Nenhum destes valores vem do caderno de encargos: são todos **E**.
 
 O que a plataforma faz com estes valores:
 
-- **Prazo:** é mostrado ao cliente como estimativa («env. N jours ouvrés»). A data de entrega do projeto **não é calculada**: é introduzida à mão pelo gestor de projeto.
+- **Prazo:** é mostrado ao cliente como estimativa («env. N jours ouvrés»). A data de entrega do projeto é calculada na confirmação do briefing (dias úteis do pack) e pode ser ajustada pelo gestor de projeto.
 - **Páginas incluídas:** informativo, para o cliente e para a equipa.
-- **Ciclos de revisão:** o cliente vê «N pedido(s) em M ciclo(s) incluídos», mas a plataforma **não impede** pedidos acima do limite. É preciso decidir a regra comercial (recusar, faturar à parte, tolerar) e escrevê-la nas condições de venda.
+- **Ciclos de revisão:** a plataforma **recusa** um novo pedido de revisão quando os ciclos incluídos no pack estão esgotados (os pedidos recusados pela equipa não contam) e remete o cliente para as mensagens do projeto. Falta decidir a regra comercial para os pedidos adicionais (faturar à parte ou tolerar).
 
 Os textos dos três packs (descrição e lista do que incluem) também foram redigidos durante o desenvolvimento e são iguais para todos os modelos. **E**
 

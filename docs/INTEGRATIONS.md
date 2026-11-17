@@ -8,7 +8,7 @@ Estado de cada integração, o que o proprietário tem de fornecer e os passos d
 |---|---|---|---|
 | Stripe — pagamento único (Checkout alojado) | Implementado | Mapeamento de eventos testado com eventos sintéticos assinados | **Nunca testado contra a API do Stripe.** Chaves do proprietário e ensaio em modo de teste. |
 | Stripe — subscrições (Checkout alojado) | Implementado | Idem (evento `invoice.paid`) | Idem; ver limitações na secção 2. |
-| Stripe — reembolsos | Implementado para pagamentos de encomendas | Lógica interna testada com o fornecedor de teste | Chamada real por testar; não funciona para pagamentos de subscrições. |
+| Stripe — reembolsos | Implementado para pagamentos de encomendas | Lógica interna testada com o fornecedor de teste | Chamada real por testar. Pagamentos de subscrições Stripe são recusados no backoffice: reembolsar no painel do Stripe. |
 | Meios de pagamento (cartões, TWINT, Multibanco, MB WAY, Pix) | Sem código próprio: ativam-se no Stripe Dashboard | — | Elegibilidade depende do país da conta. **A verificar com o Stripe.** |
 | PayPal | **Não implementado** | — | Escrever um adaptador. |
 | Fornecedor de pagamento de teste (sandbox) | Implementado | Testes Vitest e E2E | Nada. Nunca usar em produção. |
@@ -16,7 +16,7 @@ Estado de cada integração, o que o proprietário tem de fornecer e os passos d
 | E-mail em modo `log` | Implementado | Testes Vitest e E2E | Nada. |
 | Google Analytics 4 | Carregador implementado, dependente de consentimento | Não testado com identificador real | Identificador e nova compilação. |
 | Google Tag Manager | Carregador implementado | Não testado | Identificador, contentor configurado, nova compilação. |
-| Google Ads | Etiqueta base implementada; **conversão de compra não implementada** | Não testado | Ver secção 6. |
+| Google Ads | Etiqueta base e conversão de compra implementadas (sem GTM) | Não testado com identificadores reais | Identificador, etiqueta de conversão, nova compilação. Ver secção 7. |
 | Meta Pixel | Carregador implementado | Não testado | Identificador e nova compilação. |
 | Armazenamento de ficheiros | Disco local implementado; **S3 não implementado** | Testes Vitest | Volume persistente; adaptador S3 se necessário. |
 | Tarefa diária (cron) | Endpoint implementado | E2E verifica a recusa sem segredo; a lógica de faturação e de retenção é testada em Vitest | Agendar a chamada. |
@@ -29,11 +29,11 @@ Ficheiros: `src/modules/payments/stripe-provider.ts`, `src/modules/payments/serv
 
 ### O que está feito
 
-**Pagamento único.** `createCheckout` cria uma sessão `mode: 'payment'` com uma única linha cujo valor é o total da encomenda calculado pela ATHANA (descontos e impostos incluídos), `metadata.orderId`, idioma do checkout segundo o locale, e chave de idempotência `order-checkout-<id>`. O cliente é redirecionado para `checkout.stripe.com` e volta a `/checkout/success?order=…`. A página de sucesso não confirma o pagamento: mostra "pagamento em confirmação" até o webhook chegar.
+**Pagamento único.** `createCheckout` cria uma sessão `mode: 'payment'` com uma única linha cujo valor é o total da encomenda calculado pela ATHANA (descontos e impostos incluídos), `metadata.orderId` e idioma do checkout segundo o locale. Não é usada chave de idempotência fixa: cada tentativa de pagamento (incluindo "pagar de novo" depois de uma falha) cria uma sessão nova e a encomenda passa a apontar para ela. O cliente é redirecionado para `checkout.stripe.com` e volta a `/checkout/success?order=…`. A página de sucesso não confirma o pagamento: mostra "pagamento em confirmação" até o webhook chegar.
 
 **Subscrições.** `createSubscriptionCheckout` cria uma sessão `mode: 'subscription'` com preço mensal em linha (`price_data` com `recurring: { interval: 'month' }`), no valor de `subscriptionAmount()` (preço base + lugares acima dos incluídos) e `metadata.subscriptionId`. Não são usados objetos *Price* criados no Dashboard; a coluna `Plan.stripePriceIds` existe mas não é lida.
 
-**Reembolsos.** `refund` chama `refunds.create` com o `payment_intent` e chave de idempotência.
+**Reembolsos.** `refund` chama `refunds.create` com o `payment_intent` e chave de idempotência. `refundPayment` recusa pagamentos de subscrições Stripe ("Les paiements d’abonnement se remboursent depuis le tableau de bord du prestataire de paiement.").
 
 **Cancelamento.** `setCancelAtPeriodEnd` atualiza `cancel_at_period_end` na subscrição Stripe.
 
@@ -65,8 +65,8 @@ Testado (`tests/platform.test.ts`, "Stripe adapter: verifies signatures and maps
 
 | Ponto | Detalhe |
 |---|---|
-| Nova tentativa de pagamento da mesma encomenda | `createCheckout` usa sempre a chave de idempotência `order-checkout-<id>`. O Stripe devolve a mesma resposta para a mesma chave durante 24 horas: uma segunda tentativa nesse intervalo pode receber a sessão antiga (eventualmente expirada). Testar "pagamento falhado → pagar de novo". |
-| Reembolso de pagamentos de subscrição | Estes pagamentos são guardados com a referência da fatura (`inv_first_<id>` ou o id da fatura), não com um `payment_intent`. `refund` envia essa referência como `payment_intent`, o que o Stripe recusará. Reembolsar subscrições no Stripe Dashboard. |
+| Nova tentativa de pagamento da mesma encomenda | Cada tentativa cria uma sessão Stripe nova. A sessão anterior continua válida no Stripe até expirar; se o cliente pagar nas duas, o segundo evento encontra a encomenda já paga e é ignorado pela plataforma, mas **o dinheiro foi cobrado duas vezes** e tem de ser reembolsado à mão. Testar "pagamento falhado → pagar de novo" e considerar expirar a sessão anterior. |
+| Reembolso de pagamentos de subscrição | **Limitação.** Estes pagamentos são guardados com a referência da fatura (`inv_first_<id>` ou o id da fatura), não com um `payment_intent`. O backoffice recusa o reembolso com mensagem explícita; faz-se no painel do Stripe. O evento `charge.refunded` resultante não fica ligado ao pagamento na plataforma: o montante reembolsado não aparece nos registos nem na exportação financeira. |
 | Número de lugares do Pointage | `Subscription.seats` é atualizado na base de dados quando se criam ou desativam funcionários, mas o valor mensal no Stripe é fixado no momento do checkout e **não é atualizado depois**. |
 | Mudança de plano com subscrição Stripe ativa | Recusada pelo código ("via suporte"); tem de ser feita à mão no Dashboard. |
 | Período de teste | É gerido pela ATHANA (`TRIALING` sem dados de pagamento), não pelo Stripe. A cobrança só começa quando o cliente ativa. |
@@ -151,13 +151,13 @@ Ficheiros: `src/components/site/Consent.tsx` (banner e carregador), `src/modules
 
 | Etiqueta | Condição para ser carregada |
 |---|---|
-| Google Tag Manager | `NEXT_PUBLIC_GTM_ID` definido **e** consentimento de medição. |
+| Google Tag Manager | `NEXT_PUBLIC_GTM_ID` definido **e** consentimento de medição. Antes de carregar o contentor é enviado para o `dataLayer` o Consent Mode por omissão: `analytics_storage: granted` e `ad_storage`, `ad_user_data`, `ad_personalization` conforme o consentimento de marketing. |
 | gtag.js (GA4 e/ou Google Ads) | Sem GTM, com `NEXT_PUBLIC_GA4_ID` ou `NEXT_PUBLIC_GOOGLE_ADS_ID`, **e** consentimento de medição. O Consent Mode é definido com `analytics_storage: granted` e `ad_storage`, `ad_user_data`, `ad_personalization` conforme o consentimento de marketing. O GA4 é configurado com `anonymize_ip`. A configuração do Google Ads só é feita com consentimento de marketing. |
 | Meta Pixel | `NEXT_PUBLIC_META_PIXEL_ID` definido **e** consentimento de marketing. |
 
 Sem escolha, ou com recusa, nenhum script de terceiros é pedido e `track()` não faz nada. A escolha é guardada no cookie `athana_consent` (180 dias) e registada no servidor (`/api/consent`).
 
-`track(evento, parâmetros)` envia o evento para `gtag` (ou para `dataLayer`, quando se usa GTM) se houver consentimento de medição, e para `fbq` se houver consentimento de marketing e o evento tiver equivalente Meta. Emite também o evento DOM `athana:track`.
+`track(evento, parâmetros)` envia o evento por `gtag` (definido tanto no caminho gtag.js como no caminho GTM, onde escreve no `dataLayer`) se houver consentimento de medição, e para `fbq` se houver consentimento de marketing e o evento tiver equivalente Meta. No evento `purchase`, com consentimento de marketing e com `NEXT_PUBLIC_GOOGLE_ADS_ID` e `NEXT_PUBLIC_GOOGLE_ADS_PURCHASE_LABEL` definidos, envia ainda `conversion` com `send_to`, `value`, `currency` e `transaction_id`. Emite também o evento DOM `athana:track`.
 
 ### Eventos realmente disparados
 
@@ -173,17 +173,17 @@ Sem escolha, ou com recusa, nenhum script de terceiros é pedido e `track()` nã
 | `contact` | Formulário de contacto enviado com sucesso | `form`, `interest` | `Contact` |
 | `form_submit` | Formulário de orçamento ou de campanha enviado com sucesso | `form`, `interest` | `Lead` |
 | `subscribe` | Clique em "teste gratuito" (`step: 'trial'`) e regresso do pagamento da subscrição (`step: 'activated'`) | `plan`, `step` | `Subscribe` |
-| `sign_up` | Formulário de registo, em `onDone` | — | `CompleteRegistration` |
+| `sign_up` | Painel da área de cliente (`account/page.tsx`), na primeira visita depois do registo (`?welcome=1`), uma vez por utilizador e por sessão do browser | — | `CompleteRegistration` |
 
 Notas factuais:
 
 - `cta_click` está declarado no tipo `AnalyticsEvent` mas **não é disparado** em nenhum ponto.
-- `sign_up` está ligado a `onDone` do formulário de registo, que só corre quando a ação devolve um estado de sucesso. A ação de registo termina com um redirecionamento, pelo que é provável que **este evento nunca seja enviado**. A confirmar no browser.
+- `sign_up` depende de o visitante ter aceitado os cookies antes de se registar; como os restantes eventos, não é enviado sem consentimento.
 - `purchase` é disparado no browser, na página de sucesso. Se o cliente fechar a janela antes de voltar do Stripe, ou se o webhook chegar depois de a página ser mostrada, a compra não é contada. Não há envio do lado do servidor (Measurement Protocol, Conversions API).
-- `NEXT_PUBLIC_GOOGLE_ADS_PURCHASE_LABEL` **não é usado**: não é enviado nenhum evento `conversion` com `send_to`. Com Google Ads direto, a conversão de compra tem de ser criada no Google Ads a partir do evento `purchase` do GA4 (importação de conversões) ou configurada no GTM.
-- Com GTM, o contentor é carregado logo que há consentimento de medição. Os eventos de `track()` chegam ao `dataLayer`, mas **o estado do consentimento de marketing não é enviado ao `dataLayer`** (não há Consent Mode nesse caminho). As etiquetas de publicidade dentro do contentor têm de ser condicionadas, por exemplo lendo o cookie `athana_consent`.
+- A conversão de compra do Google Ads (`conversion` com `send_to`) é enviada no browser junto com `purchase`, com as mesmas limitações. Só chega ao Google Ads no modo gtag.js direto, em que a etiqueta `AW-…` é configurada. Com GTM, o carregador não configura o Google Ads: a conversão tem de ser criada como etiqueta dentro do contentor (a partir do evento `purchase` ou `conversion` do `dataLayer`). **Não testado com uma conta real.**
+- Com GTM, o contentor é carregado logo que há consentimento de medição, com o Consent Mode por omissão já definido. As etiquetas Google dentro do contentor respeitam-no; etiquetas de outros fornecedores (por exemplo Meta via GTM) têm de ser condicionadas à mão. Se o visitante alterar a escolha, o novo estado só é aplicado no carregamento de página seguinte (não é enviado `consent update`).
 - Os parâmetros UTM (`utm_source`, `utm_medium`, `utm_campaign`, `utm_term`, `utm_content`) são guardados no cookie `athana_utm` por 30 dias, só com consentimento de medição, e anexados ao lead criado pelo formulário (`Lead.utm`).
-- A CSP (`next.config.ts`) autoriza `googletagmanager.com`, `connect.facebook.net`, os domínios de recolha do Google Analytics e `facebook.com`. Outros domínios que as etiquetas venham a usar (Google Ads, etiquetas adicionadas no GTM) podem ser bloqueados e exigem ajuste da CSP.
+- A CSP (`next.config.ts`) autoriza `googletagmanager.com`, `googleadservices.com`, `connect.facebook.net`, os domínios de recolha do Google Analytics, `*.doubleclick.net`, `google.com` e `facebook.com`. Outros domínios que etiquetas adicionadas no GTM venham a usar podem ser bloqueados e exigem ajuste da CSP.
 
 ### O que o proprietário tem de fornecer
 
@@ -223,7 +223,7 @@ O que existe:
 - o cliente pode autorizar, no briefing, o tratamento dos seus dados com ferramentas de IA (`Briefing.aiConsent`, desligado por omissão);
 - a equipa descarrega, na página do projeto no backoffice, o ficheiro `<referência>-brief.json` (`GET /api/admin/projects/[id]/brief`, permissão `projects.view`, exportação auditada);
 - o ficheiro segue o esquema `athana.project-brief/v1` e reúne modelo, escalão, demonstração de partida, tecnologias, opções, páginas e revisões incluídas, respostas do briefing e lista de ficheiros;
-- sem consentimento, o nome, o e-mail e o telefone do contacto e a morada são substituídos por um marcador. O nome da empresa e os textos livres são sempre incluídos.
+- sem consentimento, são substituídos por um marcador o nome, o e-mail e o telefone do contacto, a morada e os três campos de conteúdo livre (`texts`, `extra`, `inTheirOwnWords`). O nome da empresa e os requisitos do projeto (objetivo, público, páginas, funcionalidades, referências…) são sempre incluídos.
 
 O que **não** existe:
 
@@ -233,4 +233,4 @@ O que **não** existe:
 
 Uso previsto: um membro da equipa descarrega o brief e usa-o, por sua decisão, como contexto numa ferramenta de desenvolvimento assistido, a partir da demonstração do modelo em `src/demos/<slug>`. Os ficheiros anexados pelo cliente não vão no JSON (só os metadados); descarregam-se um a um.
 
-Antes de usar um brief com uma ferramenta de IA: confirmar `aiProcessingConsent: true`; se for `false`, rever os textos livres, que podem conter dados pessoais não ocultados.
+Antes de usar um brief com uma ferramenta de IA: confirmar `aiProcessingConsent`. Se for `false`, o conteúdo livre já vem ocultado, mas convém rever os campos de requisitos, que são texto escrito pelo cliente e podem conter dados pessoais.
