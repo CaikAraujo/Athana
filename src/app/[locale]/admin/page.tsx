@@ -48,7 +48,7 @@ export default async function AdminHome({ params, searchParams }: { params: Prom
         <Card title={t('Dernières commandes')} actions={can(user.platformRole, 'orders.view') ? <a className="text-sm underline" href={p('/admin/orders')}>{t('Tout voir')}</a> : undefined}>
           {recent.length === 0 ? <Empty title={t('Aucune commande.')} /> : (
             <ul className="divide-y divide-line text-sm">
-              {recent.map((o) => <li key={o.id} className="flex items-center justify-between gap-3 py-2.5"><a className="font-medium no-underline hover:text-gold-300" href={p(`/admin/orders/${o.id}`)}>{o.number}</a><span className="muted min-w-0 flex-1 truncate">{o.user.name}</span><span>{formatMoney(o.total, o.currency, locale)}</span><OrderBadge status={o.status} t={t} /></li>)}
+              {recent.map((o) => <li key={o.id} className="flex items-center justify-between gap-3 py-2.5"><a className="font-medium no-underline hover:text-accent-700" href={p(`/admin/orders/${o.id}`)}>{o.number}</a><span className="muted min-w-0 flex-1 truncate">{o.user.name}</span><span>{formatMoney(o.total, o.currency, locale)}</span><OrderBadge status={o.status} t={t} /></li>)}
             </ul>
           )}
         </Card>
@@ -57,7 +57,7 @@ export default async function AdminHome({ params, searchParams }: { params: Prom
         </Card>
         <Card title={t('Projets en retard')} className="lg:col-span-2">
           {lateList.length === 0 ? <p className="muted text-sm">{t('Aucun projet en retard.')}</p> : (
-            <ul className="divide-y divide-line text-sm">{lateList.map((x) => <li key={x.id} className="flex flex-wrap items-center justify-between gap-3 py-2.5"><a className="font-medium no-underline hover:text-gold-300" href={p(`/admin/projects/${x.id}`)}>{x.reference} — {x.name}</a><span className="text-danger">{t('Échéance : {date}', { date: formatDate(x.dueAt!, locale) })}</span><ProjectBadge status={x.status} t={t} /></li>)}</ul>
+            <ul className="divide-y divide-line text-sm">{lateList.map((x) => <li key={x.id} className="flex flex-wrap items-center justify-between gap-3 py-2.5"><a className="font-medium no-underline hover:text-accent-700" href={p(`/admin/projects/${x.id}`)}>{x.reference} — {x.name}</a><span className="text-danger">{t('Échéance : {date}', { date: formatDate(x.dueAt!, locale) })}</span><ProjectBadge status={x.status} t={t} /></li>)}</ul>
           )}
         </Card>
       </div>

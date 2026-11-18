@@ -174,7 +174,7 @@ export async function reportToPdf(report: Report, { t, locale }: ExportI18n, gen
   const font = await pdf.embedFont(StandardFonts.Helvetica);
   const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
   const W = 595.28, H = 841.89, M = 40;
-  const ink = rgb(0.1, 0.1, 0.1), soft = rgb(0.42, 0.42, 0.42), line = rgb(0.82, 0.82, 0.82), gold = rgb(0.66, 0.54, 0.27);
+  const ink = rgb(0.1, 0.1, 0.1), soft = rgb(0.42, 0.42, 0.42), line = rgb(0.82, 0.82, 0.82), gold = rgb(0.03, 0.57, 0.7);
   const safe = (s: string, f: PDFFont = font) => winAnsiSafe(s, f);
   const fit = (s: string, f: PDFFont, size: number, width: number) => {
     let text = safe(s, f);

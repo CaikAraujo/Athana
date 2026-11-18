@@ -11,7 +11,7 @@ export async function BannerBar({ locale }: { locale: Locale }) {
   if (!banner) return null;
   const text = L(banner.message, locale);
   return (
-    <div className="no-print bg-gold-500 px-4 py-2 text-center text-sm font-medium text-black">
+    <div className="no-print bg-accent-600 px-4 py-2 text-center text-sm font-medium text-white">
       {banner.linkPath ? <a className="underline-offset-2 hover:underline" href={localePath(locale, banner.linkPath)}>{text}</a> : text}
     </div>
   );

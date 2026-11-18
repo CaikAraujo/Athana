@@ -26,7 +26,7 @@ export function LanguageSwitcher({ compact }: { compact?: boolean }) {
           window.location.assign(switchLocalePath(pathname, to) + window.location.search);
         }}
       >
-        {LOCALES.map((l) => <option key={l} value={l} className="bg-ink-800">{compact ? l.toUpperCase() : LOCALE_META[l].label}</option>)}
+        {LOCALES.map((l) => <option key={l} value={l} className="bg-ink-850 text-fg">{compact ? l.toUpperCase() : LOCALE_META[l].label}</option>)}
       </select>
     </label>
   );
@@ -52,17 +52,17 @@ export function HeaderClient({ cartCount, signedIn, isStaff }: { cartCount: numb
     { href: '/custom', label: t('Sur mesure') },
   ];
   return (
-    <header className={`no-print sticky top-0 z-40 border-b transition-colors ${scrolled || open ? 'border-line bg-ink-950/90 backdrop-blur-md' : 'border-transparent bg-transparent'}`}>
+    <header className={`no-print sticky top-0 z-40 border-b transition-colors ${scrolled || open ? 'border-line bg-ink-950/85 backdrop-blur-md' : 'border-transparent bg-ink-950/0'}`}>
       <div className="container-page flex h-16 items-center justify-between gap-4">
         <Link href="/" className="shrink-0 no-underline"><Logo /></Link>
         <nav aria-label={t('Navigation principale')} className="hidden items-center gap-1 lg:flex">
-          {nav.map((n) => <Link key={n.href} href={n.href} className="rounded-lg px-3 py-2 text-sm text-fg-soft no-underline transition-colors hover:bg-white/5 hover:text-fg">{n.label}</Link>)}
+          {nav.map((n) => <Link key={n.href} href={n.href} className="rounded-lg px-3 py-2 text-sm text-fg-soft no-underline transition-colors hover:bg-black/5 hover:text-fg">{n.label}</Link>)}
         </nav>
         <div className="flex items-center gap-1.5">
           <div className="hidden md:block"><LanguageSwitcher compact /></div>
           <Link href="/cart" className="btn btn-ghost btn-sm relative" aria-label={t('Panier')}>
             <ShoppingBag size={18} aria-hidden />
-            {cartCount > 0 && <span className="absolute -right-0.5 -top-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-gold-500 px-1 text-[10px] font-bold text-black">{cartCount}</span>}
+            {cartCount > 0 && <span className="absolute -right-0.5 -top-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-accent-600 px-1 text-[10px] font-bold text-white">{cartCount}</span>}
           </Link>
           <Link href={signedIn ? (isStaff ? '/admin' : '/account') : '/login'} className="btn btn-ghost btn-sm" aria-label={signedIn ? t('Mon compte') : t('Connexion')}>
             <User size={18} aria-hidden /><span className="hidden xl:inline">{signedIn ? t('Mon compte') : t('Connexion')}</span>
@@ -75,8 +75,8 @@ export function HeaderClient({ cartCount, signedIn, isStaff }: { cartCount: numb
       </div>
       {open && (
         <nav id="mobile-nav" aria-label={t('Navigation principale')} className="container-page flex flex-col gap-1 border-t border-line pb-6 pt-3 lg:hidden">
-          {nav.map((n) => <Link key={n.href} href={n.href} className="rounded-lg px-3 py-3 text-base text-fg no-underline hover:bg-white/5">{n.label}</Link>)}
-          <Link href="/contact" className="rounded-lg px-3 py-3 text-base text-fg no-underline hover:bg-white/5">{t('Contact')}</Link>
+          {nav.map((n) => <Link key={n.href} href={n.href} className="rounded-lg px-3 py-3 text-base text-fg no-underline hover:bg-black/5">{n.label}</Link>)}
+          <Link href="/contact" className="rounded-lg px-3 py-3 text-base text-fg no-underline hover:bg-black/5">{t('Contact')}</Link>
           <div className="mt-3 flex items-center justify-between gap-3 px-3">
             <LanguageSwitcher />
             <Link href="/quote" className="btn btn-primary btn-sm">{t('Demander un devis')}</Link>

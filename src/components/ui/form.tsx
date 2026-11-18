@@ -42,7 +42,7 @@ export function Field({ label, name, hint, required, children }: { label: string
   const error = useFieldError(name);
   return (
     <div>
-      <label className="label" htmlFor={`f-${name}`}>{label}{required && <span aria-hidden className="text-gold-400"> *</span>}</label>
+      <label className="label" htmlFor={`f-${name}`}>{label}{required && <span aria-hidden className="text-accent-600"> *</span>}</label>
       {children}
       {hint && !error && <p className="field-hint">{hint}</p>}
       {error && <p className="field-error" id={`e-${name}`}>{error}</p>}

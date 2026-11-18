@@ -14,7 +14,7 @@ export default async function RegisterPage({ params, searchParams }: { params: P
       <h1 className="text-2xl font-semibold">{t('Créer un compte')}</h1>
       <p className="muted mb-6 mt-1 text-sm">{t('Un seul compte pour vos sites, vos projets et vos logiciels ATHANA.')}</p>
       <RegisterForm next={next} />
-      <p className="muted mt-6 text-center text-sm">{t('Déjà client ?')} <a className="text-gold-300 underline" href={localePath(locale, `/login${next ? `?next=${encodeURIComponent(next)}` : ''}`)}>{t('Se connecter')}</a></p>
+      <p className="muted mt-6 text-center text-sm">{t('Déjà client ?')} <a className="text-accent-700 underline" href={localePath(locale, `/login${next ? `?next=${encodeURIComponent(next)}` : ''}`)}>{t('Se connecter')}</a></p>
     </>
   );
 }

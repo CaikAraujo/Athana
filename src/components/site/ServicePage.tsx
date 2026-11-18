@@ -29,7 +29,7 @@ export function ServicePage({ c, locale, t, children }: { c: ServiceContent; loc
         {c.secondary && <a className="btn btn-outline btn-lg" href={c.secondary.href.startsWith('#') ? c.secondary.href : p(c.secondary.href)}>{c.secondary.label}</a>}
       </PageHero>
       <div className="container-page pt-8"><Breadcrumbs locale={locale} items={[[t('Accueil'), '/'], [c.eyebrow, c.path]]} /></div>
-      <Section title={c.featuresTitle} className="pt-6!">
+      <Section title={c.featuresTitle} className="pt-8!">
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {c.features.map((f) => <Reveal key={f.title} className="panel p-6"><h3 className="text-lg font-semibold">{f.title}</h3><p className="muted mt-2 text-sm">{f.text}</p></Reveal>)}
         </div>
@@ -37,12 +37,12 @@ export function ServicePage({ c, locale, t, children }: { c: ServiceContent; loc
       {children}
       {c.included && (
         <Section title={c.includedTitle} className="border-y border-line bg-ink-900">
-          <ul className="grid gap-3 sm:grid-cols-2">{c.included.map((x) => <li key={x} className="flex gap-3 text-fg-soft"><Check size={18} className="mt-1 shrink-0 text-gold-400" aria-hidden />{x}</li>)}</ul>
+          <ul className="grid gap-3 sm:grid-cols-2">{c.included.map((x) => <li key={x} className="flex gap-3 text-fg-soft"><Check size={18} className="mt-1 shrink-0 text-accent-600" aria-hidden />{x}</li>)}</ul>
         </Section>
       )}
       {c.steps && (
         <Section title={c.stepsTitle}>
-          <ol className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">{c.steps.map(([title, text], i) => <li key={title} className="rounded-2xl border border-line p-6"><span className="font-display text-3xl font-semibold text-gold-500/40">{String(i + 1).padStart(2, '0')}</span><h3 className="mt-2 text-lg font-semibold">{title}</h3><p className="muted mt-2 text-sm">{text}</p></li>)}</ol>
+          <ol className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">{c.steps.map(([title, text], i) => <li key={title} className="rounded-2xl border border-line bg-ink-850 p-6"><span className="font-display text-3xl font-semibold text-accent-500">{String(i + 1).padStart(2, '0')}</span><h3 className="mt-2 text-lg font-semibold">{title}</h3><p className="muted mt-2 text-sm">{text}</p></li>)}</ol>
         </Section>
       )}
       {c.faq && c.faq.length > 0 && (

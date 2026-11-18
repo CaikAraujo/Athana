@@ -34,7 +34,7 @@ Legenda: ✅ implementado e testado · 🟡 implementado, verificação parcial 
 
 ## 2. Em desenvolvimento
 
-Nada em curso.
+**Tema claro (ramo local `design/light-theme`, não publicado).** Novo *design system* claro com cor de destaque configurável (ciano por omissão, verde ou verde-azulado via `NEXT_PUBLIC_ACCENT`), logótipo desenhado em linha na cor de destaque, *hero* com os modelos, ecrãs reais do CRM e do Pointage nas páginas de software, pré-visualização dos modelos que percorre a página ao passar o rato, seletor computador/telemóvel nas demonstrações, secções com ritmo (faixas claras e escuras) e rodapé escuro. Verificado com os mesmos testes (78 de integração, 14 execuções E2E) e por capturas de ecrã. Ver `LEIA-ME-LOCAL.md`.
 
 ## 3. Pendente ou parcial
 

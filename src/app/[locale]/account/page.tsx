@@ -44,7 +44,7 @@ export default async function AccountHome({ params, searchParams }: { params: Pr
               {projects.map((x) => (
                 <li key={x.id}>
                   <div className="mb-1.5 flex items-center justify-between gap-3">
-                    <a className="truncate font-medium no-underline hover:text-gold-300" href={p(`/account/projects/${x.id}`)}>{x.name}</a>
+                    <a className="truncate font-medium no-underline hover:text-accent-700" href={p(`/account/projects/${x.id}`)}>{x.name}</a>
                     <ProjectBadge status={x.status} t={t} />
                   </div>
                   <Progress value={projectProgress(x.status)} label={x.name} />
@@ -58,7 +58,7 @@ export default async function AccountHome({ params, searchParams }: { params: Pr
             <ul className="divide-y divide-line">
               {orders.map((o) => (
                 <li key={o.id} className="flex items-center justify-between gap-3 py-3 text-sm">
-                  <a className="font-medium no-underline hover:text-gold-300" href={p(`/account/orders/${o.id}`)}>{o.number}</a>
+                  <a className="font-medium no-underline hover:text-accent-700" href={p(`/account/orders/${o.id}`)}>{o.number}</a>
                   <span className="muted hidden sm:inline">{formatDate(o.createdAt, locale)}</span>
                   <span>{formatMoney(o.total, o.currency, locale)}</span>
                   <OrderBadge status={o.status} t={t} />

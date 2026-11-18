@@ -56,8 +56,8 @@ export function AppShell({ product, groups, user, topSlot, unread = 0, notificat
     </div>
   );
   return (
-    <div className="min-h-dvh lg:grid lg:grid-cols-[250px_1fr]">
-      <aside className="no-print sticky top-0 hidden h-dvh flex-col border-r border-line bg-ink-900 lg:flex">
+    <div className="min-h-dvh bg-ink-900 lg:grid lg:grid-cols-[250px_1fr]">
+      <aside className="no-print sticky top-0 hidden h-dvh flex-col border-r border-line bg-ink-850 lg:flex">
         <div className="flex h-16 items-center gap-2 border-b border-line px-5">
           <Link href="/" className="no-underline"><Logo size={24} /></Link>
         </div>
@@ -66,7 +66,7 @@ export function AppShell({ product, groups, user, topSlot, unread = 0, notificat
         {footer}
       </aside>
       <div className="min-w-0">
-        <header className="no-print sticky top-0 z-30 flex h-16 items-center justify-between gap-3 border-b border-line bg-ink-950/90 px-4 backdrop-blur-md md:px-8">
+        <header className="no-print sticky top-0 z-30 flex h-16 items-center justify-between gap-3 border-b border-line bg-ink-850/90 px-4 backdrop-blur-md md:px-8">
           <div className="flex min-w-0 items-center gap-3">
             <button type="button" className="btn btn-ghost btn-sm lg:hidden" aria-label={t('Menu')} aria-expanded={open} onClick={() => setOpen(true)}><Menu size={20} /></button>
             <span className="eyebrow truncate lg:hidden">{product}</span>
@@ -76,7 +76,7 @@ export function AppShell({ product, groups, user, topSlot, unread = 0, notificat
             <div className="lg:hidden">{topSlot}</div>
             <Link href={notificationsHref} className="btn btn-ghost btn-sm relative" aria-label={t('Notifications')}>
               <Bell size={18} aria-hidden />
-              {unread > 0 && <span className="absolute -right-0.5 -top-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-gold-500 px-1 text-[10px] font-bold text-black">{unread > 9 ? '9+' : unread}</span>}
+              {unread > 0 && <span className="absolute -right-0.5 -top-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-accent-600 px-1 text-[10px] font-bold text-white">{unread > 9 ? '9+' : unread}</span>}
             </Link>
           </div>
         </header>
@@ -85,7 +85,7 @@ export function AppShell({ product, groups, user, topSlot, unread = 0, notificat
       {open && (
         <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label={t('Menu')}>
           <button type="button" className="absolute inset-0 bg-black/70" aria-label={t('Fermer')} onClick={() => setOpen(false)} />
-          <div className="relative flex h-full w-[82%] max-w-xs flex-col border-r border-line bg-ink-900">
+          <div className="relative flex h-full w-[82%] max-w-xs flex-col border-r border-line bg-ink-850">
             <div className="flex h-16 items-center justify-between border-b border-line px-4">
               <Logo size={24} />
               <button type="button" className="btn btn-ghost btn-sm" aria-label={t('Fermer')} onClick={() => setOpen(false)}><X size={20} /></button>

@@ -54,12 +54,12 @@ export default async function CalendarPage({ params, searchParams }: { params: P
               <div key={i} className={`min-h-14 border-b border-r border-line p-1 md:min-h-28 md:p-1.5 ${i % 7 === 6 ? 'border-r-0' : ''} ${d ? '' : 'bg-ink-900/60'}`}>
                 {d && (
                   <>
-                    <a href={entries.length ? `#d-${keyOf(d)}` : undefined} className={`inline-grid h-6 min-w-6 place-items-center rounded-full px-1 text-xs no-underline ${isToday ? 'bg-gold-500 font-bold text-black' : 'text-fg-soft'}`} aria-current={isToday ? 'date' : undefined}>{d}</a>
-                    {entries.length > 0 && <span className="ml-1 inline-block h-1.5 w-1.5 rounded-full bg-gold-400 align-middle md:hidden" aria-label={t('{count} élément(s)', { count: entries.length })} />}
+                    <a href={entries.length ? `#d-${keyOf(d)}` : undefined} className={`inline-grid h-6 min-w-6 place-items-center rounded-full px-1 text-xs no-underline ${isToday ? 'bg-accent-600 font-bold text-black' : 'text-fg-soft'}`} aria-current={isToday ? 'date' : undefined}>{d}</a>
+                    {entries.length > 0 && <span className="ml-1 inline-block h-1.5 w-1.5 rounded-full bg-accent-600 align-middle md:hidden" aria-label={t('{count} élément(s)', { count: entries.length })} />}
                     <ul className="mt-1 hidden space-y-1 md:block">
                       {entries.slice(0, 3).map((e) => (
                         <li key={e.kind + e.id}>
-                          <Link href={e.href} className={`block truncate rounded px-1.5 py-0.5 text-xs no-underline ${e.kind === 'meeting' ? 'bg-sky-300/10 text-info' : 'bg-white/5 text-fg-soft'} ${e.kind === 'task' && e.done ? 'line-through opacity-60' : ''}`}>{e.title}</Link>
+                          <Link href={e.href} className={`block truncate rounded px-1.5 py-0.5 text-xs no-underline ${e.kind === 'meeting' ? 'bg-sky-300/10 text-info' : 'bg-black/5 text-fg-soft'} ${e.kind === 'task' && e.done ? 'line-through opacity-60' : ''}`}>{e.title}</Link>
                         </li>
                       ))}
                       {entries.length > 3 && <li className="muted px-1 text-xs">{t('+ {count} autre(s)', { count: entries.length - 3 })}</li>}
@@ -82,7 +82,7 @@ export default async function CalendarPage({ params, searchParams }: { params: P
                   <ul className="space-y-1.5">
                     {cal.days[key].map((e) => (
                       <li key={e.kind + e.id} className="flex items-start gap-2 text-sm">
-                        {e.kind === 'meeting' ? <Users size={16} className="mt-0.5 flex-none text-info" aria-hidden /> : <CheckSquare size={16} className="mt-0.5 flex-none text-gold-300" aria-hidden />}
+                        {e.kind === 'meeting' ? <Users size={16} className="mt-0.5 flex-none text-info" aria-hidden /> : <CheckSquare size={16} className="mt-0.5 flex-none text-accent-700" aria-hidden />}
                         <Link href={e.href} className={`min-w-0 break-words underline-offset-2 hover:underline ${e.kind === 'task' && e.done ? 'muted line-through' : ''}`}>
                           {e.kind === 'meeting' ? `${time(e.at)} · ${t('Rendez-vous')} — ${e.title}` : `${t('Tâche')} — ${e.title}`}
                         </Link>

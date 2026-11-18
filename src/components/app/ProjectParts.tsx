@@ -26,7 +26,7 @@ export function Milestones({ status, t }: { status: ProjectStatus; t: TFn }) {
         const current = !done && idx >= first;
         return (
           <li key={ms.label} className="flex flex-col items-center gap-2" aria-current={current ? 'step' : undefined}>
-            <span className={`grid h-8 w-8 place-items-center rounded-full border text-xs font-semibold ${done ? 'border-gold-500 bg-gold-500 text-black' : current ? 'border-gold-500 text-gold-300' : 'border-line-strong text-fg-muted'}`}>{done ? <Check size={15} aria-hidden /> : i + 1}</span>
+            <span className={`grid h-8 w-8 place-items-center rounded-full border text-xs font-semibold ${done ? 'border-accent-500 bg-accent-600 text-white' : current ? 'border-accent-500 text-accent-700' : 'border-line-strong text-fg-muted'}`}>{done ? <Check size={15} aria-hidden /> : i + 1}</span>
             <span className={done || current ? 'text-fg' : 'muted'}>{labels[i]}</span>
           </li>
         );
@@ -41,7 +41,7 @@ export function Timeline({ events, locale, t }: { events: ProjectEvent[]; locale
     <ol className="space-y-3 border-l border-line pl-4 text-sm">
       {events.map((e) => (
         <li key={e.id} className="relative">
-          <span className="absolute -left-[21px] top-1.5 h-2.5 w-2.5 rounded-full bg-gold-500" aria-hidden />
+          <span className="absolute -left-[21px] top-1.5 h-2.5 w-2.5 rounded-full bg-accent-600" aria-hidden />
           <p>{e.toStatus ? t(PROJECT_STATUS_LABEL[e.toStatus]) : e.note}</p>
           {e.toStatus && e.note && <p className="muted">{e.note}</p>}
           <p className="muted text-xs">{formatDateTime(e.createdAt, locale)}</p>
@@ -58,7 +58,7 @@ export function Thread({ messages, viewerIsStaff, locale, t }: { messages: Messa
       {messages.map((msg) => {
         const mine = msg.fromStaff === viewerIsStaff;
         return (
-          <li key={msg.id} className={`max-w-[88%] rounded-xl border p-3 text-sm ${msg.internal ? 'border-warn/40 bg-warn/5' : mine ? 'ml-auto border-gold-500/30 bg-gold-500/5' : 'border-line bg-ink-800'}`}>
+          <li key={msg.id} className={`max-w-[88%] rounded-xl border p-3 text-sm ${msg.internal ? 'border-warn/40 bg-warn/5' : mine ? 'ml-auto border-accent-500/30 bg-accent-500/5' : 'border-line bg-ink-800'}`}>
             <p className="muted mb-1 text-xs">{msg.internal ? t('Note interne') : msg.fromStaff ? 'ATHANA' : t('Client')} · {formatDateTime(msg.createdAt, locale)}</p>
             <p className="whitespace-pre-wrap break-words">{msg.body}</p>
           </li>
@@ -74,7 +74,7 @@ export function FileList({ files, t, action }: { files: FileAsset[]; t: TFn; act
     <ul className="divide-y divide-line text-sm">
       {files.map((f) => (
         <li key={f.id} className="flex items-center justify-between gap-3 py-2">
-          <a className="min-w-0 truncate underline hover:text-gold-300" href={`/api/files/${f.id}`}>{f.originalName}</a>
+          <a className="min-w-0 truncate underline hover:text-accent-700" href={`/api/files/${f.id}`}>{f.originalName}</a>
           <span className="flex shrink-0 items-center gap-2"><span className="muted text-xs">{(f.size / 1024).toFixed(0)} Ko</span>{action?.(f)}</span>
         </li>
       ))}

@@ -31,7 +31,7 @@ export default async function AdminOrder({ params }: { params: Promise<{ locale:
                 <li key={i.id} className="py-3">
                   <div className="flex justify-between gap-3"><span className="font-medium">{i.name} <span className="muted">· {i.tier}</span></span><span>{formatMoney(i.total, order.currency, locale)}</span></div>
                   {(i.addons as { name: string; amount: number }[]).map((a) => <p key={a.name} className="muted text-sm">+ {a.name} ({formatMoney(a.amount, order.currency, locale)})</p>)}
-                  {i.project && <p className="mt-2 flex items-center gap-3 text-sm"><ProjectBadge status={i.project.status} t={t} /><a className="underline hover:text-gold-300" href={localePath(locale, `/admin/projects/${i.project.id}`)}>{i.project.reference}</a></p>}
+                  {i.project && <p className="mt-2 flex items-center gap-3 text-sm"><ProjectBadge status={i.project.status} t={t} /><a className="underline hover:text-accent-700" href={localePath(locale, `/admin/projects/${i.project.id}`)}>{i.project.reference}</a></p>}
                 </li>
               ))}
             </ul>

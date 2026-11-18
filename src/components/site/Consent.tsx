@@ -17,7 +17,7 @@ function persist(c: ConsentState, policyVersion: string) {
 
 export function ConsentSettingsButton() {
   const t = useT();
-  return <button type="button" className="muted cursor-pointer text-sm hover:text-gold-300" onClick={() => window.dispatchEvent(new Event('athana:consent-open'))}>{t('Gérer les cookies')}</button>;
+  return <button type="button" className="muted cursor-pointer text-sm hover:text-accent-700" onClick={() => window.dispatchEvent(new Event('athana:consent-open'))}>{t('Gérer les cookies')}</button>;
 }
 
 /** Cookie banner + tag loader. Tags are injected only when an ID is configured AND consent was given. */
@@ -62,7 +62,7 @@ export function ConsentManager({ ids, policyVersion }: { ids: Ids; policyVersion
           <p className="text-sm font-semibold">{t('Cookies et confidentialité')}</p>
           <p className="muted mt-1 text-sm">
             {t('Nous utilisons des cookies nécessaires au fonctionnement du site et, avec votre accord, des cookies de mesure d’audience et de marketing.')}{' '}
-            <Link href="/legal/cookies" className="underline hover:text-gold-300">{t('En savoir plus')}</Link>
+            <Link href="/legal/cookies" className="underline hover:text-accent-700">{t('En savoir plus')}</Link>
           </p>
           {custom && (
             <div className="mt-3 space-y-2 text-sm">

@@ -36,7 +36,7 @@ export default async function OrderPage({ params, searchParams }: { params: Prom
                   {i.project && order.status === 'PAID' && (
                     <div className="mt-2 flex flex-wrap items-center gap-3 text-sm">
                       <ProjectBadge status={i.project.status} t={t} />
-                      <a className="underline hover:text-gold-300" href={localePath(locale, `/account/projects/${i.project.id}`)}>{t('Suivre le projet {ref}', { ref: i.project.reference })}</a>
+                      <a className="underline hover:text-accent-700" href={localePath(locale, `/account/projects/${i.project.id}`)}>{t('Suivre le projet {ref}', { ref: i.project.reference })}</a>
                     </div>
                   )}
                 </li>

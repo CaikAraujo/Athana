@@ -12,6 +12,8 @@ import { ProductCard } from '@/components/site/ProductCard';
 import { Section, FaqList, CtaBand } from '@/components/site/Section';
 import { Reveal } from '@/components/site/Consent';
 import { LeadForm } from '@/components/site/LeadForm';
+import { BrowserFrame, HeroShowcase, PhoneFrame, Split } from '@/components/site/Showcase';
+import { saasCopy } from '@/modules/content/saas-copy';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const locale = assertLocale((await params).locale);
@@ -32,6 +34,10 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
     db.testimonial.findMany({ where: { published: true }, orderBy: { createdAt: 'desc' }, take: 3 }),
     getSetting('company'),
   ]);
+
+  const showcase = featured.filter((x) => x.coverImage).slice(0, 3);
+  const saasActive = saas.filter((x) => x.status === 'ACTIVE');
+  const saasSoon = saas.filter((x) => x.status !== 'ACTIVE');
 
   const entries = [
     { icon: Globe, title: t('Sites Web'), text: t('Des modèles professionnels personnalisés à votre marque, livrés en quelques jours.'), href: '/templates', cta: t('Voir les modèles') },
@@ -63,30 +69,31 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       <JsonLd data={{ '@context': 'https://schema.org', '@type': 'WebSite', name: 'ATHANA', url: env.appUrl + p('/'), inLanguage: locale }} />
 
       {/* Hero */}
-      <section className="relative overflow-hidden">
-        <div className="bg-grid pointer-events-none absolute inset-0 [mask-image:radial-gradient(ellipse_at_top,black,transparent_72%)]" aria-hidden />
-        <div className="pointer-events-none absolute -top-48 left-1/2 h-[520px] w-[900px] -translate-x-1/2 rounded-full bg-gold-500/12 blur-3xl" aria-hidden />
-        <div className="container-page relative pb-16 pt-16 text-center md:pb-24 md:pt-28">
-          <p className="badge badge-gold mx-auto mb-6">{t('Solutions digitales conçues en Suisse')}</p>
-          <h1 className="h-display mx-auto max-w-4xl">{t('Votre entreprise mérite de')} <span className="gold-text">{t('meilleures solutions digitales.')}</span></h1>
+      <section className="relative overflow-hidden bg-ink-900">
+        <div className="bg-grid pointer-events-none absolute inset-0 [mask-image:radial-gradient(ellipse_at_top,black,transparent_70%)]" aria-hidden />
+        <div className="pointer-events-none absolute -top-56 left-1/2 h-[520px] w-[900px] -translate-x-1/2 rounded-full bg-accent-400/25 blur-3xl" aria-hidden />
+        <div className="container-page relative pb-14 pt-14 text-center md:pb-20 md:pt-20">
+          <p className="badge badge-accent mx-auto mb-6">{t('Solutions digitales conçues en Suisse')}</p>
+          <h1 className="h-display mx-auto max-w-4xl">{t('Votre entreprise mérite de')} <span className="accent-text">{t('meilleures solutions digitales.')}</span></h1>
           <p className="lead mx-auto mt-6 max-w-2xl">{t('Sites web, boutiques en ligne, logiciels et applications professionnelles. Choisissez votre solution et démarrez votre projet avec Athana.')}</p>
-          <div className="mt-9 flex flex-wrap justify-center gap-3">
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
             <a className="btn btn-primary btn-lg" href={p('/templates')}>{t('Choisir un modèle')} <ArrowRight size={18} aria-hidden /></a>
             <a className="btn btn-outline btn-lg" href={p('/quote')}>{t('Demander un devis')}</a>
           </div>
+          <HeroShowcase items={showcase.map((prod) => ({ src: prod.coverImage!, alt: t('Aperçu du modèle {name}', { name: prod.name }) }))} />
         </div>
       </section>
 
       {/* Four entries */}
-      <section className="container-page pb-8">
+      <section className="container-page py-12 md:py-16">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {entries.map((e, i) => (
             <Reveal key={e.href}>
               <a href={p(e.href)} className="card card-hover card-pad group flex h-full flex-col no-underline" style={{ transitionDelay: `${i * 40}ms` }}>
-                <span className="mb-5 grid h-11 w-11 place-items-center rounded-xl border border-gold-500/30 bg-gold-500/10 text-gold-300"><e.icon size={20} aria-hidden /></span>
+                <span className="mb-5 grid h-11 w-11 place-items-center rounded-xl bg-accent-500/12 text-accent-700"><e.icon size={20} aria-hidden /></span>
                 <h2 className="text-xl font-semibold">{e.title}</h2>
-                <p className="muted mt-2 flex-1 text-sm">{e.text}</p>
-                <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-gold-300">{e.cta} <ArrowRight size={15} aria-hidden className="transition-transform group-hover:translate-x-1" /></span>
+                <p className="muted mt-2 flex-1 text-[0.95rem]">{e.text}</p>
+                <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-accent-700">{e.cta} <ArrowRight size={15} aria-hidden className="transition-transform group-hover:translate-x-1" /></span>
               </a>
             </Reveal>
           ))}
@@ -94,63 +101,74 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       </section>
 
       {/* Featured templates */}
-      <Section eyebrow="ATHANA Web" title={t('Des modèles prêts à devenir votre site')} lead={t('Chaque modèle possède une démonstration navigable. Vous voyez le résultat avant d’acheter.')}>
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {featured.map((prod) => <ProductCard key={prod.id} product={prod} locale={locale} currency={currency} t={t} />)}
+      <Section eyebrow="ATHANA Web" title={t('Des modèles prêts à devenir votre site')} lead={t('Chaque modèle possède une démonstration navigable. Vous voyez le résultat avant d’acheter.')} className="pt-4!">
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {featured.slice(0, 3).map((prod, i) => <ProductCard key={prod.id} product={prod} locale={locale} currency={currency} t={t} priority={i === 0} />)}
         </div>
         <div className="mt-8 text-center"><a className="btn btn-outline" href={p('/templates')}>{t('Voir tous les modèles')} <ArrowRight size={16} aria-hidden /></a></div>
       </Section>
 
-      {/* Software */}
+      {/* Software: real product screens */}
       <Section eyebrow="ATHANA Software" title={t('Nos logiciels en abonnement')} lead={t('Des outils de gestion simples, hébergés pour vous, sans installation.')} className="border-y border-line bg-ink-900">
-        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {saas.map((s) => {
+        <div className="space-y-16 md:space-y-20">
+          {saasActive.map((s, i) => {
             const from = s.plans[0] ? priceFor(s.plans[0].prices, currency) : null;
-            const active = s.status === 'ACTIVE';
+            const copy = saasCopy(s.key, t);
             return (
-              <article key={s.key} className="card card-pad flex flex-col">
-                <div className="flex items-center justify-between gap-3">
-                  <h3 className="text-lg font-semibold">{s.name}</h3>
-                  {active ? <span className="badge badge-ok">{t('Disponible')}</span> : <span className="badge">{t('Bientôt')}</span>}
-                </div>
-                <p className="muted mt-2 flex-1 text-sm">{L(s.tagline, locale)}</p>
-                {active && (
-                  <div className="mt-5 flex items-center justify-between gap-3">
-                    {from !== null ? <span className="text-sm text-fg-soft">{t('dès')} <strong className="text-fg">{formatMoney(from, currency, locale)}</strong> {t('/ mois')}</span> : <span />}
-                    <a className="btn btn-outline btn-sm" href={p(`/software/${s.key}`)}>{t('Découvrir')}</a>
-                  </div>
-                )}
-              </article>
+              <Reveal key={s.key}>
+                <Split flip={i % 2 === 1} eyebrow={s.name} title={L(s.tagline, locale)} text={L(s.description, locale)} bullets={copy?.features.slice(0, 3).map(([title]) => title)}
+                  cta={<>
+                    <a className="btn btn-primary" href={p(`/software/${s.key}`)}>{t('Découvrir')} <ArrowRight size={16} aria-hidden /></a>
+                    {from !== null && <span className="self-center text-fg-soft">{t('dès')} <strong className="text-fg">{formatMoney(from, currency, locale)}</strong> {t('/ mois')}</span>}
+                  </>}
+                  visual={s.key === 'pointage'
+                    ? <div className="relative flex items-end justify-center gap-0"><BrowserFrame src="/images/software/pointage-team.png" alt={t('Écran de {name}', { name: s.name })} className="w-full" /><PhoneFrame src="/images/software/pointage-mobile.png" alt={t('{name} sur mobile', { name: s.name })} className="-ml-24 mb-[-18px] hidden w-[170px]! sm:block" /></div>
+                    : <BrowserFrame src={`/images/software/${s.key}-pipeline.png`} alt={t('Écran de {name}', { name: s.name })} />} />
+              </Reveal>
             );
           })}
         </div>
+        {saasSoon.length > 0 && (
+          <div className="mt-14">
+            <p className="eyebrow mb-4">{t('En préparation')}</p>
+            <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {saasSoon.map((s) => <li key={s.key} className="panel p-4"><p className="font-semibold">{s.name}</p><p className="muted mt-1 text-sm">{L(s.tagline, locale)}</p></li>)}
+            </ul>
+          </div>
+        )}
       </Section>
 
       {/* Benefits */}
       <Section eyebrow={t('Pourquoi Athana')} title={t('Une équipe technique, un résultat professionnel')}>
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-x-10 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
           {benefits.map((b) => (
-            <Reveal key={b.title} className="panel p-6">
-              <b.icon size={22} className="text-gold-400" aria-hidden />
+            <Reveal key={b.title} className="border-t-2 border-accent-500 pt-5">
+              <b.icon size={22} className="text-accent-600" aria-hidden />
               <h3 className="mt-4 text-lg font-semibold">{b.title}</h3>
-              <p className="muted mt-2 text-sm">{b.text}</p>
+              <p className="muted mt-2 text-[0.95rem]">{b.text}</p>
             </Reveal>
           ))}
         </div>
       </Section>
 
-      {/* Process */}
-      <Section eyebrow={t('Comment ça marche')} title={t('De la commande à la mise en ligne, en quatre étapes')} className="border-y border-line bg-ink-900">
-        <ol className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {steps.map(([title, text], i) => (
-            <li key={title} className="relative rounded-2xl border border-line p-6">
-              <span className="font-display text-4xl font-semibold text-gold-500/40">{String(i + 1).padStart(2, '0')}</span>
-              <h3 className="mt-3 text-lg font-semibold">{title}</h3>
-              <p className="muted mt-2 text-sm">{text}</p>
-            </li>
-          ))}
-        </ol>
-      </Section>
+      {/* Process: dark band for rhythm */}
+      <section className="section-dark bg-grid py-14 md:py-20">
+        <div className="container-page">
+          <div className="mb-10 max-w-2xl md:mb-14">
+            <p className="eyebrow mb-3">{t('Comment ça marche')}</p>
+            <h2 className="h-section">{t('De la commande à la mise en ligne, en quatre étapes')}</h2>
+          </div>
+          <ol className="grid gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">
+            {steps.map(([title, text], i) => (
+              <li key={title} className="bg-ink-950 p-6 md:p-7">
+                <span className="font-display text-4xl font-semibold text-accent-400">{String(i + 1).padStart(2, '0')}</span>
+                <h3 className="mt-3 text-lg font-semibold">{title}</h3>
+                <p className="muted mt-2 text-[0.95rem]">{text}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
 
       {/* Testimonials: only real, published ones are shown. */}
       {testimonials.length > 0 && (
@@ -174,23 +192,23 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         </Section>
       )}
 
-      <CtaBand title={t('Prêt à lancer votre projet ?')} lead={t('Achetez un modèle en ligne ou décrivez-nous votre besoin : nous revenons vers vous avec une proposition.')}>
-        <a className="btn btn-primary btn-lg" href={p('/templates')}>{t('Acheter un site')}</a>
-        <a className="btn btn-outline btn-lg" href={p('/quote')}>{t('Demander un devis')}</a>
-      </CtaBand>
-
       {/* Contact */}
-      <Section id="contact" eyebrow={t('Contact')} title={t('Une question ? Écrivez-nous.')}>
+      <Section id="contact" eyebrow={t('Contact')} title={t('Une question ? Écrivez-nous.')} className="border-t border-line bg-ink-900">
         <div className="grid gap-10 lg:grid-cols-[1fr_1.4fr]">
           <ul className="space-y-3 text-fg-soft">
             {[t('Réponse par une personne de l’équipe, pas par un robot.'), t('Conseil sur la solution la plus adaptée à votre budget.'), t('Devis gratuit et sans engagement.')].map((x) => (
-              <li key={x} className="flex gap-3"><Check size={18} className="mt-1 shrink-0 text-gold-400" aria-hidden />{x}</li>
+              <li key={x} className="flex gap-3"><Check size={18} className="mt-1 shrink-0 text-accent-600" aria-hidden />{x}</li>
             ))}
-            <li className="pt-4 text-sm"><a className="text-gold-300 underline" href={`mailto:${company.email}`}>{company.email}</a>{company.phone && <> · <a className="hover:text-gold-300" href={`tel:${company.phone.replace(/\s/g, '')}`}>{company.phone}</a></>}</li>
+            <li className="pt-4 text-sm"><a className="text-accent-700 underline" href={`mailto:${company.email}`}>{company.email}</a>{company.phone && <> · <a className="hover:text-accent-700" href={`tel:${company.phone.replace(/\s/g, '')}`}>{company.phone}</a></>}</li>
           </ul>
           <div className="card card-pad"><LeadForm kind="contact" compact /></div>
         </div>
       </Section>
+
+      <CtaBand title={t('Prêt à lancer votre projet ?')} lead={t('Achetez un modèle en ligne ou décrivez-nous votre besoin : nous revenons vers vous avec une proposition.')}>
+        <a className="btn btn-primary btn-lg" href={p('/templates')}>{t('Acheter un site')}</a>
+        <a className="btn btn-outline btn-lg" href={p('/quote')}>{t('Demander un devis')}</a>
+      </CtaBand>
     </>
   );
 }

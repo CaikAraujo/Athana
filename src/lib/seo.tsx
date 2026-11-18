@@ -45,7 +45,7 @@ export function Breadcrumbs({ locale, items }: { locale: Locale; items: [string,
           {items.map(([name, path], i) => (
             <li key={path} className="flex items-center gap-1.5">
               {i > 0 && <span aria-hidden>/</span>}
-              {i < items.length - 1 ? <a className="no-underline hover:text-gold-300" href={localePath(locale, path)}>{name}</a> : <span aria-current="page" className="text-fg-soft">{name}</span>}
+              {i < items.length - 1 ? <a className="no-underline hover:text-accent-700" href={localePath(locale, path)}>{name}</a> : <span aria-current="page" className="text-fg-soft">{name}</span>}
             </li>
           ))}
         </ol>

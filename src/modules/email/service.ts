@@ -9,7 +9,7 @@ const escapeHtml = (s: string) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', 
 function layout(bodyText: string, vars: Record<string, string | number>) {
   // Body is plain text: escape first, then turn URLs into links and blank lines into paragraphs.
   const html = escapeHtml(bodyText)
-    .replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" style="color:#8a6d2f">$1</a>')
+    .replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" style="color:#0e7490">$1</a>')
     .split(/\n{2,}/).map((p) => `<p style="margin:0 0 16px">${p.replace(/\n/g, '<br>')}</p>`).join('');
   return `<!doctype html><html><body style="margin:0;background:#f5f5f4;font-family:Helvetica,Arial,sans-serif;color:#1c1917">
 <div style="max-width:560px;margin:0 auto;padding:32px 20px">

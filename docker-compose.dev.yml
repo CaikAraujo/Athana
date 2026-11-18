@@ -1,0 +1,15 @@
+# Local development database only (the application runs with "npm run dev").
+#   docker compose -f docker-compose.dev.yml up -d
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: athana
+      POSTGRES_PASSWORD: athana
+      POSTGRES_DB: athana
+    ports:
+      - "5432:5432"
+    volumes:
+      - athana_dev_pg:/var/lib/postgresql/data
+volumes:
+  athana_dev_pg:

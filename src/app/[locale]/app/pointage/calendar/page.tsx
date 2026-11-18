@@ -46,7 +46,7 @@ export default async function CalendarPage({ params, searchParams }: { params: P
         <div className="grid grid-cols-7 gap-1">
           {Array.from({ length: lead }, (_, i) => <div key={`pad-${i}`} />)}
           {cal.days.map((d) => (
-            <div key={d.date} className={`min-h-[64px] rounded-lg border p-1 text-left sm:min-h-[88px] sm:p-2 ${d.date === cal.today ? 'border-gold-500' : 'border-line'} ${isoWeekday(d.date) > 5 ? 'bg-ink-900' : 'bg-ink-800'}`}>
+            <div key={d.date} className={`min-h-[64px] rounded-lg border p-1 text-left sm:min-h-[88px] sm:p-2 ${d.date === cal.today ? 'border-accent-500' : 'border-line'} ${isoWeekday(d.date) > 5 ? 'bg-ink-900' : 'bg-ink-800'}`}>
               <div className="text-xs font-semibold">{Number(d.date.slice(8))}</div>
               {d.workedMinutes > 0 && <div className="mt-0.5 text-[0.65rem] leading-tight text-ok sm:text-xs" title={t('Temps travaillé')}>{formatDuration(d.workedMinutes)}</div>}
               {d.absences.length > 0 && (

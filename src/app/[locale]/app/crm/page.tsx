@@ -31,7 +31,7 @@ export default async function CrmDashboard({ params }: { params: Promise<{ local
           <ul className="mt-4 grid gap-2 sm:grid-cols-2">
             {checklist.items.map((item) => (
               <li key={item.key}>
-                <Link href={item.href} className={`flex items-center gap-2.5 rounded-lg border border-line px-3 py-2.5 text-sm no-underline hover:border-gold-500 ${item.done ? 'muted line-through' : ''}`}>
+                <Link href={item.href} className={`flex items-center gap-2.5 rounded-lg border border-line px-3 py-2.5 text-sm no-underline hover:border-accent-500 ${item.done ? 'muted line-through' : ''}`}>
                   {item.done ? <CheckCircle2 size={16} className="flex-none text-ok" aria-hidden /> : <Circle size={16} className="flex-none" aria-hidden />}
                   {t(item.label)}
                 </Link>

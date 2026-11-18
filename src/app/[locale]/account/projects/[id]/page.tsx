@@ -71,7 +71,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ locale
         <div className="space-y-5">
           <Card title={t('Détails')}>
             <DefList items={[[t('Modèle'), project.orderItem.name], [t('Pack'), project.orderItem.tier], [t('Livraison estimée'), project.dueAt ? formatDate(project.dueAt, locale) : t('Communiquée après le briefing')],
-              [t('Briefing'), project.briefing ? <a key="b" className="underline hover:text-gold-300" href={p(`/account/projects/${project.id}/briefing`)}>{project.briefing.status === 'CONFIRMED' ? t('Confirmé') : project.briefing.status === 'SUBMITTED' ? t('Envoyé — modifiable') : t('À compléter')}</a> : '—']]} />
+              [t('Briefing'), project.briefing ? <a key="b" className="underline hover:text-accent-700" href={p(`/account/projects/${project.id}/briefing`)}>{project.briefing.status === 'CONFIRMED' ? t('Confirmé') : project.briefing.status === 'SUBMITTED' ? t('Envoyé — modifiable') : t('À compléter')}</a> : '—']]} />
           </Card>
           <Card title={t('Historique')}><Timeline events={project.events} locale={locale} t={t} /></Card>
         </div>

@@ -16,22 +16,22 @@ export async function Footer({ locale }: { locale: Locale }) {
     { title: t('Entreprise'), links: [[t('Contact'), '/contact'], [t('Mentions légales'), '/legal/mentions-legales'], [t('Confidentialité'), '/legal/confidentialite'], [t('Conditions générales'), '/legal/cgv'], [t('Cookies'), '/legal/cookies']] },
   ];
   return (
-    <footer className="no-print mt-24 border-t border-line bg-ink-900">
+    <footer className="section-dark no-print mt-16">
       <div className="container-page grid gap-10 py-14 md:grid-cols-[1.3fr_repeat(4,1fr)]">
         <div>
           <Logo />
           <p className="muted mt-4 max-w-xs text-sm">{t('Sites web, boutiques en ligne, logiciels et applications professionnelles. Conçu en Suisse, livré à l’international.')}</p>
           <address className="muted mt-4 text-sm not-italic">
             {company.address && <>{company.address}<br />{company.postalCode} {company.city}<br /></>}
-            <a className="hover:text-gold-300" href={`mailto:${company.email}`}>{company.email}</a>
-            {company.phone && <><br /><a className="hover:text-gold-300" href={`tel:${company.phone.replace(/\s/g, '')}`}>{company.phone}</a></>}
+            <a className="hover:text-accent-300" href={`mailto:${company.email}`}>{company.email}</a>
+            {company.phone && <><br /><a className="hover:text-accent-300" href={`tel:${company.phone.replace(/\s/g, '')}`}>{company.phone}</a></>}
           </address>
         </div>
         {cols.map((c) => (
           <nav key={c.title} aria-label={c.title}>
             <h2 className="mb-3 font-sans text-sm font-semibold tracking-normal text-fg">{c.title}</h2>
             <ul className="space-y-2 text-sm">
-              {c.links.map(([label, href]) => <li key={href}><a className="muted no-underline transition-colors hover:text-gold-300" href={p(href)}>{label}</a></li>)}
+              {c.links.map(([label, href]) => <li key={href}><a className="muted no-underline transition-colors hover:text-accent-300" href={p(href)}>{label}</a></li>)}
             </ul>
           </nav>
         ))}
@@ -41,7 +41,7 @@ export async function Footer({ locale }: { locale: Locale }) {
           <p className="muted">© {new Date().getFullYear()} {company.legalName}. {t('Tous droits réservés.')}</p>
           <div className="flex items-center gap-5">
             <ConsentSettingsButton />
-            {company.linkedin && <a className="muted hover:text-gold-300" href={company.linkedin} rel="noopener noreferrer" target="_blank">LinkedIn</a>}
+            {company.linkedin && <a className="muted hover:text-accent-300" href={company.linkedin} rel="noopener noreferrer" target="_blank">LinkedIn</a>}
             <LanguageSwitcher />
           </div>
         </div>

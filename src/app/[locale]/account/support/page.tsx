@@ -21,7 +21,7 @@ export default async function SupportPage({ params }: { params: Promise<{ locale
             <ul className="divide-y divide-line">
               {tickets.map((tk) => (
                 <li key={tk.id} className="flex items-center justify-between gap-3 py-3">
-                  <a className="min-w-0 truncate font-medium no-underline hover:text-gold-300" href={localePath(locale, `/account/support/${tk.id}`)}>{tk.subject}</a>
+                  <a className="min-w-0 truncate font-medium no-underline hover:text-accent-700" href={localePath(locale, `/account/support/${tk.id}`)}>{tk.subject}</a>
                   <span className="flex shrink-0 items-center gap-3"><span className="muted hidden text-xs sm:inline">{formatDate(tk.updatedAt, locale)}</span><Badge tone={tk.status === 'ANSWERED' ? 'gold' : tk.status === 'CLOSED' ? 'neutral' : 'warn'}>{label[tk.status]}</Badge></span>
                 </li>
               ))}

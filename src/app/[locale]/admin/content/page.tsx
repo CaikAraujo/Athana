@@ -21,7 +21,7 @@ export default async function ContentHub({ params }: { params: Promise<{ locale:
     <>
       <PageHeader title={t('Contenu')} subtitle={t('Les fiches produits et leur SEO se gèrent dans Catalogue → Produits.')} />
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        {cards.map(([href, title, text, count]) => <a key={href} href={localePath(locale, href)} className="panel card-hover block p-5 no-underline"><h2 className="text-lg font-semibold">{title}</h2><p className="muted mt-1 text-sm">{text}</p><p className="mt-3 text-sm text-gold-300">{count}</p></a>)}
+        {cards.map(([href, title, text, count]) => <a key={href} href={localePath(locale, href)} className="panel card-hover block p-5 no-underline"><h2 className="text-lg font-semibold">{title}</h2><p className="muted mt-1 text-sm">{text}</p><p className="mt-3 text-sm text-accent-700">{count}</p></a>)}
       </div>
     </>
   );

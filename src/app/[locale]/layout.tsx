@@ -6,8 +6,12 @@ import { assertLocale, getClientDictionary, getT } from '@/i18n/server';
 import { env } from '@/lib/env';
 import { getSetting } from '@/lib/settings';
 import { ConsentManager } from '@/components/site/Consent';
+import { AccentSwitcher } from '@/components/site/AccentSwitcher';
 
-export const viewport: Viewport = { themeColor: '#050505', width: 'device-width', initialScale: 1 };
+/** Accent palette: cyan (default), green or teal — see the tokens in globals.css. */
+const ACCENT = ['cyan', 'green', 'teal'].includes(process.env.NEXT_PUBLIC_ACCENT ?? '') ? process.env.NEXT_PUBLIC_ACCENT : 'cyan';
+
+export const viewport: Viewport = { themeColor: '#ffffff', width: 'device-width', initialScale: 1 };
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const locale = assertLocale((await params).locale);
@@ -31,12 +35,13 @@ export default async function LocaleLayout({ children, params }: { children: Rea
   const locale = assertLocale((await params).locale);
   const [dict, privacy, t] = await Promise.all([getClientDictionary(locale), getSetting('privacy'), getT(locale)]);
   return (
-    <html lang={LOCALE_META[locale].hreflang}>
+    <html lang={LOCALE_META[locale].hreflang} data-accent={ACCENT} suppressHydrationWarning>
       <body>
         <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-50 btn btn-secondary btn-sm">{t('Aller au contenu')}</a>
         <I18nProvider locale={locale} dict={dict}>
           {children}
           <ConsentManager ids={env.analytics} policyVersion={privacy.policyVersion} />
+          {process.env.NODE_ENV !== 'production' && <AccentSwitcher />}
         </I18nProvider>
       </body>
     </html>

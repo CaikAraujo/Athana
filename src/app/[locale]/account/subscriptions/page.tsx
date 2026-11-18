@@ -64,7 +64,7 @@ export default async function SubscriptionsPage({ params, searchParams }: { para
       ) : products.map((pr) => {
         const free = adminOrgs.filter((o) => !o.subscriptions.some((s) => s.saasProductKey === pr.key));
         return (
-          <section key={pr.key} id={pr.key} className={`panel mb-5 p-5 ${sp.product === pr.key ? 'border-gold-500!' : ''}`}>
+          <section key={pr.key} id={pr.key} className={`panel mb-5 p-5 ${sp.product === pr.key ? 'border-accent-500!' : ''}`}>
             <h3 className="text-lg font-semibold">{pr.name}</h3>
             <p className="muted mb-4 text-sm">{L(pr.tagline, locale)}</p>
             {free.length === 0 ? <p className="muted text-sm">{t('Toutes vos entreprises utilisent déjà ce logiciel.')}</p> : (

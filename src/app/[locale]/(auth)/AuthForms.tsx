@@ -14,7 +14,7 @@ export function LoginForm({ next }: { next?: string }) {
       <Input label={t('Adresse e-mail')} name="email" type="email" autoComplete="email" required />
       <Input label={t('Mot de passe')} name="password" type="password" autoComplete="current-password" required />
       <Submit className="btn btn-primary btn-block">{t('Se connecter')}</Submit>
-      <p className="text-center text-sm"><Link href="/forgot-password" className="muted underline hover:text-gold-300">{t('Mot de passe oublié ?')}</Link></p>
+      <p className="text-center text-sm"><Link href="/forgot-password" className="muted underline hover:text-accent-700">{t('Mot de passe oublié ?')}</Link></p>
     </ActionForm>
   );
 }

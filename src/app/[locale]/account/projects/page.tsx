@@ -22,7 +22,7 @@ export default async function ProjectsPage({ params }: { params: Promise<{ local
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <p className="muted text-xs">{x.reference} · {formatDate(x.createdAt, locale)}</p>
-                  <h2 className="truncate text-lg font-semibold"><a className="no-underline hover:text-gold-300" href={localePath(locale, `/account/projects/${x.id}`)}>{x.name}</a></h2>
+                  <h2 className="truncate text-lg font-semibold"><a className="no-underline hover:text-accent-700" href={localePath(locale, `/account/projects/${x.id}`)}>{x.name}</a></h2>
                 </div>
                 <ProjectBadge status={x.status} t={t} />
               </div>

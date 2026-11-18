@@ -36,7 +36,7 @@ export default async function CheckoutPage({ params }: { params: Promise<{ local
           <Totals cart={{ ...priced, couponCode: priced.coupon?.code }} locale={locale} t={t} />
           {methods.length > 0 && <p className="muted text-xs">{t('Moyens de paiement')} : {methods.join(', ')}</p>}
           <p className="muted text-xs">{t('Le paiement s’effectue sur la page sécurisée de notre prestataire de paiement. Aucune donnée de carte n’est stockée par ATHANA.')}</p>
-          <a className="text-sm underline hover:text-gold-300" href={localePath(locale, '/cart')}>{t('Modifier le panier')}</a>
+          <a className="text-sm underline hover:text-accent-700" href={localePath(locale, '/cart')}>{t('Modifier le panier')}</a>
         </aside>
       </div>
     </div>

@@ -22,7 +22,7 @@ export default async function LoginPage({ params, searchParams }: { params: Prom
       <p className="muted mb-6 mt-1 text-sm">{t('Accédez à vos commandes, projets et abonnements.')}</p>
       {reset && <p className="alert alert-ok mb-4">{t('Mot de passe mis à jour. Vous pouvez vous connecter.')}</p>}
       <LoginForm next={next} />
-      <p className="muted mt-6 text-center text-sm">{t('Pas encore de compte ?')} <a className="text-gold-300 underline" href={localePath(locale, `/register${next ? `?next=${encodeURIComponent(next)}` : ''}`)}>{t('Créer un compte')}</a></p>
+      <p className="muted mt-6 text-center text-sm">{t('Pas encore de compte ?')} <a className="text-accent-700 underline" href={localePath(locale, `/register${next ? `?next=${encodeURIComponent(next)}` : ''}`)}>{t('Créer un compte')}</a></p>
     </>
   );
 }

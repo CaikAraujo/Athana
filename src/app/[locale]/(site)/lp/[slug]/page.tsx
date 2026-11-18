@@ -30,7 +30,7 @@ export default async function CampaignPage({ params }: Props) {
         <div>
           <h1 className="h-display" style={{ fontSize: 'clamp(2rem, 4.6vw, 3.4rem)' }}>{c.title}</h1>
           <p className="lead mt-5">{c.lead}</p>
-          <ul className="mt-7 space-y-3 text-fg-soft">{c.bullets.map((b) => <li key={b} className="flex gap-3"><Check size={18} className="mt-1 shrink-0 text-gold-400" aria-hidden />{b}</li>)}</ul>
+          <ul className="mt-7 space-y-3 text-fg-soft">{c.bullets.map((b) => <li key={b} className="flex gap-3"><Check size={18} className="mt-1 shrink-0 text-accent-600" aria-hidden />{b}</li>)}</ul>
           <a className="btn btn-primary btn-lg mt-8" href={localePath(locale, c.cta.href)}>{c.cta.label}</a>
         </div>
         <div className="card card-pad">

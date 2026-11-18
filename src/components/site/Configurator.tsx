@@ -30,16 +30,16 @@ export function Configurator({ productId, productName, currency, packages, addon
           {packages.map((p) => {
             const active = p.id === pkg;
             return (
-              <label key={p.id} className={`card relative flex cursor-pointer flex-col p-5 transition-colors ${active ? 'border-gold-500! bg-gold-500/5' : 'hover:border-line-strong'}`}>
+              <label key={p.id} className={`card relative flex cursor-pointer flex-col p-5 transition-colors ${active ? 'border-accent-600! bg-accent-500/8 ring-1 ring-accent-600' : 'hover:border-line-strong'}`}>
                 <input type="radio" name="packageId" value={p.id} checked={active} onChange={() => setPkg(p.id)} className="sr-only" />
                 <span className="flex items-center justify-between gap-2">
                   <span className="font-display text-lg font-semibold">{p.name}</span>
-                  <span aria-hidden className={`grid h-5 w-5 place-items-center rounded-full border ${active ? 'border-gold-500 bg-gold-500 text-black' : 'border-line-strong'}`}>{active && <Check size={13} />}</span>
+                  <span aria-hidden className={`grid h-5 w-5 place-items-center rounded-full border ${active ? 'border-accent-500 bg-accent-600 text-white' : 'border-line-strong'}`}>{active && <Check size={13} />}</span>
                 </span>
                 <span className="mt-2 font-display text-2xl font-semibold">{formatMoney(p.price, currency, locale)}</span>
                 <span className="muted mt-2 text-sm">{p.description}</span>
                 <ul className="mt-4 space-y-1.5 text-sm text-fg-soft">
-                  {p.features.map((f) => <li key={f} className="flex gap-2"><Check size={15} className="mt-0.5 shrink-0 text-gold-400" aria-hidden />{f}</li>)}
+                  {p.features.map((f) => <li key={f} className="flex gap-2"><Check size={15} className="mt-0.5 shrink-0 text-accent-600" aria-hidden />{f}</li>)}
                 </ul>
                 <span className="muted mt-4 border-t border-line pt-3 text-xs">
                   {t('Jusqu’à {n} pages', { n: p.pagesIncluded })} · {t('{n} cycle(s) de révision', { n: p.revisions })} · {t('env. {n} jours ouvrés', { n: p.deliveryDays })}
@@ -56,7 +56,7 @@ export function Configurator({ productId, productName, currency, packages, addon
             {addons.map((a) => {
               const on = selected.includes(a.id);
               return (
-                <label key={a.id} className={`panel flex cursor-pointer items-start gap-3 p-4 transition-colors ${on ? 'border-gold-500! bg-gold-500/5' : ''}`}>
+                <label key={a.id} className={`panel flex cursor-pointer items-start gap-3 p-4 transition-colors ${on ? 'border-accent-600! bg-accent-500/8 ring-1 ring-accent-600' : ''}`}>
                   <input type="checkbox" name="addonIds" value={a.id} checked={on} onChange={(e) => setSelected((s) => (e.target.checked ? [...s, a.id] : s.filter((x) => x !== a.id)))} className="check mt-1" />
                   <span className="min-w-0 flex-1">
                     <span className="flex items-baseline justify-between gap-3"><span className="font-medium">{a.name}</span><span className="shrink-0 text-sm text-fg-soft">+ {formatMoney(a.price, currency, locale)}</span></span>
@@ -68,7 +68,7 @@ export function Configurator({ productId, productName, currency, packages, addon
           </div>
         </fieldset>
       )}
-      <div className="sticky bottom-3 z-20 mt-8 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-line-strong bg-ink-850/95 p-4 backdrop-blur-md">
+      <div className="sticky bottom-3 z-20 mt-8 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-line-strong bg-ink-850/95 p-4 shadow-[0_18px_40px_-18px_rgb(15_23_42/0.35)] backdrop-blur-md">
         <div>
           <p className="muted text-xs uppercase tracking-wider">{t('Total estimé')}</p>
           <p className="font-display text-2xl font-semibold" aria-live="polite">{formatMoney(total, currency, locale)}</p>

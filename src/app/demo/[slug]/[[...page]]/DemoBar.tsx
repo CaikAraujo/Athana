@@ -13,11 +13,11 @@ function Bar({ slug, name, language }: { slug: string; name: string; language: '
   if (useSearchParams().get('embed')) return null;
   const c = COPY[language];
   return (
-    <div style={{ background: '#050505', color: '#f5f5f4', fontFamily: 'var(--font-sans)' }} className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 px-4 py-2 text-[13px]">
-      <span><strong style={{ color: '#d4b676', letterSpacing: '.08em' }}>{c.demo}</strong> · {name} <span style={{ opacity: 0.6 }}>— {c.note}</span></span>
+    <div style={{ background: '#0b1220', color: '#f5f5f4', fontFamily: 'var(--font-sans)' }} className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 px-4 py-2 text-[13px]">
+      <span><strong style={{ color: '#67e8f9', letterSpacing: '.08em' }}>{c.demo}</strong> · {name} <span style={{ opacity: 0.6 }}>— {c.note}</span></span>
       <span className="flex gap-4">
         <a href="/templates" style={{ color: '#c9c9c6' }} className="underline-offset-2 hover:underline">{c.all}</a>
-        <a href={`/templates/${slug}`} style={{ color: '#d4b676', fontWeight: 600 }} className="underline-offset-2 hover:underline">{c.buy} →</a>
+        <a href={`/templates/${slug}`} style={{ color: '#67e8f9', fontWeight: 600 }} className="underline-offset-2 hover:underline">{c.buy} →</a>
       </span>
     </div>
   );

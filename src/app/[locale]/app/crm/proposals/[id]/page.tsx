@@ -60,7 +60,7 @@ export default async function ProposalPage({ params }: { params: Promise<{ local
             {proposal.lines.map((l, i) => (
               <tr key={i}><td>{l.description}</td><td>{l.quantity}</td><td className="whitespace-nowrap">{money(l.unitAmount)}</td><td className="whitespace-nowrap font-semibold">{money(lineTotal(l))}</td></tr>
             ))}
-            <tr><td colSpan={3} className="text-right font-semibold">{t('Total')}</td><td className="whitespace-nowrap font-semibold text-gold-300">{money(proposal.total)}</td></tr>
+            <tr><td colSpan={3} className="text-right font-semibold">{t('Total')}</td><td className="whitespace-nowrap font-semibold text-accent-700">{money(proposal.total)}</td></tr>
           </Table>
         </div>
       )}

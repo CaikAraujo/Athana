@@ -27,20 +27,32 @@ export default async function WorkPage({ params }: { params: Promise<{ locale: s
       <div className="container-page py-10">
         <Breadcrumbs locale={locale} items={[[t('Accueil'), '/'], [t('Réalisations'), '/work']]} />
         <div className="grid gap-6 md:grid-cols-2">
-          {projects.map((pr) => (
+          {projects.filter((pr) => pr.image).map((pr) => (
             <article key={pr.title} className="card overflow-hidden">
               <div className="relative aspect-[16/9] bg-ink-800">
-                {pr.image ? <Image src={pr.image} alt={pr.title} fill sizes="(min-width:768px) 560px, 100vw" className="object-cover" /> : <div className="bg-grid grid h-full place-items-center"><span className="font-display text-3xl font-semibold text-gold-500/50">{pr.title}</span></div>}
+                <Image src={pr.image!} alt={pr.title} fill sizes="(min-width:768px) 560px, 100vw" className="object-cover" />
               </div>
               <div className="p-6">
                 <div className="mb-2 flex flex-wrap gap-2">{pr.tags.map((tag) => <span key={tag} className="badge">{tag}</span>)}</div>
                 <h2 className="text-xl font-semibold">{pr.title}</h2>
                 <p className="muted mt-2 text-sm">{pr.text}</p>
-                <a className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-gold-300 hover:underline" href={pr.link} target="_blank" rel="noopener noreferrer">{t('Voir le projet')} <ExternalLink size={14} aria-hidden /></a>
+                <a className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-accent-700 hover:underline" href={pr.link} target="_blank" rel="noopener noreferrer">{t('Voir le projet')} <ExternalLink size={14} aria-hidden /></a>
               </div>
             </article>
           ))}
         </div>
+        <h2 className="mb-4 mt-12 text-xl font-semibold">{t('Autres projets techniques')}</h2>
+        <ul className="divide-y divide-line rounded-2xl border border-line bg-ink-850">
+          {projects.filter((pr) => !pr.image).map((pr) => (
+            <li key={pr.title} className="flex flex-wrap items-center justify-between gap-4 p-5">
+              <div className="min-w-0 max-w-2xl">
+                <p className="font-semibold">{pr.title} <span className="ml-1 inline-flex gap-1.5 align-middle">{pr.tags.map((tag) => <span key={tag} className="badge">{tag}</span>)}</span></p>
+                <p className="muted mt-1 text-[0.95rem]">{pr.text}</p>
+              </div>
+              <a className="btn btn-outline btn-sm" href={pr.link} target="_blank" rel="noopener noreferrer">{t('Voir le projet')} <ExternalLink size={14} aria-hidden /></a>
+            </li>
+          ))}
+        </ul>
       </div>
       <CtaBand title={t('Votre projet pourrait être le prochain')}><a className="btn btn-primary btn-lg" href={localePath(locale, '/quote')}>{t('Demander un devis')}</a><a className="btn btn-outline btn-lg" href={localePath(locale, '/templates')}>{t('Voir les modèles')}</a></CtaBand>
     </>

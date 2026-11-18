@@ -10,6 +10,8 @@ import { env } from '@/lib/env';
 import { pageMeta, Breadcrumbs, JsonLd } from '@/lib/seo';
 import { getProduct, listGlobalAddons } from '@/modules/catalog/service';
 import { Configurator } from '@/components/site/Configurator';
+import { DemoPreview } from '@/components/site/DemoPreview';
+import { BrowserFrame } from '@/components/site/Showcase';
 import { ProductCard } from '@/components/site/ProductCard';
 import { FaqList } from '@/components/site/Section';
 import { TrackEvent } from '@/components/site/Consent';
@@ -61,9 +63,7 @@ export default async function ProductPage({ params }: Props) {
 
       <div className="grid gap-10 lg:grid-cols-[1.25fr_1fr] lg:items-start">
         <div>
-          <div className="card relative aspect-[16/10] overflow-hidden">
-            {product.coverImage && <Image src={product.coverImage} alt={t('Aperçu du modèle {name}', { name: product.name })} fill priority sizes="(min-width:1024px) 640px, 100vw" className="object-cover object-top" />}
-          </div>
+          {product.coverImage && <BrowserFrame src={product.coverImage} alt={t('Aperçu du modèle {name}', { name: product.name })} priority />}
           {product.gallery.length > 0 && (
             <ul className="mt-3 grid grid-cols-3 gap-3" aria-label={t('Galerie')}>
               {product.gallery.map((g, i) => (
@@ -89,7 +89,7 @@ export default async function ProductPage({ params }: Props) {
         </div>
       </div>
 
-      <div className="mt-14 grid gap-10 lg:grid-cols-[1.25fr_1fr]">
+      <div className="mt-12 grid gap-10 lg:grid-cols-[1.25fr_1fr]">
         <section>
           <h2 className="text-2xl font-semibold">{t('Description')}</h2>
           <p className="mt-3 text-fg-soft">{L(product.description, locale)}</p>
@@ -97,7 +97,7 @@ export default async function ProductPage({ params }: Props) {
         </section>
         <section>
           <h2 className="text-2xl font-semibold">{t('Fonctionnalités')}</h2>
-          <ul className="mt-3 space-y-2 text-fg-soft">{features.map((f) => <li key={f} className="flex gap-3"><span aria-hidden className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-gold-500" />{f}</li>)}</ul>
+          <ul className="mt-3 space-y-2 text-fg-soft">{features.map((f) => <li key={f} className="flex gap-3"><span aria-hidden className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-600" />{f}</li>)}</ul>
         </section>
       </div>
 
@@ -107,7 +107,7 @@ export default async function ProductPage({ params }: Props) {
             <h2 className="text-2xl font-semibold">{t('Démonstration en direct')}</h2>
             <a href={demo} target="_blank" rel="noopener" className="btn btn-outline btn-sm">{t('Ouvrir en plein écran')} <ExternalLink size={14} aria-hidden /></a>
           </div>
-          <div className="card overflow-hidden"><iframe src={`${demo}?embed=1`} title={t('Démonstration du modèle {name}', { name: product.name })} loading="lazy" className="h-[620px] w-full bg-white" /></div>
+          <DemoPreview src={`${demo}?embed=1`} title={t('Démonstration du modèle {name}', { name: product.name })} />
         </section>
       )}
 
@@ -117,7 +117,7 @@ export default async function ProductPage({ params }: Props) {
       </section>
 
       {faq.length > 0 && (
-        <section className="mt-16">
+        <section className="mt-12">
           <h2 className="mb-6 text-center text-2xl font-semibold">{t('Questions fréquentes')}</h2>
           <FaqList items={faq} />
         </section>

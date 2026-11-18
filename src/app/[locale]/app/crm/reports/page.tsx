@@ -8,7 +8,7 @@ import { UpgradeNotice } from '../_ui/parts';
 const pct = (value: number, max: number) => (max > 0 ? Math.max(value > 0 ? 2 : 0, Math.round((value / max) * 100)) : 0);
 
 function HBar({ label, value, display, max, tone = 'gold' }: { label: string; value: number; display: string; max: number; tone?: 'gold' | 'ok' | 'danger' | 'info' }) {
-  const color = { gold: 'bg-gold-500', ok: 'bg-ok', danger: 'bg-danger', info: 'bg-info' }[tone];
+  const color = { gold: 'bg-accent-600', ok: 'bg-ok', danger: 'bg-danger', info: 'bg-info' }[tone];
   return (
     <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 text-sm">
       <span className="truncate">{label}</span>

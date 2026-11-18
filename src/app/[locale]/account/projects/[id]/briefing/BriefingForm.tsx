@@ -68,7 +68,7 @@ export function BriefingForm({ projectId, data, status, aiConsent }: { projectId
           <div className="mt-2 grid gap-4 sm:grid-cols-2">
             {s.fields.map((f) => (
               <div key={f.name} className={f.span ? 'sm:col-span-2' : ''}>
-                <label className="label" htmlFor={`b-${f.name}`}>{f.label}{f.required && <span className="text-gold-400" aria-hidden> *</span>}</label>
+                <label className="label" htmlFor={`b-${f.name}`}>{f.label}{f.required && <span className="text-accent-600" aria-hidden> *</span>}</label>
                 {input(f)}
                 {f.hint && !err(f.name) && <p className="field-hint">{f.hint}</p>}
                 {err(f.name) && <p className="field-error">{err(f.name)}</p>}
@@ -77,9 +77,9 @@ export function BriefingForm({ projectId, data, status, aiConsent }: { projectId
           </div>
         </fieldset>
       ))}
-      <fieldset className="panel border-gold-500/30! p-5 md:p-6">
+      <fieldset className="panel border-accent-500/30! p-5 md:p-6">
         <legend className="px-1 text-lg font-semibold">{t('Avec vos propres mots')}</legend>
-        <label className="label mt-2" htmlFor="b-ownWords">{t('Expliquez avec vos propres mots comment vous aimeriez que votre projet fonctionne.')}<span className="text-gold-400" aria-hidden> *</span></label>
+        <label className="label mt-2" htmlFor="b-ownWords">{t('Expliquez avec vos propres mots comment vous aimeriez que votre projet fonctionne.')}<span className="text-accent-600" aria-hidden> *</span></label>
         <textarea id="b-ownWords" name="ownWords" rows={10} className="textarea" defaultValue={data.ownWords ?? ''} disabled={locked} aria-invalid={err('ownWords') ? true : undefined} />
         {err('ownWords') && <p className="field-error">{err('ownWords')}</p>}
       </fieldset>

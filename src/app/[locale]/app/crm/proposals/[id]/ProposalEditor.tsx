@@ -81,7 +81,7 @@ export function ProposalEditor({ proposal, deals, labels }: {
           <button type="button" className="btn btn-outline btn-sm" disabled={rows.length >= 100} onClick={() => { setRows((rs) => [...rs, { key: nextKey, description: '', quantity: '1', price: '' }]); setNextKey((k) => k + 1); }}>
             <Plus size={16} aria-hidden />{labels.addLine}
           </button>
-          <p className="text-base">{labels.total} : <strong className="text-gold-300">{money(total)}</strong></p>
+          <p className="text-base">{labels.total} : <strong className="text-accent-700">{money(total)}</strong></p>
         </div>
       </fieldset>
 

@@ -33,7 +33,7 @@ export default async function CartPage({ params }: { params: Promise<{ locale: s
                 <div className="min-w-0 flex-1">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <h2 className="text-lg font-semibold"><a className="no-underline hover:text-gold-300" href={localePath(locale, `/templates/${l.slug}`)}>{l.name}</a></h2>
+                      <h2 className="text-lg font-semibold"><a className="no-underline hover:text-accent-700" href={localePath(locale, `/templates/${l.slug}`)}>{l.name}</a></h2>
                       <p className="muted text-sm">{t('Pack')} {L(l.packageName, locale)} · {t('env. {n} jours ouvrés', { n: l.deliveryDays })}</p>
                     </div>
                     <p className="font-display text-lg font-semibold">{formatMoney(l.total, priced.currency, locale)}</p>

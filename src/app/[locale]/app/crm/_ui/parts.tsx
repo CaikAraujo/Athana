@@ -39,7 +39,7 @@ export function ProposalStatusBadge({ value, t }: { value: string; t: TFn }) {
 export function UpgradeNotice({ t, title, children }: { t: TFn; title: string; children?: ReactNode }) {
   return (
     <div className="panel mx-auto max-w-xl p-6 text-center md:p-8">
-      <Lock size={28} className="mx-auto text-gold-400" aria-hidden />
+      <Lock size={28} className="mx-auto text-accent-600" aria-hidden />
       <h2 className="mt-3 text-lg font-semibold">{title}</h2>
       <p className="muted mt-2 text-sm">{children ?? t('Cette fonctionnalité n’est pas incluse dans votre plan actuel.')}</p>
       <Link href="/account/subscriptions?product=crm" className="btn btn-primary mt-5">{t('Voir les plans')}</Link>
@@ -65,7 +65,7 @@ export function SortLink({ label, column, path, params }: { label: string; colum
   const active = params.sort === column;
   const dir = active && params.dir !== 'desc' ? 'desc' : 'asc';
   return (
-    <Link href={path + qs({ ...params, sort: column, dir, page: undefined })} className="inline-flex items-center gap-1 no-underline hover:text-gold-300" aria-label={label}>
+    <Link href={path + qs({ ...params, sort: column, dir, page: undefined })} className="inline-flex items-center gap-1 no-underline hover:text-accent-700" aria-label={label}>
       {label}{active && <span aria-hidden>{params.dir === 'desc' ? '↓' : '↑'}</span>}
     </Link>
   );
@@ -83,7 +83,7 @@ export function TimelineList({ items, t, locale, tz, showLinks = false }: { item
         const type = ((ACTIVITY_TYPES as readonly string[]).includes(a.type) ? a.type : 'note') as ActivityType;
         return (
           <li key={a.id} className="flex gap-3 rounded-xl border border-line p-3">
-            <span className="mt-0.5 grid h-8 w-8 flex-none place-items-center rounded-full bg-ink-700 text-gold-300">{ACTIVITY_ICONS[type]}</span>
+            <span className="mt-0.5 grid h-8 w-8 flex-none place-items-center rounded-full bg-ink-700 text-accent-700">{ACTIVITY_ICONS[type]}</span>
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
                 <span className="font-semibold text-fg">{t(ACTIVITY_LABELS[type])}</span>
@@ -179,7 +179,7 @@ export function Attachments({ files, entityType, entityId, t, locale }: { files:
         <ul className="divide-y divide-line">
           {files.map((f) => (
             <li key={f.id} className="flex items-center gap-3 py-2.5">
-              <FileText size={16} className="flex-none text-gold-300" aria-hidden />
+              <FileText size={16} className="flex-none text-accent-700" aria-hidden />
               <div className="min-w-0 flex-1">
                 <a href={f.url} className="block truncate text-sm font-medium underline-offset-2 hover:underline" download={f.originalName}>{f.originalName}</a>
                 <p className="muted text-xs">{fileSize(f.size, t)} · {formatDate(f.createdAt, locale)}{f.ownerName ? ` · ${f.ownerName}` : ''}</p>

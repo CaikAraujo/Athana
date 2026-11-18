@@ -18,9 +18,9 @@ export default async function NotificationsPage({ params }: { params: Promise<{ 
         <ul className="panel divide-y divide-line">
           {items.map((n) => (
             <li key={n.id} className="flex items-start gap-3 p-4">
-              <span aria-hidden className={`mt-2 h-2 w-2 shrink-0 rounded-full ${n.readAt ? 'bg-ink-500' : 'bg-gold-500'}`} />
+              <span aria-hidden className={`mt-2 h-2 w-2 shrink-0 rounded-full ${n.readAt ? 'bg-ink-500' : 'bg-accent-600'}`} />
               <div className="min-w-0 flex-1">
-                {n.link ? <a className="font-medium no-underline hover:text-gold-300" href={localePath(locale, n.link)}>{n.title}</a> : <p className="font-medium">{n.title}</p>}
+                {n.link ? <a className="font-medium no-underline hover:text-accent-700" href={localePath(locale, n.link)}>{n.title}</a> : <p className="font-medium">{n.title}</p>}
                 {n.body && <p className="muted text-sm">{n.body}</p>}
                 <p className="muted text-xs">{formatDateTime(n.createdAt, locale)}</p>
               </div>

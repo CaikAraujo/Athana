@@ -22,6 +22,11 @@ for (const [slug, pages] of Object.entries(DEMOS)) {
   for (const [p, name] of shots) {
     await page.goto(`${BASE}/demo/${slug}${p ? '/' + p : ''}?embed=1`, { waitUntil: 'networkidle' });
     await page.screenshot({ path: `${dir}/${name}.jpg`, type: 'jpeg', quality: 82 });
+    if (name === 'cover') {
+      // Tall capture of the home page: the catalogue card scrolls through it on hover.
+      const height = Math.min(4200, await page.evaluate(() => document.documentElement.scrollHeight));
+      await page.screenshot({ path: `${dir}/full.jpg`, type: 'jpeg', quality: 72, fullPage: true, clip: { x: 0, y: 0, width: 1440, height } });
+    }
   }
   console.log('captured', slug);
 }

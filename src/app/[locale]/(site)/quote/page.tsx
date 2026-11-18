@@ -24,9 +24,9 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
           <div className="card card-pad"><LeadForm kind="quote" /></div>
           <aside className="space-y-5 text-fg-soft">
             <h2 className="text-xl font-semibold text-fg">{t('Nos coordonnées')}</h2>
-            <p className="flex gap-3"><Mail size={18} className="mt-1 shrink-0 text-gold-400" aria-hidden /><a className="hover:text-gold-300" href={`mailto:${company.email}`}>{company.email}</a></p>
-            {company.phone && <p className="flex gap-3"><Phone size={18} className="mt-1 shrink-0 text-gold-400" aria-hidden /><a className="hover:text-gold-300" href={`tel:${company.phone.replace(/\s/g, '')}`}>{company.phone}</a></p>}
-            {company.address && <p className="flex gap-3"><MapPin size={18} className="mt-1 shrink-0 text-gold-400" aria-hidden /><span>{company.address}<br />{company.postalCode} {company.city}</span></p>}
+            <p className="flex gap-3"><Mail size={18} className="mt-1 shrink-0 text-accent-600" aria-hidden /><a className="hover:text-accent-700" href={`mailto:${company.email}`}>{company.email}</a></p>
+            {company.phone && <p className="flex gap-3"><Phone size={18} className="mt-1 shrink-0 text-accent-600" aria-hidden /><a className="hover:text-accent-700" href={`tel:${company.phone.replace(/\s/g, '')}`}>{company.phone}</a></p>}
+            {company.address && <p className="flex gap-3"><MapPin size={18} className="mt-1 shrink-0 text-accent-600" aria-hidden /><span>{company.address}<br />{company.postalCode} {company.city}</span></p>}
             {company.whatsapp && <a className="btn btn-outline" href={`https://wa.me/${company.whatsapp}`} target="_blank" rel="noopener noreferrer">WhatsApp</a>}
           </aside>
         </div>

@@ -22,7 +22,7 @@ export default async function AdminTasks({ params }: { params: Promise<{ locale:
             return (
               <li key={tk.id} className="flex flex-wrap items-center justify-between gap-3 p-4">
                 <div className="min-w-0">
-                  {href ? <a className="font-medium no-underline hover:text-gold-300" href={localePath(locale, href)}>{tk.title}</a> : <p className="font-medium">{tk.title}</p>}
+                  {href ? <a className="font-medium no-underline hover:text-accent-700" href={localePath(locale, href)}>{tk.title}</a> : <p className="font-medium">{tk.title}</p>}
                   {tk.dueAt && <p className={`text-xs ${tk.dueAt < now ? 'text-danger' : 'muted'}`}>{t('Échéance : {date}', { date: formatDate(tk.dueAt, locale) })}</p>}
                 </div>
                 <TaskDone taskId={tk.id} />
