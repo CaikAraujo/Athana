@@ -98,22 +98,18 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         </div>
       </section>
 
-      {/* Four entries: an indexed list rather than four identical cards */}
+      {/* Four entries */}
       <section className="container-page py-12 md:py-16">
-        <ul className="rule-list grid md:grid-cols-2 md:gap-x-14">
+        <div className="tile-grid sm:grid-cols-2 lg:grid-cols-4">
           {entries.map((e, i) => (
-            <li key={e.href}>
-              <a href={p(e.href)} className="group grid grid-cols-[auto_1fr_auto] items-baseline gap-5 py-6 no-underline md:py-7">
-                <span className="num text-sm">{String(i + 1).padStart(2, '0')}</span>
-                <span>
-                  <span className="block font-display text-2xl font-semibold tracking-tight transition-colors group-hover:text-accent-700 md:text-[1.7rem]">{e.title}</span>
-                  <span className="muted mt-1.5 block text-[0.98rem]">{e.text}</span>
-                </span>
-                <ArrowRight size={20} aria-hidden className="self-center text-fg-muted transition-transform group-hover:translate-x-1 group-hover:text-accent-700" />
-              </a>
-            </li>
+            <a key={e.href} href={p(e.href)} className="tile">
+              <span className="num">{String(i + 1).padStart(2, '0')}</span>
+              <span className="tile-title mt-3 block">{e.title}</span>
+              <span className="muted mt-2 block text-[0.95rem]">{e.text}</span>
+              <span className="tile-arrow inline-flex items-center gap-2 text-sm font-medium">{e.cta} <ArrowRight size={16} aria-hidden /></span>
+            </a>
           ))}
-        </ul>
+        </div>
       </section>
 
       {/* Featured templates */}
@@ -158,7 +154,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       <Section eyebrow={t('Pourquoi Athana')} title={t('Une équipe technique, un résultat professionnel')}>
         <div className="grid gap-x-10 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
           {benefits.map((b) => (
-            <Reveal key={b.title} className="border-t border-fg pt-5">
+            <Reveal key={b.title} className="border-t border-line-strong pt-5">
               <h3 className="text-xl font-semibold">{b.title}</h3>
               <p className="muted mt-2 text-[0.95rem]">{b.text}</p>
             </Reveal>

@@ -31,7 +31,7 @@ export function ServicePage({ c, locale, t, children }: { c: ServiceContent; loc
       <div className="container-page pt-8"><Breadcrumbs locale={locale} items={[[t('Accueil'), '/'], [c.eyebrow, c.path]]} /></div>
       <Section title={c.featuresTitle} className="pt-8!">
         <div className="grid gap-x-10 gap-y-9 sm:grid-cols-2 lg:grid-cols-3">
-          {c.features.map((f, i) => <Reveal key={f.title} className="border-t border-fg pt-5"><span className="num text-sm">{String(i + 1).padStart(2, '0')}</span><h3 className="mt-2 text-xl font-semibold">{f.title}</h3><p className="muted mt-2 text-[0.98rem]">{f.text}</p></Reveal>)}
+          {c.features.map((f, i) => <Reveal key={f.title} className="border-t border-line-strong pt-5"><span className="num text-sm">{String(i + 1).padStart(2, '0')}</span><h3 className="mt-2 text-xl font-semibold">{f.title}</h3><p className="muted mt-2 text-[0.98rem]">{f.text}</p></Reveal>)}
         </div>
       </Section>
       {children}

@@ -56,7 +56,7 @@ export function HeaderClient({ cartCount, signedIn, isStaff }: { cartCount: numb
       <div className="container-page flex h-16 items-center justify-between gap-4">
         <Link href="/" className="shrink-0 no-underline"><Logo /></Link>
         <nav aria-label={t('Navigation principale')} className="hidden items-center gap-1 lg:flex">
-          {nav.map((n) => <Link key={n.href} href={n.href} className="rounded-lg px-3 py-2 text-sm text-fg-soft no-underline transition-colors hover:bg-black/5 hover:text-fg">{n.label}</Link>)}
+          {nav.map((n) => <Link key={n.href} href={n.href} className="whitespace-nowrap rounded-lg px-3 py-2 text-sm text-fg-soft no-underline transition-colors hover:bg-black/5 hover:text-fg">{n.label}</Link>)}
         </nav>
         <div className="flex items-center gap-1.5">
           <div className="hidden md:block"><LanguageSwitcher compact /></div>
