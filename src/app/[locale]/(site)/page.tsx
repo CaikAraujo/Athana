@@ -13,7 +13,6 @@ import { Section, FaqList, CtaBand } from '@/components/site/Section';
 import { Reveal } from '@/components/site/Consent';
 import { LeadForm } from '@/components/site/LeadForm';
 import { BrowserFrame, Split } from '@/components/site/Showcase';
-import Image from 'next/image';
 import { saasCopy } from '@/modules/content/saas-copy';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
@@ -42,7 +41,6 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
   const minDays = all.length ? Math.min(...all.map((x) => x.deliveryDays)) : null;
   const saasActive = saas.filter((x) => x.status === 'ACTIVE');
   const saasSoon = saas.filter((x) => x.status !== 'ACTIVE');
-  const site = [...featured, ...all].find((x) => x.coverImage);
   const reel = all.filter((x) => x.coverImage);
 
   const entries = [
@@ -74,33 +72,25 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       }} />
       <JsonLd data={{ '@context': 'https://schema.org', '@type': 'WebSite', name: 'ATHANA', url: env.appUrl + p('/'), inLanguage: locale }} />
 
-      {/* Hero: one statement with real work set inside the line, one action, and a reel of the templates. */}
-      <section className="hero section-dark">
-        <div className="hero-glow" aria-hidden />
-        <div className="hero-top" data-enter>
-          <h1>
-            {t('Nous créons des sites')}{site && <span className="hero-chip" aria-hidden><Image src={site.coverImage!} alt="" fill sizes="200px" priority /></span>}{' '}
-            <em>{t('et des logiciels.')}<span className="hero-chip" aria-hidden><Image src="/images/software/crm-pipeline.png" alt="" fill sizes="200px" priority /></span></em>
-          </h1>
-          <div className="hero-foot">
-            <p className="lead">{t('Depuis la Suisse, nous aidons les PME à lancer leur site, leur boutique en ligne et leurs outils de gestion. Prix affichés, commande en ligne, suivi à chaque étape.')}</p>
-            <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
-              <a className="btn btn-primary btn-lg" href={p('/templates')}>{t('Voir les modèles')} <ArrowRight size={18} aria-hidden /></a>
-              <a className="link font-medium text-fg" href={p('/quote')}>{t('Parler de mon projet')}</a>
+      {/* Hero: statement on the left, two real templates on the right. */}
+      <section className="hero">
+        <div className="container-page hero-grid">
+          <div data-enter>
+            <p className="eyebrow mb-6">{t('Solutions digitales conçues en Suisse')}</p>
+            <h1>{t('Votre entreprise mérite de')} <span className="mark">{t('meilleures solutions digitales.')}</span></h1>
+            <p className="lead mt-6 max-w-[50ch]">{t('Sites web, boutiques en ligne, logiciels et applications professionnelles. Choisissez votre solution et démarrez votre projet avec Athana.')}</p>
+            <div className="mt-9 flex flex-wrap gap-3">
+              <a className="btn btn-primary btn-lg" href={p('/templates')}>{t('Choisir un modèle')} <ArrowRight size={18} aria-hidden /></a>
+              <a className="btn btn-outline btn-lg" href={p('/quote')}>{t('Demander un devis')}</a>
             </div>
           </div>
+          {reel.length >= 2 && (
+            <div className="hero-visual" data-enter>
+              <BrowserFrame src={reel[0].coverImage!} alt={t('Aperçu du modèle {name}', { name: reel[0].name })} priority sizes="(min-width:1024px) 600px, 100vw" />
+              <BrowserFrame src={reel[1].coverImage!} alt={t('Aperçu du modèle {name}', { name: reel[1].name })} priority sizes="340px" />
+            </div>
+          )}
         </div>
-        {reel.length >= 4 && (
-          <div className="hero-reel">
-            <div className="hero-reel-track">
-              {[...reel, ...reel].map((x, i) => (
-                <a key={`${x.id}-${i}`} href={p(`/templates/${x.slug}`)} aria-label={t('Aperçu du modèle {name}', { name: x.name })} aria-hidden={i >= reel.length} tabIndex={i >= reel.length ? -1 : undefined}>
-                  <Image src={x.coverImage!} alt="" fill sizes="(min-width:1024px) 24vw, 240px" priority={i < 5} />
-                </a>
-              ))}
-            </div>
-          </div>
-        )}
       </section>
 
       {/* Four entries */}
