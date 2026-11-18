@@ -34,14 +34,14 @@ export default async function WorkPage({ params }: { params: Promise<{ locale: s
               </div>
               <div className="p-6">
                 <div className="mb-2 flex flex-wrap gap-2">{pr.tags.map((tag) => <span key={tag} className="badge">{tag}</span>)}</div>
-                <h2 className="text-xl font-semibold">{pr.title}</h2>
+                <h2 className="text-xl font-medium">{pr.title}</h2>
                 <p className="muted mt-2 text-sm">{pr.text}</p>
                 <a className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-accent-700 hover:underline" href={pr.link} target="_blank" rel="noopener noreferrer">{t('Voir le projet')} <ExternalLink size={14} aria-hidden /></a>
               </div>
             </article>
           ))}
         </div>
-        <h2 className="mb-4 mt-12 text-xl font-semibold">{t('Autres projets techniques')}</h2>
+        <h2 className="mb-4 mt-12 text-xl font-medium">{t('Autres projets techniques')}</h2>
         <ul className="divide-y divide-line rounded-2xl border border-line bg-ink-850">
           {projects.filter((pr) => !pr.image).map((pr) => (
             <li key={pr.title} className="flex flex-wrap items-center justify-between gap-4 p-5">

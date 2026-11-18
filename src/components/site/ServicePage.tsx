@@ -31,27 +31,27 @@ export function ServicePage({ c, locale, t, children }: { c: ServiceContent; loc
       <div className="container-page pt-8"><Breadcrumbs locale={locale} items={[[t('Accueil'), '/'], [c.eyebrow, c.path]]} /></div>
       <Section title={c.featuresTitle} className="pt-8!">
         <div className="grid gap-x-10 gap-y-9 sm:grid-cols-2 lg:grid-cols-3">
-          {c.features.map((f, i) => <Reveal key={f.title} className="border-t border-line-strong pt-5"><span className="num text-sm">{String(i + 1).padStart(2, '0')}</span><h3 className="mt-2 text-xl font-semibold">{f.title}</h3><p className="muted mt-2 text-[0.98rem]">{f.text}</p></Reveal>)}
+          {c.features.map((f, i) => <Reveal key={f.title} className=""><span className="num text-sm">{String(i + 1).padStart(2, '0')}</span><h3 className="mt-2 text-xl font-medium">{f.title}</h3><p className="muted mt-2 text-[0.98rem]">{f.text}</p></Reveal>)}
         </div>
       </Section>
       {children}
       {c.included && (
-        <Section title={c.includedTitle} className="border-y border-line bg-ink-900">
+        <Section title={c.includedTitle} className="bg-ink-900">
           <ul className="grid gap-3 sm:grid-cols-2">{c.included.map((x) => <li key={x} className="flex gap-3 text-fg-soft"><Check size={18} className="mt-1 shrink-0 text-accent-600" aria-hidden />{x}</li>)}</ul>
         </Section>
       )}
       {c.steps && (
         <Section title={c.stepsTitle}>
-          <ol className="grid gap-x-10 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">{c.steps.map(([title, text], i) => <li key={title} className="border-t border-line-strong pt-5"><span className="num text-sm">{String(i + 1).padStart(2, '0')}</span><h3 className="mt-2 text-xl font-semibold">{title}</h3><p className="muted mt-2 text-[0.98rem]">{text}</p></li>)}</ol>
+          <ol className="grid gap-x-10 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">{c.steps.map(([title, text], i) => <li key={title} className=""><span className="num text-sm">{String(i + 1).padStart(2, '0')}</span><h3 className="mt-2 text-xl font-medium">{title}</h3><p className="muted mt-2 text-[0.98rem]">{text}</p></li>)}</ol>
         </Section>
       )}
       {c.faq && c.faq.length > 0 && (
-        <Section title={t('Questions fréquentes')} center>
+        <Section title={t('Questions fréquentes')}>
           <FaqList items={c.faq} />
           <JsonLd data={{ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: c.faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) }} />
         </Section>
       )}
-      <Section id="contact" title={c.formTitle} className="border-t border-line bg-ink-900">
+      <Section id="contact" title={c.formTitle} className="bg-ink-900">
         <div className="card card-pad max-w-3xl"><LeadForm kind="quote" interest={c.interest} /></div>
       </Section>
     </>

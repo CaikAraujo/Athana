@@ -30,7 +30,7 @@ export default async function SoftwarePage({ params }: { params: Promise<{ local
             const from = s.plans.map((pl) => priceFor(pl.prices, currency)).filter((x): x is number => x !== null);
             return (
               <article key={s.key} className="card card-pad flex flex-col">
-                <h2 className="text-2xl font-semibold">{s.name}</h2>
+                <h2 className="text-2xl font-medium">{s.name}</h2>
                 <p className="lead mt-2">{L(s.tagline, locale)}</p>
                 <p className="muted mt-3 flex-1">{L(s.description, locale)}</p>
                 <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
@@ -43,7 +43,7 @@ export default async function SoftwarePage({ params }: { params: Promise<{ local
         </div>
         {soon.length > 0 && (
           <section className="mt-14">
-            <h2 className="mb-4 text-xl font-semibold">{t('En préparation')}</h2>
+            <h2 className="mb-4 text-xl font-medium">{t('En préparation')}</h2>
             <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{soon.map((s) => <li key={s.key} className="panel p-5"><p className="font-semibold">{s.name}</p><p className="muted mt-1 text-sm">{L(s.tagline, locale)}</p><span className="badge mt-3">{t('Bientôt')}</span></li>)}</ul>
           </section>
         )}

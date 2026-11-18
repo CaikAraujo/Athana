@@ -12,7 +12,7 @@ import { ProductCard } from '@/components/site/ProductCard';
 import { Section, FaqList, CtaBand } from '@/components/site/Section';
 import { Reveal } from '@/components/site/Consent';
 import { LeadForm } from '@/components/site/LeadForm';
-import { BrowserFrame, PhoneFrame, Split } from '@/components/site/Showcase';
+import { BrowserFrame, Split } from '@/components/site/Showcase';
 import { saasCopy } from '@/modules/content/saas-copy';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
@@ -36,7 +36,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
     getSetting('company'),
   ]);
 
-  const showcase = featured.filter((x) => x.coverImage).slice(0, 3);
+  const wall = [...featured, ...all.filter((x) => !featured.some((f) => f.id === x.id))].filter((x) => x.coverImage).slice(0, 4);
   const prices = all.map((x) => priceFor(x.startingPrices, currency)).filter((x): x is number => x !== null);
   const minPrice = prices.length ? Math.min(...prices) : null;
   const minDays = all.length ? Math.min(...all.map((x) => x.deliveryDays)) : null;
@@ -46,7 +46,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
   const entries = [
     { icon: Globe, title: t('Sites Web'), text: t('Des modèles professionnels personnalisés à votre marque, livrés en quelques jours.'), href: '/templates', cta: t('Voir les modèles') },
     { icon: ShoppingCart, title: t('E-commerce'), text: t('Une boutique en ligne complète : catalogue, panier, paiement et gestion des commandes.'), href: '/ecommerce', cta: t('Créer ma boutique') },
-    { icon: AppWindow, title: t('Logiciels'), text: t('CRM, pointage et outils de gestion en abonnement, prêts à l’emploi.'), href: '/software', cta: t('Découvrir les logiciels') },
+    { icon: AppWindow, title: t('Logiciels'), text: t('CRM, pointage et outils de gestion en abonnement, prêts à l’emploi.'), href: '/software', cta: t('Voir les logiciels') },
     { icon: Code2, title: t('Développement sur mesure'), text: t('Applications, plateformes et intégrations conçues pour vos processus.'), href: '/custom', cta: t('Parler de mon projet') },
   ];
   const benefits = [
@@ -72,118 +72,109 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       }} />
       <JsonLd data={{ '@context': 'https://schema.org', '@type': 'WebSite', name: 'ATHANA', url: env.appUrl + p('/'), inLanguage: locale }} />
 
-      {/* Hero: asymmetric, left-aligned, with real figures from the catalogue */}
-      <section className="border-b border-line-strong">
-        <div className="container-page grid gap-12 pb-14 pt-12 md:pb-20 md:pt-16 lg:grid-cols-[1.25fr_1fr] lg:items-center lg:gap-12">
-          <div>
-            <p className="eyebrow mb-6">{t('Solutions digitales conçues en Suisse')}</p>
-            <h1 className="h-display" style={{ fontSize: 'clamp(2.6rem, 4.9vw, 4.3rem)' }}>{t('Votre entreprise mérite de')} <span className="mark">{t('meilleures solutions digitales.')}</span></h1>
-            <p className="lead mt-6 max-w-xl">{t('Sites web, boutiques en ligne, logiciels et applications professionnelles. Choisissez votre solution et démarrez votre projet avec Athana.')}</p>
-            <div className="mt-8 flex flex-wrap gap-3">
+      {/* Hero: the first screen, alone. One plain claim, two actions, the real templates as the picture. */}
+      <section className="hero">
+        <div className="container-page grid gap-8 lg:grid-cols-12 lg:items-end lg:gap-8" data-enter>
+          <h1 className="h-display lg:col-span-7">{t('Sites web, boutiques en ligne et logiciels de gestion pour les PME.')}</h1>
+          <div className="lg:col-span-5 lg:pl-10">
+            <p className="lead">{t('Choisissez un modèle, commandez en ligne et suivez la réalisation depuis votre espace client.')}</p>
+            <div className="mt-6 flex flex-wrap gap-3">
               <a className="btn btn-primary btn-lg" href={p('/templates')}>{t('Choisir un modèle')} <ArrowRight size={18} aria-hidden /></a>
               <a className="btn btn-outline btn-lg" href={p('/quote')}>{t('Demander un devis')}</a>
             </div>
-            <dl className="mt-10 grid max-w-lg grid-cols-3 gap-6 border-t border-line-strong pt-6">
-              <div><dt className="muted text-sm">{t('Modèles disponibles')}</dt><dd className="mt-1 font-display text-3xl font-semibold tracking-tight">{all.length}</dd></div>
-              {minPrice !== null && <div><dt className="muted text-sm">{t('Site à partir de')}</dt><dd className="mt-1 font-display text-3xl font-semibold tracking-tight">{formatMoney(minPrice, currency, locale)}</dd></div>}
-              {minDays !== null && <div><dt className="muted text-sm">{t('Livraison dès')}</dt><dd className="mt-1 font-display text-3xl font-semibold tracking-tight">{t('{n} jours', { n: minDays })}</dd></div>}
-            </dl>
           </div>
-          {showcase.length >= 2 && (
-            <div className="relative pb-10 pr-6 md:pr-10">
-              <BrowserFrame src={showcase[0].coverImage!} alt={t('Aperçu du modèle {name}', { name: showcase[0].name })} priority sizes="(min-width:1024px) 600px, 100vw" />
-              <BrowserFrame src={showcase[1].coverImage!} alt={t('Aperçu du modèle {name}', { name: showcase[1].name })} sizes="320px" className="absolute -bottom-2 right-0 w-[52%]" />
-            </div>
-          )}
+          <dl className="flex flex-wrap gap-x-12 gap-y-4 lg:col-span-12">
+            <div><dd className="text-[1.75rem] leading-tight tracking-tight">{all.length}</dd><dt className="eyebrow">{t('Modèles disponibles')}</dt></div>
+            {minPrice !== null && <div><dd className="text-[1.75rem] leading-tight tracking-tight">{formatMoney(minPrice, currency, locale)}</dd><dt className="eyebrow">{t('Site à partir de')}</dt></div>}
+            {minDays !== null && <div><dd className="text-[1.75rem] leading-tight tracking-tight">{t('{n} jours', { n: minDays })}</dd><dt className="eyebrow">{t('Livraison dès')}</dt></div>}
+          </dl>
         </div>
+        {wall.length >= 3 && (
+          <div className="hero-wall" data-enter>
+            {wall.map((x, i) => <BrowserFrame key={x.id} src={x.coverImage!} alt={t('Aperçu du modèle {name}', { name: x.name })} priority={i < 3} sizes="(min-width:1024px) 30vw, 78vw" />)}
+          </div>
+        )}
       </section>
 
       {/* Four entries */}
-      <section className="container-page py-12 md:py-16">
-        <div className="tile-grid sm:grid-cols-2 lg:grid-cols-4">
-          {entries.map((e, i) => (
-            <a key={e.href} href={p(e.href)} className="tile">
-              <span className="num">{String(i + 1).padStart(2, '0')}</span>
-              <span className="tile-title mt-3 block">{e.title}</span>
-              <span className="muted mt-2 block text-[0.95rem]">{e.text}</span>
-              <span className="tile-arrow inline-flex items-center gap-2 text-sm font-medium">{e.cta} <ArrowRight size={16} aria-hidden /></span>
+      <Section title={t('Quatre façons de démarrer')} className="screen--surface">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {entries.map((e) => (
+            <a key={e.href} href={p(e.href)} className="card card-hover group flex min-h-[260px] flex-col p-6 no-underline">
+              <e.icon size={24} strokeWidth={1.5} className="text-accent-700" aria-hidden />
+              <h3 className="mt-8 text-[1.5rem]!">{e.title}</h3>
+              <p className="mt-2 text-fg-soft">{e.text}</p>
+              <span className="mt-auto inline-flex items-center gap-2 pt-6 font-medium">{e.cta} <ArrowRight size={16} className="transition-transform duration-300 group-hover:translate-x-1" aria-hidden /></span>
             </a>
           ))}
         </div>
-      </section>
+      </Section>
 
       {/* Featured templates */}
-      <Section eyebrow="ATHANA Web" title={t('Des modèles prêts à devenir votre site')} lead={t('Chaque modèle possède une démonstration navigable. Vous voyez le résultat avant d’acheter.')} className="pt-2!">
+      <Section title={t('Des modèles prêts à devenir votre site')} lead={t('Chaque modèle possède une démonstration navigable. Vous voyez le résultat avant d’acheter.')}
+        action={<a className="btn btn-outline" href={p('/templates')}>{t('Voir tous les modèles')} <ArrowRight size={16} aria-hidden /></a>}>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {featured.slice(0, 3).map((prod, i) => <ProductCard key={prod.id} product={prod} locale={locale} currency={currency} t={t} priority={i === 0} />)}
         </div>
-        <div className="mt-8 text-center"><a className="btn btn-outline" href={p('/templates')}>{t('Voir tous les modèles')} <ArrowRight size={16} aria-hidden /></a></div>
       </Section>
 
-      {/* Software: real product screens */}
-      <Section eyebrow="ATHANA Software" title={t('Nos logiciels en abonnement')} lead={t('Des outils de gestion simples, hébergés pour vous, sans installation.')} className="border-y border-line bg-ink-900">
-        <div className="space-y-16 md:space-y-20">
-          {saasActive.map((s, i) => {
+      {/* Software: real product screens, text always on the left */}
+      <Section title={t('Nos logiciels en abonnement')} lead={t('Des outils de gestion simples, hébergés pour vous, sans installation.')} className="screen--surface">
+        <div className="space-y-20 md:space-y-28">
+          {saasActive.map((s) => {
             const from = s.plans[0] ? priceFor(s.plans[0].prices, currency) : null;
             const copy = saasCopy(s.key, t);
             return (
               <Reveal key={s.key}>
-                <Split flip={i % 2 === 1} eyebrow={s.name} title={L(s.tagline, locale)} text={L(s.description, locale)} bullets={copy?.features.slice(0, 3).map(([title]) => title)}
+                <Split eyebrow={s.name} title={L(s.tagline, locale)} text={L(s.description, locale)} bullets={copy?.features.slice(0, 3).map(([title]) => title)}
                   cta={<>
-                    <a className="btn btn-primary" href={p(`/software/${s.key}`)}>{t('Découvrir')} <ArrowRight size={16} aria-hidden /></a>
-                    {from !== null && <span className="self-center text-fg-soft">{t('dès')} <strong className="text-fg">{formatMoney(from, currency, locale)}</strong> {t('/ mois')}</span>}
+                    <a className="btn btn-primary" href={p(`/software/${s.key}`)}>{t('Voir {name}', { name: s.name })} <ArrowRight size={16} aria-hidden /></a>
+                    {from !== null && <span className="text-fg-soft">{t('dès')} <strong className="font-medium text-fg">{formatMoney(from, currency, locale)}</strong> {t('/ mois')}</span>}
                   </>}
-                  visual={s.key === 'pointage'
-                    ? <div className="relative flex items-end justify-center gap-0"><BrowserFrame src="/images/software/pointage-team.png" alt={t('Écran de {name}', { name: s.name })} className="w-full" /><PhoneFrame src="/images/software/pointage-mobile.png" alt={t('{name} sur mobile', { name: s.name })} className="-ml-24 mb-[-18px] hidden w-[170px]! sm:block" /></div>
-                    : <BrowserFrame src={`/images/software/${s.key}-pipeline.png`} alt={t('Écran de {name}', { name: s.name })} />} />
+                  visual={<BrowserFrame src={`/images/software/${s.key === 'pointage' ? 'pointage-team' : `${s.key}-pipeline`}.png`} alt={t('Écran de {name}', { name: s.name })} />} />
               </Reveal>
             );
           })}
         </div>
         {saasSoon.length > 0 && (
-          <div className="mt-14">
+          <div className="mt-20">
             <p className="eyebrow mb-4">{t('En préparation')}</p>
-            <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              {saasSoon.map((s) => <li key={s.key} className="panel p-4"><p className="font-semibold">{s.name}</p><p className="muted mt-1 text-sm">{L(s.tagline, locale)}</p></li>)}
+            <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {saasSoon.map((s) => <li key={s.key} className="panel p-5"><p className="font-medium">{s.name}</p><p className="mt-1 text-sm text-fg-soft">{L(s.tagline, locale)}</p></li>)}
             </ul>
           </div>
         )}
       </Section>
 
       {/* Benefits */}
-      <Section eyebrow={t('Pourquoi Athana')} title={t('Une équipe technique, un résultat professionnel')}>
-        <div className="grid gap-x-10 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
+      <Section title={t('Une équipe technique, un résultat professionnel')}>
+        <div className="grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
           {benefits.map((b) => (
-            <Reveal key={b.title} className="border-t border-line-strong pt-5">
-              <h3 className="text-xl font-semibold">{b.title}</h3>
-              <p className="muted mt-2 text-[0.95rem]">{b.text}</p>
+            <Reveal key={b.title}>
+              <b.icon size={24} strokeWidth={1.5} className="text-accent-700" aria-hidden />
+              <h3 className="mt-5 text-[1.5rem]!">{b.title}</h3>
+              <p className="mt-2 text-fg-soft">{b.text}</p>
             </Reveal>
           ))}
         </div>
       </Section>
 
-      {/* Process: dark band for rhythm */}
-      <section className="section-dark py-14 md:py-20">
-        <div className="container-page">
-          <div className="mb-10 max-w-2xl md:mb-14">
-            <p className="eyebrow mb-3">{t('Comment ça marche')}</p>
-            <h2 className="h-section">{t('De la commande à la mise en ligne, en quatre étapes')}</h2>
-          </div>
-          <ol className="grid gap-px overflow-hidden rounded-xl border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">
-            {steps.map(([title, text], i) => (
-              <li key={title} className="bg-ink-950 p-6 md:p-7">
-                <span className="font-display text-sm font-medium text-accent-300">{String(i + 1).padStart(2, '0')}</span>
-                <h3 className="mt-3 text-lg font-semibold">{title}</h3>
-                <p className="muted mt-2 text-[0.95rem]">{text}</p>
-              </li>
-            ))}
-          </ol>
-        </div>
-      </section>
+      {/* Process: dark ground */}
+      <Section title={t('De la commande à la mise en ligne, en quatre étapes')} className="section-dark">
+        <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {steps.map(([title, text], i) => (
+            <li key={title} className="card min-h-[220px] p-6">
+              <span className="num">{String(i + 1).padStart(2, '0')}</span>
+              <h3 className="mt-8 text-[1.5rem]!">{title}</h3>
+              <p className="mt-2 text-fg-soft">{text}</p>
+            </li>
+          ))}
+        </ol>
+      </Section>
 
       {/* Testimonials: only real, published ones are shown. */}
       {testimonials.length > 0 && (
-        <Section eyebrow={t('Témoignages')} title={t('Ce que disent nos clients')}>
+        <Section title={t('Ce que disent nos clients')}>
           <div className="grid gap-5 md:grid-cols-3">
             {testimonials.map((tm) => (
               <figure key={tm.id} className="card card-pad">
@@ -197,14 +188,14 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
 
       {/* FAQ */}
       {faqs.length > 0 && (
-        <Section eyebrow="FAQ" title={t('Questions fréquentes')} center>
+        <Section title={t('Questions fréquentes')}>
           <FaqList items={faqs.map((f) => ({ q: L(f.question, locale), a: L(f.answer, locale) }))} />
           <JsonLd data={{ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faqs.map((f) => ({ '@type': 'Question', name: L(f.question, locale), acceptedAnswer: { '@type': 'Answer', text: L(f.answer, locale) } })) }} />
         </Section>
       )}
 
       {/* Contact */}
-      <Section id="contact" eyebrow={t('Contact')} title={t('Une question ? Écrivez-nous.')} className="border-t border-line bg-ink-900">
+      <Section id="contact" title={t('Une question ? Écrivez-nous.')} className="screen--surface">
         <div className="grid gap-10 lg:grid-cols-[1fr_1.4fr]">
           <ul className="space-y-3 text-fg-soft">
             {[t('Réponse par une personne de l’équipe, pas par un robot.'), t('Conseil sur la solution la plus adaptée à votre budget.'), t('Devis gratuit et sans engagement.')].map((x) => (

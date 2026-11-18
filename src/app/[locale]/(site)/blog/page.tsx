@@ -29,7 +29,7 @@ export default async function BlogPage({ params }: { params: Promise<{ locale: s
             {posts.map((p) => (
               <article key={p.id} className="card card-hover card-pad">
                 <p className="muted text-xs">{p.publishedAt && formatDate(p.publishedAt, locale, { dateStyle: 'long' })}</p>
-                <h2 className="mt-2 text-xl font-semibold"><a className="no-underline hover:text-accent-700" href={localePath(locale, `/blog/${p.slug}`)}>{p.title}</a></h2>
+                <h2 className="mt-2 text-xl font-medium"><a className="no-underline hover:text-accent-700" href={localePath(locale, `/blog/${p.slug}`)}>{p.title}</a></h2>
                 <p className="muted mt-2 text-sm">{p.excerpt}</p>
                 <a className="mt-4 inline-block text-sm font-semibold text-accent-700 hover:underline" href={localePath(locale, `/blog/${p.slug}`)}>{t('Lire l’article')} →</a>
               </article>

@@ -36,7 +36,7 @@ export default async function BlogPostPage({ params }: Props) {
         <Breadcrumbs locale={locale} items={[[t('Accueil'), '/'], ['Blog', '/blog'], [post.title, `/blog/${post.slug}`]]} />
         <JsonLd data={{ '@context': 'https://schema.org', '@type': 'BlogPosting', headline: post.title, description: post.excerpt, datePublished: post.publishedAt?.toISOString(), dateModified: post.updatedAt.toISOString(), inLanguage: LOCALE_META[locale].hreflang, author: { '@type': 'Organization', name: 'ATHANA' }, publisher: { '@type': 'Organization', name: 'ATHANA' }, mainEntityOfPage: env.appUrl + localePath(locale, `/blog/${post.slug}`) }} />
         <p className="muted text-sm">{post.publishedAt && formatDate(post.publishedAt, locale, { dateStyle: 'long' })}</p>
-        <h1 className="mt-2 text-4xl font-semibold md:text-5xl">{post.title}</h1>
+        <h1 className="mt-2 text-4xl font-normal md:text-5xl">{post.title}</h1>
         <p className="lead mb-8 mt-4">{post.excerpt}</p>
         <Markdown source={post.body} />
       </article>

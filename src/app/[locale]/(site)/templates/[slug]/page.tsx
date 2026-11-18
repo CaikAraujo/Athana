@@ -74,7 +74,7 @@ export default async function ProductPage({ params }: Props) {
         </div>
         <div>
           <span className="badge badge-gold">{L(product.category.name, locale)}</span>
-          <h1 className="mt-3 text-4xl font-semibold md:text-5xl">{product.name}</h1>
+          <h1 className="mt-3 text-4xl font-normal md:text-5xl">{product.name}</h1>
           <p className="lead mt-3">{L(product.tagline, locale)}</p>
           {from !== null && <p className="mt-5 text-fg-soft">{t('À partir de')} <strong className="font-display text-3xl text-fg">{formatMoney(from, currency, locale)}</strong></p>}
           <div className="mt-6 flex flex-wrap gap-3">
@@ -91,12 +91,12 @@ export default async function ProductPage({ params }: Props) {
 
       <div className="mt-12 grid gap-10 lg:grid-cols-[1.25fr_1fr]">
         <section>
-          <h2 className="text-2xl font-semibold">{t('Description')}</h2>
+          <h2 className="text-2xl font-medium">{t('Description')}</h2>
           <p className="mt-3 text-fg-soft">{L(product.description, locale)}</p>
           <p className="muted mt-4 text-sm">{t('La démonstration utilise un contenu fictif. Votre site est réalisé avec vos textes, vos images et votre identité.')}</p>
         </section>
         <section>
-          <h2 className="text-2xl font-semibold">{t('Fonctionnalités')}</h2>
+          <h2 className="text-2xl font-medium">{t('Fonctionnalités')}</h2>
           <ul className="mt-3 space-y-2 text-fg-soft">{features.map((f) => <li key={f} className="flex gap-3"><span aria-hidden className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-600" />{f}</li>)}</ul>
         </section>
       </div>
@@ -104,7 +104,7 @@ export default async function ProductPage({ params }: Props) {
       {demo && product.demoSlug && (
         <section className="mt-14">
           <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-            <h2 className="text-2xl font-semibold">{t('Démonstration en direct')}</h2>
+            <h2 className="text-2xl font-medium">{t('Démonstration en direct')}</h2>
             <a href={demo} target="_blank" rel="noopener" className="btn btn-outline btn-sm">{t('Ouvrir en plein écran')} <ExternalLink size={14} aria-hidden /></a>
           </div>
           <DemoPreview src={`${demo}?embed=1`} title={t('Démonstration du modèle {name}', { name: product.name })} />
@@ -112,20 +112,20 @@ export default async function ProductPage({ params }: Props) {
       )}
 
       <section className="mt-14 scroll-mt-24">
-        <h2 className="mb-6 text-2xl font-semibold">{t('Configurez votre commande')}</h2>
+        <h2 className="mb-6 text-2xl font-medium">{t('Configurez votre commande')}</h2>
         <Configurator productId={product.id} productName={product.name} currency={currency} packages={packages} addons={addons} />
       </section>
 
       {faq.length > 0 && (
         <section className="mt-12">
-          <h2 className="mb-6 text-center text-2xl font-semibold">{t('Questions fréquentes')}</h2>
+          <h2 className="mb-8">{t('Questions fréquentes')}</h2>
           <FaqList items={faq} />
         </section>
       )}
 
       {product.related.length > 0 && (
         <section className="mt-16">
-          <h2 className="mb-6 text-2xl font-semibold">{t('Modèles similaires')}</h2>
+          <h2 className="mb-6 text-2xl font-medium">{t('Modèles similaires')}</h2>
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{product.related.map((r) => <ProductCard key={r.id} product={r} locale={locale} currency={currency} t={t} />)}</div>
         </section>
       )}

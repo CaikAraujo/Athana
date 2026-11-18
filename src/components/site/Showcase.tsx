@@ -40,22 +40,22 @@ export function HeroShowcase({ items }: { items: { src: string; alt: string }[] 
   );
 }
 
-/** Text on one side, visual on the other; `flip` alternates the sides for rhythm. */
-export function Split({ eyebrow, title, text, bullets, cta, visual, flip }: { eyebrow?: string; title: string; text: string; bullets?: string[]; cta?: ReactNode; visual: ReactNode; flip?: boolean }) {
+/** Text on the left, the product on the right. Always this way round. */
+export function Split({ eyebrow, title, text, bullets, cta, visual }: { eyebrow?: string; title: string; text: string; bullets?: string[]; cta?: ReactNode; visual: ReactNode }) {
   return (
-    <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
-      <div className={flip ? 'lg:order-2' : ''}>
+    <div className="grid items-start gap-10 lg:grid-cols-12 lg:gap-8">
+      <div className="lg:col-span-5 lg:pr-8">
         {eyebrow && <p className="eyebrow mb-3">{eyebrow}</p>}
-        <h3 className="text-3xl font-semibold md:text-[2.1rem]">{title}</h3>
-        <p className="lead mt-4">{text}</p>
+        <h3>{title}</h3>
+        <p className="mt-4 text-fg-soft">{text}</p>
         {bullets && (
-          <ul className="mt-5 space-y-2.5 text-fg-soft">
-            {bullets.map((b) => <li key={b} className="flex gap-3"><span aria-hidden className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-500" />{b}</li>)}
+          <ul className="mt-5 space-y-2 text-fg-soft">
+            {bullets.map((b) => <li key={b} className="flex gap-3"><span aria-hidden className="mt-[0.7em] h-1.5 w-1.5 shrink-0 rounded-full bg-accent-500" />{b}</li>)}
           </ul>
         )}
-        {cta && <div className="mt-7 flex flex-wrap gap-3">{cta}</div>}
+        {cta && <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-3">{cta}</div>}
       </div>
-      <div className={`min-w-0 ${flip ? 'lg:order-1' : ''}`}>{visual}</div>
+      <div className="zoom min-w-0 lg:col-span-7">{visual}</div>
     </div>
   );
 }

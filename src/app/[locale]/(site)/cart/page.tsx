@@ -18,7 +18,7 @@ export default async function CartPage({ params }: { params: Promise<{ locale: s
   const priced = market ? await priceCart(cart, market) : null;
   return (
     <div className="container-page py-12">
-      <h1 className="mb-8 text-3xl font-semibold md:text-4xl">{t('Votre panier')}</h1>
+      <h1 className="mb-8 text-3xl font-normal md:text-4xl">{t('Votre panier')}</h1>
       {!priced || priced.lines.length === 0 ? (
         <Empty title={t('Votre panier est vide.')}><a className="btn btn-primary" href={localePath(locale, '/templates')}>{t('Découvrir les modèles')}</a></Empty>
       ) : (
@@ -33,10 +33,10 @@ export default async function CartPage({ params }: { params: Promise<{ locale: s
                 <div className="min-w-0 flex-1">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <h2 className="text-lg font-semibold"><a className="no-underline hover:text-accent-700" href={localePath(locale, `/templates/${l.slug}`)}>{l.name}</a></h2>
+                      <h2 className="text-lg font-medium"><a className="no-underline hover:text-accent-700" href={localePath(locale, `/templates/${l.slug}`)}>{l.name}</a></h2>
                       <p className="muted text-sm">{t('Pack')} {L(l.packageName, locale)} · {t('env. {n} jours ouvrés', { n: l.deliveryDays })}</p>
                     </div>
-                    <p className="font-display text-lg font-semibold">{formatMoney(l.total, priced.currency, locale)}</p>
+                    <p className="font-display text-lg font-medium">{formatMoney(l.total, priced.currency, locale)}</p>
                   </div>
                   {l.addons.length > 0 && <ul className="muted mt-2 text-sm">{l.addons.map((a) => <li key={a.id}>+ {L(a.name, locale)} ({formatMoney(a.amount, priced.currency, locale)})</li>)}</ul>}
                   <div className="mt-3 flex gap-2">
@@ -48,7 +48,7 @@ export default async function CartPage({ params }: { params: Promise<{ locale: s
             ))}
           </ul>
           <aside className="panel space-y-5 p-5 lg:sticky lg:top-24">
-            <h2 className="text-lg font-semibold">{t('Récapitulatif')}</h2>
+            <h2 className="text-lg font-medium">{t('Récapitulatif')}</h2>
             <CouponForm current={priced.coupon?.code} />
             {priced.couponError && <p className="field-error">{t(priced.couponError)}</p>}
             <Totals cart={{ ...priced, couponCode: priced.coupon?.code }} locale={locale} t={t} />

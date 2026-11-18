@@ -30,7 +30,7 @@ export default async function LegalPage({ params }: Props) {
   return (
     <div className="container-page max-w-3xl py-12">
       <Breadcrumbs locale={locale} items={[[t('Accueil'), '/'], [page.title, `/legal/${key}`]]} />
-      <h1 className="mb-2 text-4xl font-semibold">{page.title}</h1>
+      <h1 className="mb-2 text-4xl font-normal">{page.title}</h1>
       <p className="muted mb-8 text-sm">{t('Dernière mise à jour : {date}', { date: formatDate(page.updatedAt, locale, { dateStyle: 'long' }) })}</p>
       <Markdown source={page.body} vars={{ ...company, retentionMonthsLeads: privacy.retentionMonthsLeads }} />
     </div>

@@ -34,7 +34,7 @@ export default async function CampaignPage({ params }: Props) {
           <a className="btn btn-primary btn-lg mt-8" href={localePath(locale, c.cta.href)}>{c.cta.label}</a>
         </div>
         <div className="card card-pad">
-          <h2 className="mb-4 text-xl font-semibold">{t('Être rappelé ou recevoir une proposition')}</h2>
+          <h2 className="mb-4 text-xl font-medium">{t('Être rappelé ou recevoir une proposition')}</h2>
           <LeadForm kind="campaign" interest={c.interest} compact />
         </div>
       </div>

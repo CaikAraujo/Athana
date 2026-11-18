@@ -26,7 +26,7 @@ export default async function SuccessPage({ params, searchParams }: { params: Pr
           <>
             <TrackEvent event="purchase" onceKey={order.id} params={{ transaction_id: order.number, value: order.total / 100, currency: order.currency, tax: order.tax / 100, items: order.items.map((i) => ({ item_id: i.productId, item_name: i.name, item_variant: i.tier, price: i.total / 100 })) }} />
             <CheckCircle2 size={48} className="mx-auto text-ok" aria-hidden />
-            <h1 className="mt-4 text-3xl font-semibold">{t('Merci, votre commande est confirmée !')}</h1>
+            <h1 className="mt-4 text-3xl font-normal">{t('Merci, votre commande est confirmée !')}</h1>
             <p className="lead mt-3">{t('Commande {n} — {total}', { n: order.number, total: formatMoney(order.total, order.currency, locale) })}</p>
             <p className="muted mt-3">{t('Un e-mail de confirmation vient de vous être envoyé. Prochaine étape : le briefing, pour que nous puissions démarrer votre projet.')}</p>
             <div className="mt-7 flex flex-wrap justify-center gap-3">
@@ -37,7 +37,7 @@ export default async function SuccessPage({ params, searchParams }: { params: Pr
         ) : (
           <>
             <Clock size={48} className="mx-auto text-warn" aria-hidden />
-            <h1 className="mt-4 text-3xl font-semibold">{t('Paiement en cours de confirmation')}</h1>
+            <h1 className="mt-4 text-3xl font-normal">{t('Paiement en cours de confirmation')}</h1>
             <p className="muted mt-3">{t('Nous attendons la confirmation de votre paiement par notre prestataire. Cette page se met à jour dès qu’elle arrive ; vous recevrez aussi un e-mail.')}</p>
             <meta httpEquiv="refresh" content="6" />
             <a className="btn btn-outline mt-7" href={localePath(locale, `/account/orders/${order.id}`)}>{t('Voir ma commande')}</a>

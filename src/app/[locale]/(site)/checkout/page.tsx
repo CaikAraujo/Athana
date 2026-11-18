@@ -23,15 +23,15 @@ export default async function CheckoutPage({ params }: { params: Promise<{ local
   const methods = (market.paymentMethods as string[]) ?? [];
   return (
     <div className="container-page py-12">
-      <h1 className="mb-2 text-3xl font-semibold md:text-4xl">{t('Finaliser la commande')}</h1>
+      <h1 className="mb-2 text-3xl font-normal md:text-4xl">{t('Finaliser la commande')}</h1>
       <p className="muted mb-8">{t('Connecté en tant que {email}', { email: user.email })}</p>
       <div className="grid gap-8 lg:grid-cols-[1.5fr_1fr] lg:items-start">
         <section className="panel p-5 md:p-7">
-          <h2 className="mb-5 text-lg font-semibold">{t('Coordonnées de facturation')}</h2>
+          <h2 className="mb-5 text-lg font-medium">{t('Coordonnées de facturation')}</h2>
           <CheckoutForm defaults={{ fullName: user.name, email: user.email, phone: user.phone ?? '', country: market.country }} countries={countryOptions(LOCALE_META[locale].intl)} value={priced.total} currency={priced.currency} sandbox={env.paymentsMode === 'test'} />
         </section>
         <aside className="panel space-y-4 p-5 lg:sticky lg:top-24">
-          <h2 className="text-lg font-semibold">{t('Votre commande')}</h2>
+          <h2 className="text-lg font-medium">{t('Votre commande')}</h2>
           <CartLines cart={priced} locale={locale} t={t} />
           <Totals cart={{ ...priced, couponCode: priced.coupon?.code }} locale={locale} t={t} />
           {methods.length > 0 && <p className="muted text-xs">{t('Moyens de paiement')} : {methods.join(', ')}</p>}

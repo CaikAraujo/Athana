@@ -23,7 +23,7 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
         <div className="grid gap-10 lg:grid-cols-[1.5fr_1fr]">
           <div className="card card-pad"><LeadForm kind="contact" /></div>
           <aside className="space-y-5 text-fg-soft">
-            <h2 className="text-xl font-semibold text-fg">{t('Nos coordonnées')}</h2>
+            <h2 className="text-xl font-medium text-fg">{t('Nos coordonnées')}</h2>
             <p className="flex gap-3"><Mail size={18} className="mt-1 shrink-0 text-accent-600" aria-hidden /><a className="hover:text-accent-700" href={`mailto:${company.email}`}>{company.email}</a></p>
             {company.phone && <p className="flex gap-3"><Phone size={18} className="mt-1 shrink-0 text-accent-600" aria-hidden /><a className="hover:text-accent-700" href={`tel:${company.phone.replace(/\s/g, '')}`}>{company.phone}</a></p>}
             {company.address && <p className="flex gap-3"><MapPin size={18} className="mt-1 shrink-0 text-accent-600" aria-hidden /><span>{company.address}<br />{company.postalCode} {company.city}</span></p>}
