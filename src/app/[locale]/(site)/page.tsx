@@ -85,7 +85,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
             </div>
           </div>
           {reel.length >= 2 && (
-            <div className="hero-visual" data-enter>
+            <div className="hero-visual">
               <BrowserFrame src={reel[0].coverImage!} alt={t('Aperçu du modèle {name}', { name: reel[0].name })} priority sizes="(min-width:1024px) 600px, 100vw" />
               <BrowserFrame src={reel[1].coverImage!} alt={t('Aperçu du modèle {name}', { name: reel[1].name })} priority sizes="340px" />
             </div>

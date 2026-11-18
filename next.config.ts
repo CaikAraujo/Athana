@@ -26,6 +26,7 @@ const securityHeaders = [
 const config: NextConfig = {
   output: 'standalone',
   poweredByHeader: false,
+  images: { qualities: [75, 92] },
   experimental: { serverActions: { bodySizeLimit: '16mb' } },
   async headers() {
     return [

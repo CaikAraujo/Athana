@@ -106,7 +106,7 @@ const { user, org } = await seed();
 await db.session.updateMany({ where: { userId: user.id }, data: { activeOrganizationId: org.id } });
 await mkdir(OUT, { recursive: true });
 const browser = await chromium.launch();
-const desktop = await browser.newContext({ viewport: { width: 1360, height: 850 }, deviceScaleFactor: 1.5 });
+const desktop = await browser.newContext({ viewport: { width: 1120, height: 700 }, deviceScaleFactor: 2 });
 const page = await login(desktop);
 await db.session.updateMany({ where: { userId: user.id }, data: { activeOrganizationId: org.id } });
 await page.goto(`${BASE}/fr-ch/app/crm`, { waitUntil: 'networkidle' }); // first visit creates the default pipeline

@@ -7,7 +7,7 @@ export function BrowserFrame({ src, alt, priority, className = '', ratio = '16/1
     <div className={`browser ${className}`}>
       <div className="browser-bar" aria-hidden><i /><i /><i /></div>
       <div className="relative bg-ink-800" style={{ aspectRatio: ratio }}>
-        <Image src={src} alt={alt} fill sizes={sizes} priority={priority} className="object-cover object-top" />
+        <Image src={src} alt={alt} fill sizes={sizes} priority={priority} quality={92} className="object-cover object-top" />
       </div>
     </div>
   );
@@ -18,7 +18,7 @@ export function PhoneFrame({ src, alt, className = '' }: { src: string; alt: str
   return (
     <div className={`relative w-[230px] shrink-0 rounded-[34px] border border-line-strong bg-fg p-2 shadow-[0_30px_60px_-28px_rgb(15_23_42/0.5)] ${className}`}>
       <div className="relative overflow-hidden rounded-[27px] bg-ink-850" style={{ aspectRatio: '390/800' }}>
-        <Image src={src} alt={alt} fill sizes="230px" className="object-cover object-top" />
+        <Image src={src} alt={alt} fill sizes="230px" quality={92} className="object-cover object-top" />
       </div>
     </div>
   );

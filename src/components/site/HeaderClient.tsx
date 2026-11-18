@@ -12,7 +12,7 @@ export function LanguageSwitcher({ compact }: { compact?: boolean }) {
   const pathname = usePathname();
   const t = useT();
   return (
-    <label className="relative inline-flex items-center gap-1.5 text-sm text-fg-soft">
+    <label className="site-lang relative inline-flex items-center gap-1.5 text-sm text-fg-soft">
       <Globe size={16} aria-hidden />
       <span className="sr-only">{t('Langue et pays')}</span>
       <select
@@ -52,24 +52,24 @@ export function HeaderClient({ cartCount, signedIn, isStaff }: { cartCount: numb
     { href: '/custom', label: t('Sur mesure') },
   ];
   return (
-    <header className={`no-print sticky top-0 z-40 border-b transition-colors ${scrolled || open ? 'border-line bg-ink-950/85 backdrop-blur-md' : 'border-transparent bg-ink-950/0'}`}>
-      <div className="container-page flex h-16 items-center justify-between gap-4">
-        <Link href="/" className="shrink-0 no-underline"><Logo /></Link>
-        <nav aria-label={t('Navigation principale')} className="hidden items-center gap-1 lg:flex">
-          {nav.map((n) => <Link key={n.href} href={n.href} className="whitespace-nowrap rounded-lg px-3 py-2 text-sm text-fg-soft no-underline transition-colors hover:bg-black/5 hover:text-fg">{n.label}</Link>)}
+    <header className="site-header no-print sticky top-0 z-40" data-solid={scrolled || open}>
+      <div className="container-page flex h-[76px] items-center justify-between gap-4">
+        <Link href="/" className="shrink-0 no-underline"><Logo size={30} /></Link>
+        <nav aria-label={t('Navigation principale')} className="site-nav hidden items-center lg:flex">
+          {nav.map((n) => <Link key={n.href} href={n.href} className="no-underline">{n.label}</Link>)}
         </nav>
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1">
           <div className="hidden md:block"><LanguageSwitcher compact /></div>
-          <Link href="/cart" className="btn btn-ghost btn-sm relative" aria-label={t('Panier')}>
-            <ShoppingBag size={18} aria-hidden />
-            {cartCount > 0 && <span className="absolute -right-0.5 -top-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-accent-600 px-1 text-[10px] font-bold text-white">{cartCount}</span>}
+          <Link href="/cart" className="site-icon relative" aria-label={t('Panier')}>
+            <ShoppingBag size={19} strokeWidth={1.75} aria-hidden />
+            {cartCount > 0 && <span className="absolute right-0 top-0 grid h-4 min-w-4 place-items-center rounded-full bg-accent-600 px-1 text-[10px] font-bold text-white">{cartCount}</span>}
           </Link>
-          <Link href={signedIn ? (isStaff ? '/admin' : '/account') : '/login'} className="btn btn-ghost btn-sm" aria-label={signedIn ? t('Mon compte') : t('Connexion')}>
-            <User size={18} aria-hidden /><span className="hidden xl:inline">{signedIn ? t('Mon compte') : t('Connexion')}</span>
+          <Link href={signedIn ? (isStaff ? '/admin' : '/account') : '/login'} className="site-icon" aria-label={signedIn ? t('Mon compte') : t('Connexion')}>
+            <User size={19} strokeWidth={1.75} aria-hidden />
           </Link>
-          <Link href="/quote" className="btn btn-primary btn-sm hidden sm:inline-flex">{t('Demander un devis')}</Link>
-          <button type="button" className="btn btn-ghost btn-sm lg:hidden" aria-expanded={open} aria-controls="mobile-nav" aria-label={t('Menu')} onClick={() => setOpen((v) => !v)}>
-            {open ? <X size={20} /> : <Menu size={20} />}
+          <Link href="/quote" className="btn btn-primary site-cta ml-2 hidden sm:inline-flex">{t('Demander un devis')}</Link>
+          <button type="button" className="site-icon lg:hidden!" aria-expanded={open} aria-controls="mobile-nav" aria-label={t('Menu')} onClick={() => setOpen((v) => !v)}>
+            {open ? <X size={21} /> : <Menu size={21} />}
           </button>
         </div>
       </div>
