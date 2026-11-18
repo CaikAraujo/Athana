@@ -13,6 +13,7 @@ import { Section, FaqList, CtaBand } from '@/components/site/Section';
 import { Reveal } from '@/components/site/Consent';
 import { LeadForm } from '@/components/site/LeadForm';
 import { BrowserFrame, Split } from '@/components/site/Showcase';
+import { HeroStage, type HeroItem } from '@/components/site/HeroStage';
 import { saasCopy } from '@/modules/content/saas-copy';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
@@ -36,12 +37,18 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
     getSetting('company'),
   ]);
 
-  const wall = [...featured, ...all.filter((x) => !featured.some((f) => f.id === x.id))].filter((x) => x.coverImage).slice(0, 4);
   const prices = all.map((x) => priceFor(x.startingPrices, currency)).filter((x): x is number => x !== null);
   const minPrice = prices.length ? Math.min(...prices) : null;
   const minDays = all.length ? Math.min(...all.map((x) => x.deliveryDays)) : null;
   const saasActive = saas.filter((x) => x.status === 'ACTIVE');
   const saasSoon = saas.filter((x) => x.status !== 'ACTIVE');
+  const site = [...featured, ...all].find((x) => x.coverImage && x.slug !== 'boutique-nord');
+  const shop = all.find((x) => x.slug === 'boutique-nord' && x.coverImage);
+  const heroItems: HeroItem[] = [
+    ...(site ? [{ key: 'site', label: t('Site web'), phrase: t('votre site web.'), src: site.coverImage!, alt: t('Aperçu du modèle {name}', { name: site.name }) }] : []),
+    ...(shop ? [{ key: 'shop', label: t('Boutique'), phrase: t('votre boutique en ligne.'), src: shop.coverImage!, alt: t('Aperçu du modèle {name}', { name: shop.name }) }] : []),
+    ...saasActive.map((x) => ({ key: x.key, label: x.key === 'crm' ? 'CRM' : t('Pointage'), phrase: x.key === 'crm' ? t('votre CRM.') : t('votre pointage d’équipe.'), src: `/images/software/${x.key === 'pointage' ? 'pointage-team' : `${x.key}-pipeline`}.png`, alt: t('Écran de {name}', { name: x.name }) })),
+  ];
 
   const entries = [
     { icon: Globe, title: t('Sites Web'), text: t('Des modèles professionnels personnalisés à votre marque, livrés en quelques jours.'), href: '/templates', cta: t('Voir les modèles') },
@@ -72,29 +79,18 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       }} />
       <JsonLd data={{ '@context': 'https://schema.org', '@type': 'WebSite', name: 'ATHANA', url: env.appUrl + p('/'), inLanguage: locale }} />
 
-      {/* Hero: the first screen, alone. One plain claim, two actions, the real templates as the picture. */}
-      <section className="hero">
-        <div className="container-page grid gap-8 lg:grid-cols-12 lg:items-end lg:gap-8" data-enter>
-          <h1 className="h-display lg:col-span-7">{t('Sites web, boutiques en ligne et logiciels de gestion pour les PME.')}</h1>
-          <div className="lg:col-span-5 lg:pl-10">
-            <p className="lead">{t('Choisissez un modèle, commandez en ligne et suivez la réalisation depuis votre espace client.')}</p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <a className="btn btn-primary btn-lg" href={p('/templates')}>{t('Choisir un modèle')} <ArrowRight size={18} aria-hidden /></a>
-              <a className="btn btn-outline btn-lg" href={p('/quote')}>{t('Demander un devis')}</a>
-            </div>
-          </div>
-          <dl className="flex flex-wrap gap-x-12 gap-y-4 lg:col-span-12">
-            <div><dd className="text-[1.75rem] leading-tight tracking-tight">{all.length}</dd><dt className="eyebrow">{t('Modèles disponibles')}</dt></div>
-            {minPrice !== null && <div><dd className="text-[1.75rem] leading-tight tracking-tight">{formatMoney(minPrice, currency, locale)}</dd><dt className="eyebrow">{t('Site à partir de')}</dt></div>}
-            {minDays !== null && <div><dd className="text-[1.75rem] leading-tight tracking-tight">{t('{n} jours', { n: minDays })}</dd><dt className="eyebrow">{t('Livraison dès')}</dt></div>}
-          </dl>
+      <HeroStage prefix={t('Lancez')} items={heroItems} tabsLabel={t('Nos solutions')}>
+        <p className="lead mt-6 max-w-[34ch]">{t('Sites web, boutiques en ligne et logiciels de gestion pour les PME. Commandez en ligne, suivez tout depuis votre espace client.')}</p>
+        <div className="mt-8 flex flex-wrap gap-3">
+          <a className="btn btn-primary btn-lg" href={p('/templates')}>{t('Choisir un modèle')} <ArrowRight size={18} aria-hidden /></a>
+          <a className="btn btn-outline btn-lg" href={p('/quote')}>{t('Demander un devis')}</a>
         </div>
-        {wall.length >= 3 && (
-          <div className="hero-wall" data-enter>
-            {wall.map((x, i) => <BrowserFrame key={x.id} src={x.coverImage!} alt={t('Aperçu du modèle {name}', { name: x.name })} priority={i < 3} sizes="(min-width:1024px) 30vw, 78vw" />)}
-          </div>
-        )}
-      </section>
+        <dl className="hero-facts">
+          <div><dd>{all.length}</dd><dt className="eyebrow">{t('Modèles disponibles')}</dt></div>
+          {minPrice !== null && <div><dd>{formatMoney(minPrice, currency, locale)}</dd><dt className="eyebrow">{t('Site à partir de')}</dt></div>}
+          {minDays !== null && <div><dd>{t('{n} jours', { n: minDays })}</dd><dt className="eyebrow">{t('Livraison dès')}</dt></div>}
+        </dl>
+      </HeroStage>
 
       {/* Four entries */}
       <Section title={t('Quatre façons de démarrer')} className="screen--surface">

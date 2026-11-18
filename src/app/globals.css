@@ -1,7 +1,8 @@
 @import "tailwindcss";
 @import "@fontsource-variable/outfit";
 @import "@fontsource-variable/space-grotesk";
-@import "@fontsource-variable/host-grotesk";
+@import "@fontsource-variable/montserrat";
+@import "@fontsource-variable/open-sans";
 
 /* ─────────────── ATHANA design system — tokens ───────────────
    Light, clean technology theme. Every colour used by components comes from these tokens.
@@ -202,13 +203,12 @@
 /* ─────────────── Public site layer ───────────────
    Applied through the .site wrapper (marketing pages only); the client area, back office, CRM and
    Pointage do not carry this class and keep the base system above unchanged.
-   Rules followed here: one family (Host Grotesk, Google Fonts, self-hosted), headlines at regular
-   weight carried by size and tight tracking, one section per screen on desktop, equal left/right
+   Type: Montserrat for titles and Open Sans for text (Google Fonts, self-hosted). Rules followed here: one section per screen on desktop, equal left/right
    edges, sections separated by ground or space (no hairlines), the real work shown on every screen,
    quiet hover micro-interactions and one entrance on load. */
 .site {
-  --font-sans: "Host Grotesk Variable", "Host Grotesk", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Host Grotesk Variable", "Host Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Open Sans Variable", "Open Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Montserrat Variable", "Montserrat", ui-sans-serif, system-ui, sans-serif;
   --color-ink-900: #f4f5f6; --color-ink-800: #ebedef; --color-ink-700: #e3e6e9; --color-ink-600: #dfe3e7; --color-ink-500: #c4cad1;
   --color-line: rgb(12 18 28 / 0.09); --color-line-strong: rgb(12 18 28 / 0.18);
   --color-fg: #0c121c; --color-fg-soft: #333b47; --color-fg-muted: #5c6673;
@@ -217,10 +217,10 @@
   font-family: var(--font-sans); font-size: 16px; line-height: 1.625;
 }
 .site .container-page { width: min(100% - 2 * var(--gut), 1280px); max-width: none; padding-inline: 0; margin-inline: auto; }
-.site :is(h1, h2, h3, h4) { font-family: var(--font-display); font-weight: 400; text-wrap: balance; }
-.site h1, .site .h-display { font-size: clamp(2.125rem, 5vw, 4.5rem); line-height: 1.04; letter-spacing: -0.04em; font-weight: 400; }
-.site h2, .site .h-section { font-size: clamp(1.875rem, 3.35vw, 3rem); line-height: 1.08; letter-spacing: -0.035em; font-weight: 400; }
-.site h3 { font-size: clamp(1.5rem, 1.95vw, 1.75rem); line-height: 1.18; letter-spacing: -0.025em; }
+.site :is(h1, h2, h3, h4) { font-family: var(--font-display); font-weight: 600; text-wrap: balance; }
+.site h1, .site .h-display { font-size: clamp(2.125rem, 5vw, 4.5rem); line-height: 1.06; letter-spacing: -0.035em; font-weight: 600; }
+.site h2, .site .h-section { font-size: clamp(1.875rem, 3.35vw, 3rem); line-height: 1.12; letter-spacing: -0.03em; font-weight: 600; }
+.site h3 { font-size: clamp(1.375rem, 1.8vw, 1.625rem); line-height: 1.22; letter-spacing: -0.02em; }
 .site h4 { font-size: 1.25rem; line-height: 1.3; letter-spacing: -0.015em; }
 .site .lead { font-size: clamp(1.125rem, 1.4vw, 1.25rem); line-height: 1.5; color: var(--color-fg-soft); max-width: 62ch; }
 .site .eyebrow { font-family: var(--font-sans); font-size: 0.8125rem; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--color-fg-muted); }
@@ -237,7 +237,7 @@
 .site .section-dark { background: #0c121c; --color-ink-950: #0c121c; --color-ink-900: #141b27; --color-ink-850: #141b27; --color-ink-800: #1c2533; --color-fg: #f4f5f6; --color-fg-soft: #c4cad1; --color-fg-muted: #98a1ad; --color-line: rgb(255 255 255 / 0.12); --color-line-strong: rgb(255 255 255 / 0.22); }
 
 /* One button style: solid, steps on hover, presses on click. */
-.site .btn { border-radius: 10px; min-height: 48px; padding: 0 1.25rem; font-weight: 500; font-size: 1rem; box-shadow: none; transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1), background-color 0.18s, border-color 0.18s, color 0.18s; }
+.site .btn { font-family: var(--font-display); border-radius: 10px; min-height: 48px; padding: 0 1.25rem; font-weight: 600; font-size: 0.9375rem; box-shadow: none; transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1), background-color 0.18s, border-color 0.18s, color 0.18s; }
 .site .btn:hover { transform: translateY(-1px); }
 .site .btn:active { transform: translateY(1px) scale(0.985); }
 .site .btn-lg { min-height: 52px; padding: 0 1.5rem; border-radius: 10px; }
@@ -267,12 +267,47 @@
 
 .site footer :is(h2, h3, h4) { font-size: 0.875rem; line-height: 1.4; letter-spacing: 0; font-weight: 500; }
 .site footer.section-dark { background: #080d15; margin-top: 0; }
-/* Hero: exactly the first screen; the work is the picture and ends inside it. */
-.site .hero { position: relative; overflow: hidden; padding-top: 56px; }
-@media (min-width: 1024px) and (min-height: 680px) { .site .hero { height: calc(100svh - 64px); min-height: 640px; display: flex; flex-direction: column; } }
-.site .hero-wall { position: relative; margin-top: 48px; display: grid; grid-auto-flow: column; grid-auto-columns: 34vw; gap: 24px; justify-content: center; flex: 1; min-height: 300px; padding-bottom: 48px; }
-.site .hero-wall > * { align-self: start; }
-@media (max-width: 1023px) { .site .hero-wall { grid-auto-columns: 78vw; justify-content: start; padding-inline: var(--gut); height: 300px; overflow: hidden; } }
+.site header nav a { padding-inline: 0.55rem; }
+.site header .btn-sm { padding-inline: 0.75rem; font-size: 0.875rem; }
+.site header .container-page > * { min-width: 0; }
+/* Home hero: one dark stage filling the first screen. The headline's last words and the screen change together. */
+.site .hero { position: relative; overflow: clip; isolation: isolate; margin: 8px clamp(8px, 1.4vw, 20px) 0; border-radius: 28px; background: #0a1019; }
+.site .hero::before { content: ""; position: absolute; inset: 0; z-index: -1; background-image: radial-gradient(rgb(255 255 255 / 0.09) 1px, transparent 1px); background-size: 28px 28px; -webkit-mask-image: radial-gradient(120% 90% at 85% 15%, #000 0%, transparent 70%); mask-image: radial-gradient(120% 90% at 85% 15%, #000 0%, transparent 70%); }
+.site .hero-glow { position: absolute; z-index: -1; right: -12%; top: -30%; width: 70%; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(closest-side, color-mix(in srgb, var(--color-accent-400) 42%, transparent), transparent); filter: blur(20px); }
+.site .hero-grid { display: grid; gap: 40px; padding: 48px var(--gut) 0; }
+.site .hero-copy { display: flex; flex-direction: column; padding-bottom: 8px; }
+.site .hero h1 { font-size: clamp(2.375rem, 5.2vw, 4.75rem); line-height: 1.02; }
+.site .hero-words { display: grid; color: var(--color-accent-300); }
+.site .hero-word { grid-area: 1 / 1; opacity: 0; transform: translateY(-0.18em); filter: blur(10px); transition: opacity 0.25s cubic-bezier(0.4, 0, 1, 1), transform 0.25s cubic-bezier(0.4, 0, 1, 1), filter 0.25s; }
+.site .hero-word[data-on="true"] { opacity: 1; transform: none; filter: none; transition: opacity 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) 0.12s, transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) 0.12s, filter 0.6s 0.12s; }
+.site .hero-word:not([data-on="true"]) { visibility: hidden; transition: opacity 0.25s, transform 0.25s, filter 0.25s, visibility 0s 0.25s; }
+.site .hero-facts { display: flex; flex-wrap: wrap; gap: 16px 40px; margin-top: 40px; }
+.site .hero-facts dd { font-family: var(--font-display); font-size: 1.625rem; font-weight: 600; letter-spacing: -0.02em; line-height: 1.2; }
+.site .hero-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.site .hero-tab { position: relative; overflow: hidden; min-height: 40px; padding: 0 16px; border-radius: 999px; font-family: var(--font-display); font-size: 0.875rem; font-weight: 600; color: var(--color-fg-soft); background: rgb(255 255 255 / 0.06); transition: background-color 0.2s, color 0.2s, transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.site .hero-tab:hover { color: var(--color-fg); background: rgb(255 255 255 / 0.12); }
+.site .hero-tab:active { transform: scale(0.97); }
+.site .hero-tab[aria-selected="true"] { color: #06202a; background: var(--color-accent-300); }
+.site .hero-tab-bar { position: absolute; inset: auto 0 0 0; height: 3px; background: rgb(6 32 42 / 0.45); transform-origin: left; animation: hero-timer 5.5s linear both; }
+.site .hero-side:hover .hero-tab-bar, .site .hero-side:focus-within .hero-tab-bar { animation-play-state: paused; }
+@keyframes hero-timer { from { transform: scaleX(0); } }
+.site .hero-stage { display: grid; margin-top: 24px; }
+.site .hero-shot { grid-area: 1 / 1; border-radius: 14px; box-shadow: 0 0 0 1px rgb(255 255 255 / 0.14), 0 -20px 80px -20px color-mix(in srgb, var(--color-accent-400) 35%, transparent); opacity: 0; transform: translateY(18px) scale(0.985); filter: blur(8px); transition: opacity 0.3s cubic-bezier(0.4, 0, 1, 1), transform 0.3s cubic-bezier(0.4, 0, 1, 1), filter 0.3s; }
+.site .hero-shot[data-on="true"] { opacity: 1; transform: none; filter: none; z-index: 1; transition: opacity 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) 0.1s, transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) 0.1s, filter 0.7s 0.1s; }
+.site .hero-shot .browser-bar { background: #1c2533; border-color: transparent; }
+.site .hero-shot .browser-bar i { background: #3a4657; }
+@media (min-width: 1024px) and (min-height: 640px) {
+  .site .hero { height: calc(100svh - 64px - 16px); min-height: 620px; max-height: 920px; }
+  .site .hero-grid { height: 100%; grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); gap: 32px; padding-top: clamp(48px, 9vh, 96px); }
+  .site .hero-copy { padding-bottom: 48px; }
+  .site .hero-facts { margin-top: auto; padding-top: 32px; }
+  .site .hero-stage { width: 132%; }
+}
+@media (max-width: 480px) { .site .hero-tab { padding: 0 12px; font-size: 0.8125rem; } .site .hero-grid { padding-bottom: 32px; } }
+@media (prefers-reduced-motion: reduce) {
+  .site .hero-word, .site .hero-shot { transition: none !important; transform: none; filter: none; }
+  .site .hero-tab-bar { display: none; }
+}
 /* The entrance plays once on load and rests under reduced motion. */
 @media (prefers-reduced-motion: no-preference) {
   .site [data-enter] > * { animation: enter 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
