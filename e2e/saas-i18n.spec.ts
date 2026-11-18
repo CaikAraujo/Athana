@@ -46,7 +46,7 @@ test('languages: detection, manual switch, localized URLs, hreflang and currency
   await expect(page).toHaveURL(/\/pt-br$/);
   await refuseCookies(page).catch(() => {});
   await expect(page.locator('html')).toHaveAttribute('lang', 'pt-BR');
-  await expect(page.locator('h1')).toContainText('que fazem sua empresa avançar');
+  await expect(page.locator('h1')).toContainText('Criamos sites');
   await page.goto('/pt-br/modelos');
   await expect(page.getByText('R$').first()).toBeVisible();
   // The explicit choice wins over browser detection.

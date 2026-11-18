@@ -275,7 +275,7 @@
 .site .hero { position: relative; overflow: clip; isolation: isolate; display: flex; flex-direction: column; margin: 8px clamp(8px, 1.4vw, 20px) 0; border-radius: 28px; background: #0a1019; }
 .site .hero-glow { position: absolute; z-index: -1; left: 30%; bottom: -55%; width: 90%; aspect-ratio: 1.6; border-radius: 50%; background: radial-gradient(closest-side, color-mix(in srgb, var(--color-accent-400) 30%, transparent), transparent); }
 .site .hero-top { padding: clamp(40px, 8vh, 88px) var(--gut) 0; }
-.site .hero h1 { font-size: clamp(2.25rem, 4.7vw, 5rem); line-height: 1.08; letter-spacing: -0.04em; font-weight: 600; text-wrap: wrap; }
+.site .hero h1 { font-size: clamp(2.375rem, 6.1vw, 6.5rem); line-height: 1.02; letter-spacing: -0.045em; font-weight: 600; text-wrap: wrap; }
 @media (min-width: 1024px) { .site .hero h1 em { display: block; } }
 .site .hero h1 em { font-style: normal; color: var(--color-accent-300); }
 .site .hero-chip { position: relative; display: inline-block; vertical-align: baseline; width: 1.55em; height: 0.74em; margin: 0 0.1em -0.02em 0.22em; border-radius: 0.37em; overflow: hidden; box-shadow: 0 0 0 1px rgb(255 255 255 / 0.18); }

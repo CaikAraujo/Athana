@@ -79,10 +79,11 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         <div className="hero-glow" aria-hidden />
         <div className="hero-top" data-enter>
           <h1>
-            {t('Des sites')}{site && <span className="hero-chip" aria-hidden><Image src={site.coverImage!} alt="" fill sizes="160px" priority /></span>} {t('et des logiciels')}<span className="hero-chip" aria-hidden><Image src="/images/software/crm-pipeline.png" alt="" fill sizes="160px" priority /></span> <em>{t('qui font avancer votre entreprise.')}</em>
+            {t('Nous créons des sites')}{site && <span className="hero-chip" aria-hidden><Image src={site.coverImage!} alt="" fill sizes="200px" priority /></span>}{' '}
+            <em>{t('et des logiciels.')}<span className="hero-chip" aria-hidden><Image src="/images/software/crm-pipeline.png" alt="" fill sizes="200px" priority /></span></em>
           </h1>
           <div className="hero-foot">
-            <p className="lead">{t('Athana conçoit en Suisse des sites web, des boutiques en ligne et des logiciels de gestion pour les PME. Vous choisissez, nous réalisons, vous suivez chaque étape en ligne.')}</p>
+            <p className="lead">{t('Depuis la Suisse, nous aidons les PME à lancer leur site, leur boutique en ligne et leurs outils de gestion. Prix affichés, commande en ligne, suivi à chaque étape.')}</p>
             <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
               <a className="btn btn-primary btn-lg" href={p('/templates')}>{t('Voir les modèles')} <ArrowRight size={18} aria-hidden /></a>
               <a className="link font-medium text-fg" href={p('/quote')}>{t('Parler de mon projet')}</a>
