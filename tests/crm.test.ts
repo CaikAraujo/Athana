@@ -514,7 +514,7 @@ describe('CRM — proposals', () => {
     await expect(crm.updateProposal(A.ctx, p1.id, { lines: [{ description: 'X', quantity: 0, unitAmount: 100 }] })).rejects.toThrow();
     await expect(crm.updateProposal(A.ctx, p1.id, { lines: [{ description: 'X', quantity: 1, unitAmount: -1 }] })).rejects.toThrow();
 
-    const empty = more[0];
+    const empty = more.find((p) => p.number !== 'P-0003')!; // P-0003 was deleted above; creation order is not guaranteed
     await expect(crm.setProposalStatus(A.ctx, empty.id, 'sent')).rejects.toMatchObject({ code: 'invalid' }); // no line
     await expect(crm.setProposalStatus(A.ctx, p1.id, 'accepted')).rejects.toMatchObject({ code: 'conflict' }); // draft → accepted
     expect((await crm.setProposalStatus(A.ctx, p1.id, 'sent')).status).toBe('sent');
