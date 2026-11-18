@@ -13,7 +13,7 @@ import { Section, FaqList, CtaBand } from '@/components/site/Section';
 import { Reveal } from '@/components/site/Consent';
 import { LeadForm } from '@/components/site/LeadForm';
 import { BrowserFrame, Split } from '@/components/site/Showcase';
-import { HeroStage, type HeroItem } from '@/components/site/HeroStage';
+import Image from 'next/image';
 import { saasCopy } from '@/modules/content/saas-copy';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
@@ -42,13 +42,8 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
   const minDays = all.length ? Math.min(...all.map((x) => x.deliveryDays)) : null;
   const saasActive = saas.filter((x) => x.status === 'ACTIVE');
   const saasSoon = saas.filter((x) => x.status !== 'ACTIVE');
-  const site = [...featured, ...all].find((x) => x.coverImage && x.slug !== 'boutique-nord');
-  const shop = all.find((x) => x.slug === 'boutique-nord' && x.coverImage);
-  const heroItems: HeroItem[] = [
-    ...(site ? [{ key: 'site', label: t('Site web'), phrase: t('votre site web.'), src: site.coverImage!, alt: t('Aperçu du modèle {name}', { name: site.name }) }] : []),
-    ...(shop ? [{ key: 'shop', label: t('Boutique'), phrase: t('votre boutique en ligne.'), src: shop.coverImage!, alt: t('Aperçu du modèle {name}', { name: shop.name }) }] : []),
-    ...saasActive.map((x) => ({ key: x.key, label: x.key === 'crm' ? 'CRM' : t('Pointage'), phrase: x.key === 'crm' ? t('votre CRM.') : t('votre pointage d’équipe.'), src: `/images/software/${x.key === 'pointage' ? 'pointage-team' : `${x.key}-pipeline`}.png`, alt: t('Écran de {name}', { name: x.name }) })),
-  ];
+  const site = [...featured, ...all].find((x) => x.coverImage);
+  const reel = all.filter((x) => x.coverImage);
 
   const entries = [
     { icon: Globe, title: t('Sites Web'), text: t('Des modèles professionnels personnalisés à votre marque, livrés en quelques jours.'), href: '/templates', cta: t('Voir les modèles') },
@@ -79,18 +74,33 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       }} />
       <JsonLd data={{ '@context': 'https://schema.org', '@type': 'WebSite', name: 'ATHANA', url: env.appUrl + p('/'), inLanguage: locale }} />
 
-      <HeroStage prefix={t('Lancez')} items={heroItems} tabsLabel={t('Nos solutions')}>
-        <p className="lead mt-6 max-w-[34ch]">{t('Sites web, boutiques en ligne et logiciels de gestion pour les PME. Commandez en ligne, suivez tout depuis votre espace client.')}</p>
-        <div className="mt-8 flex flex-wrap gap-3">
-          <a className="btn btn-primary btn-lg" href={p('/templates')}>{t('Choisir un modèle')} <ArrowRight size={18} aria-hidden /></a>
-          <a className="btn btn-outline btn-lg" href={p('/quote')}>{t('Demander un devis')}</a>
+      {/* Hero: one statement with real work set inside the line, one action, and a reel of the templates. */}
+      <section className="hero section-dark">
+        <div className="hero-glow" aria-hidden />
+        <div className="hero-top" data-enter>
+          <h1>
+            {t('Des sites')}{site && <span className="hero-chip" aria-hidden><Image src={site.coverImage!} alt="" fill sizes="160px" priority /></span>} {t('et des logiciels')}<span className="hero-chip" aria-hidden><Image src="/images/software/crm-pipeline.png" alt="" fill sizes="160px" priority /></span> <em>{t('qui font avancer votre entreprise.')}</em>
+          </h1>
+          <div className="hero-foot">
+            <p className="lead">{t('Athana conçoit en Suisse des sites web, des boutiques en ligne et des logiciels de gestion pour les PME. Vous choisissez, nous réalisons, vous suivez chaque étape en ligne.')}</p>
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+              <a className="btn btn-primary btn-lg" href={p('/templates')}>{t('Voir les modèles')} <ArrowRight size={18} aria-hidden /></a>
+              <a className="link font-medium text-fg" href={p('/quote')}>{t('Parler de mon projet')}</a>
+            </div>
+          </div>
         </div>
-        <dl className="hero-facts">
-          <div><dd>{all.length}</dd><dt className="eyebrow">{t('Modèles disponibles')}</dt></div>
-          {minPrice !== null && <div><dd>{formatMoney(minPrice, currency, locale)}</dd><dt className="eyebrow">{t('Site à partir de')}</dt></div>}
-          {minDays !== null && <div><dd>{t('{n} jours', { n: minDays })}</dd><dt className="eyebrow">{t('Livraison dès')}</dt></div>}
-        </dl>
-      </HeroStage>
+        {reel.length >= 4 && (
+          <div className="hero-reel">
+            <div className="hero-reel-track">
+              {[...reel, ...reel].map((x, i) => (
+                <a key={`${x.id}-${i}`} href={p(`/templates/${x.slug}`)} aria-label={t('Aperçu du modèle {name}', { name: x.name })} aria-hidden={i >= reel.length} tabIndex={i >= reel.length ? -1 : undefined}>
+                  <Image src={x.coverImage!} alt="" fill sizes="(min-width:1024px) 24vw, 240px" priority={i < 5} />
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+      </section>
 
       {/* Four entries */}
       <Section title={t('Quatre façons de démarrer')} className="screen--surface">
