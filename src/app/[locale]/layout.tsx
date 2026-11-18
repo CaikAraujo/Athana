@@ -23,7 +23,6 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     applicationName: 'ATHANA',
     openGraph: { siteName: 'ATHANA', type: 'website', locale: LOCALE_META[locale].intl.replace('-', '_') },
     twitter: { card: 'summary_large_image' },
-    icons: { icon: '/favicon.svg' },
   };
 }
 

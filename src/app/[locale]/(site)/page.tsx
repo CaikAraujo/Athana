@@ -12,7 +12,7 @@ import { ProductCard } from '@/components/site/ProductCard';
 import { Section, FaqList, CtaBand } from '@/components/site/Section';
 import { Reveal } from '@/components/site/Consent';
 import { LeadForm } from '@/components/site/LeadForm';
-import { BrowserFrame, HeroShowcase, PhoneFrame, Split } from '@/components/site/Showcase';
+import { BrowserFrame, PhoneFrame, Split } from '@/components/site/Showcase';
 import { saasCopy } from '@/modules/content/saas-copy';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
@@ -27,8 +27,9 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
   const market = await getMarket(locale);
   const currency = market?.currency ?? 'CHF';
   const p = (path: string) => localePath(locale, path);
-  const [featured, saas, faqs, testimonials, company] = await Promise.all([
+  const [featured, all, saas, faqs, testimonials, company] = await Promise.all([
     listProducts({ featured: true, take: 4 }),
+    listProducts(),
     db.saasProduct.findMany({ where: { status: { in: ['ACTIVE', 'COMING_SOON'] } }, orderBy: { sortOrder: 'asc' }, include: { plans: { where: { active: true }, orderBy: { sortOrder: 'asc' }, take: 1 } } }),
     db.faq.findMany({ where: { scope: 'home', published: true }, orderBy: { sortOrder: 'asc' } }),
     db.testimonial.findMany({ where: { published: true }, orderBy: { createdAt: 'desc' }, take: 3 }),
@@ -36,6 +37,9 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
   ]);
 
   const showcase = featured.filter((x) => x.coverImage).slice(0, 3);
+  const prices = all.map((x) => priceFor(x.startingPrices, currency)).filter((x): x is number => x !== null);
+  const minPrice = prices.length ? Math.min(...prices) : null;
+  const minDays = all.length ? Math.min(...all.map((x) => x.deliveryDays)) : null;
   const saasActive = saas.filter((x) => x.status === 'ACTIVE');
   const saasSoon = saas.filter((x) => x.status !== 'ACTIVE');
 
@@ -68,40 +72,52 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       }} />
       <JsonLd data={{ '@context': 'https://schema.org', '@type': 'WebSite', name: 'ATHANA', url: env.appUrl + p('/'), inLanguage: locale }} />
 
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-ink-900">
-        <div className="bg-grid pointer-events-none absolute inset-0 [mask-image:radial-gradient(ellipse_at_top,black,transparent_70%)]" aria-hidden />
-        <div className="pointer-events-none absolute -top-56 left-1/2 h-[520px] w-[900px] -translate-x-1/2 rounded-full bg-accent-400/25 blur-3xl" aria-hidden />
-        <div className="container-page relative pb-14 pt-14 text-center md:pb-20 md:pt-20">
-          <p className="badge badge-accent mx-auto mb-6">{t('Solutions digitales conçues en Suisse')}</p>
-          <h1 className="h-display mx-auto max-w-4xl">{t('Votre entreprise mérite de')} <span className="accent-text">{t('meilleures solutions digitales.')}</span></h1>
-          <p className="lead mx-auto mt-6 max-w-2xl">{t('Sites web, boutiques en ligne, logiciels et applications professionnelles. Choisissez votre solution et démarrez votre projet avec Athana.')}</p>
-          <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <a className="btn btn-primary btn-lg" href={p('/templates')}>{t('Choisir un modèle')} <ArrowRight size={18} aria-hidden /></a>
-            <a className="btn btn-outline btn-lg" href={p('/quote')}>{t('Demander un devis')}</a>
+      {/* Hero: asymmetric, left-aligned, with real figures from the catalogue */}
+      <section className="border-b border-line-strong">
+        <div className="container-page grid gap-12 pb-14 pt-12 md:pb-20 md:pt-16 lg:grid-cols-[1.25fr_1fr] lg:items-center lg:gap-12">
+          <div>
+            <p className="eyebrow mb-6">{t('Solutions digitales conçues en Suisse')}</p>
+            <h1 className="h-display" style={{ fontSize: 'clamp(2.6rem, 4.9vw, 4.3rem)' }}>{t('Votre entreprise mérite de')} <span className="mark">{t('meilleures solutions digitales.')}</span></h1>
+            <p className="lead mt-6 max-w-xl">{t('Sites web, boutiques en ligne, logiciels et applications professionnelles. Choisissez votre solution et démarrez votre projet avec Athana.')}</p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <a className="btn btn-primary btn-lg" href={p('/templates')}>{t('Choisir un modèle')} <ArrowRight size={18} aria-hidden /></a>
+              <a className="btn btn-outline btn-lg" href={p('/quote')}>{t('Demander un devis')}</a>
+            </div>
+            <dl className="mt-10 grid max-w-lg grid-cols-3 gap-6 border-t border-line-strong pt-6">
+              <div><dt className="muted text-sm">{t('Modèles disponibles')}</dt><dd className="mt-1 font-display text-3xl font-semibold tracking-tight">{all.length}</dd></div>
+              {minPrice !== null && <div><dt className="muted text-sm">{t('Site à partir de')}</dt><dd className="mt-1 font-display text-3xl font-semibold tracking-tight">{formatMoney(minPrice, currency, locale)}</dd></div>}
+              {minDays !== null && <div><dt className="muted text-sm">{t('Livraison dès')}</dt><dd className="mt-1 font-display text-3xl font-semibold tracking-tight">{t('{n} jours', { n: minDays })}</dd></div>}
+            </dl>
           </div>
-          <HeroShowcase items={showcase.map((prod) => ({ src: prod.coverImage!, alt: t('Aperçu du modèle {name}', { name: prod.name }) }))} />
+          {showcase.length >= 2 && (
+            <div className="relative pb-10 pr-6 md:pr-10">
+              <BrowserFrame src={showcase[0].coverImage!} alt={t('Aperçu du modèle {name}', { name: showcase[0].name })} priority sizes="(min-width:1024px) 600px, 100vw" />
+              <BrowserFrame src={showcase[1].coverImage!} alt={t('Aperçu du modèle {name}', { name: showcase[1].name })} sizes="320px" className="absolute -bottom-2 right-0 w-[52%]" />
+            </div>
+          )}
         </div>
       </section>
 
-      {/* Four entries */}
+      {/* Four entries: an indexed list rather than four identical cards */}
       <section className="container-page py-12 md:py-16">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <ul className="rule-list grid md:grid-cols-2 md:gap-x-14">
           {entries.map((e, i) => (
-            <Reveal key={e.href}>
-              <a href={p(e.href)} className="card card-hover card-pad group flex h-full flex-col no-underline" style={{ transitionDelay: `${i * 40}ms` }}>
-                <span className="mb-5 grid h-11 w-11 place-items-center rounded-xl bg-accent-500/12 text-accent-700"><e.icon size={20} aria-hidden /></span>
-                <h2 className="text-xl font-semibold">{e.title}</h2>
-                <p className="muted mt-2 flex-1 text-[0.95rem]">{e.text}</p>
-                <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-accent-700">{e.cta} <ArrowRight size={15} aria-hidden className="transition-transform group-hover:translate-x-1" /></span>
+            <li key={e.href}>
+              <a href={p(e.href)} className="group grid grid-cols-[auto_1fr_auto] items-baseline gap-5 py-6 no-underline md:py-7">
+                <span className="num text-sm">{String(i + 1).padStart(2, '0')}</span>
+                <span>
+                  <span className="block font-display text-2xl font-semibold tracking-tight transition-colors group-hover:text-accent-700 md:text-[1.7rem]">{e.title}</span>
+                  <span className="muted mt-1.5 block text-[0.98rem]">{e.text}</span>
+                </span>
+                <ArrowRight size={20} aria-hidden className="self-center text-fg-muted transition-transform group-hover:translate-x-1 group-hover:text-accent-700" />
               </a>
-            </Reveal>
+            </li>
           ))}
-        </div>
+        </ul>
       </section>
 
       {/* Featured templates */}
-      <Section eyebrow="ATHANA Web" title={t('Des modèles prêts à devenir votre site')} lead={t('Chaque modèle possède une démonstration navigable. Vous voyez le résultat avant d’acheter.')} className="pt-4!">
+      <Section eyebrow="ATHANA Web" title={t('Des modèles prêts à devenir votre site')} lead={t('Chaque modèle possède une démonstration navigable. Vous voyez le résultat avant d’acheter.')} className="pt-2!">
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {featured.slice(0, 3).map((prod, i) => <ProductCard key={prod.id} product={prod} locale={locale} currency={currency} t={t} priority={i === 0} />)}
         </div>
@@ -142,9 +158,8 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       <Section eyebrow={t('Pourquoi Athana')} title={t('Une équipe technique, un résultat professionnel')}>
         <div className="grid gap-x-10 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
           {benefits.map((b) => (
-            <Reveal key={b.title} className="border-t-2 border-accent-500 pt-5">
-              <b.icon size={22} className="text-accent-600" aria-hidden />
-              <h3 className="mt-4 text-lg font-semibold">{b.title}</h3>
+            <Reveal key={b.title} className="border-t border-fg pt-5">
+              <h3 className="text-xl font-semibold">{b.title}</h3>
               <p className="muted mt-2 text-[0.95rem]">{b.text}</p>
             </Reveal>
           ))}
@@ -152,16 +167,16 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       </Section>
 
       {/* Process: dark band for rhythm */}
-      <section className="section-dark bg-grid py-14 md:py-20">
+      <section className="section-dark py-14 md:py-20">
         <div className="container-page">
           <div className="mb-10 max-w-2xl md:mb-14">
             <p className="eyebrow mb-3">{t('Comment ça marche')}</p>
             <h2 className="h-section">{t('De la commande à la mise en ligne, en quatre étapes')}</h2>
           </div>
-          <ol className="grid gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">
+          <ol className="grid gap-px overflow-hidden rounded-xl border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">
             {steps.map(([title, text], i) => (
               <li key={title} className="bg-ink-950 p-6 md:p-7">
-                <span className="font-display text-4xl font-semibold text-accent-400">{String(i + 1).padStart(2, '0')}</span>
+                <span className="font-display text-sm font-medium text-accent-300">{String(i + 1).padStart(2, '0')}</span>
                 <h3 className="mt-3 text-lg font-semibold">{title}</h3>
                 <p className="muted mt-2 text-[0.95rem]">{text}</p>
               </li>

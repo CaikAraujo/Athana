@@ -7,12 +7,12 @@ import { UtmCapture } from '@/components/site/UtmCapture';
 export default async function SiteLayout({ children, params }: { children: React.ReactNode; params: Promise<{ locale: string }> }) {
   const locale = assertLocale((await params).locale);
   return (
-    <>
+    <div className="site">
       <UtmCapture />
       <BannerBar locale={locale} />
       <Header />
       <main id="main">{children}</main>
       <Footer locale={locale} />
-    </>
+    </div>
   );
 }

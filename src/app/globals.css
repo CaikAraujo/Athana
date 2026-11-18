@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @import "@fontsource-variable/outfit";
 @import "@fontsource-variable/space-grotesk";
+@import "@fontsource-variable/bricolage-grotesque";
+@import "@fontsource-variable/dm-sans";
 
 /* ─────────────── ATHANA design system — tokens ───────────────
    Light, clean technology theme. Every colour used by components comes from these tokens.
@@ -197,6 +199,46 @@
   .scroll-preview img { transition: object-position 4.5s cubic-bezier(0.3, 0, 0.3, 1); object-position: top; }
   .scroll-preview:hover img, .scroll-preview:focus-visible img { object-position: bottom; }
 }
+
+/* ─────────────── Public site: editorial layer ───────────────
+   Applied through the .site wrapper (marketing pages only). The client area, back office, CRM and
+   Pointage do not carry this class and keep the base system above unchanged.
+   Typography: Bricolage Grotesque (titles) + DM Sans (text), both Google Fonts, self-hosted. */
+.site {
+  --font-sans: "DM Sans Variable", "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Bricolage Grotesque Variable", "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  --radius-xl: 10px;
+  --radius-2xl: 12px;
+  --shadow-card: 0 1px 2px rgb(15 23 42 / 0.05);
+  --ease-out-soft: cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: var(--font-sans);
+  font-size: 17px;
+  line-height: 1.6;
+}
+.site :is(h1, h2, h3, h4) { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.03em; line-height: 1.04; font-optical-sizing: auto; }
+.site :is(h3, h4) { letter-spacing: -0.02em; line-height: 1.15; }
+.site .h-display { font-size: clamp(2.7rem, 6.2vw, 5.1rem); font-weight: 600; letter-spacing: -0.045em; line-height: 0.98; }
+.site .h-section { font-size: clamp(2rem, 4vw, 3.1rem); letter-spacing: -0.035em; }
+.site .lead { font-size: clamp(1.08rem, 1.35vw, 1.24rem); line-height: 1.5; }
+.site .container-page { max-width: 1280px; padding-inline: clamp(20px, 4vw, 56px); }
+.site .btn { border-radius: 8px; font-weight: 600; letter-spacing: -0.005em; }
+.site .btn-lg { border-radius: 8px; min-height: 54px; }
+.site .btn-primary { box-shadow: none; }
+.site .card { border-radius: 12px; box-shadow: var(--shadow-card); }
+.site .card-hover:hover { transform: translateY(-2px); box-shadow: 0 14px 30px -18px rgb(15 23 42 / 0.3); border-color: var(--color-line-strong); }
+.site .badge { border-radius: 6px; font-weight: 500; }
+.site .browser { border-radius: 10px; box-shadow: 0 1px 2px rgb(15 23 42 / 0.06), 0 24px 48px -28px rgb(15 23 42 / 0.35); }
+.site .reveal { transition-duration: 0.9s; }
+/* Section label: a short rule and a quiet caption instead of a coloured uppercase eyebrow. */
+.site .eyebrow { display: flex; align-items: center; gap: 0.7rem; font-family: var(--font-sans); font-size: 0.82rem; font-weight: 500; letter-spacing: 0.02em; text-transform: none; color: var(--color-fg-muted); }
+.site .eyebrow::before { content: ""; width: 28px; height: 1px; background: currentColor; flex: none; }
+.site .text-center .eyebrow, .site .eyebrow.mx-auto { justify-content: center; }
+/* Emphasis in titles: solid accent with a drawn underline (no gradient text). */
+.site .mark { color: var(--color-accent-700); background: linear-gradient(transparent 86%, color-mix(in srgb, var(--color-accent-400) 50%, transparent) 86%, color-mix(in srgb, var(--color-accent-400) 50%, transparent) 93%, transparent 93%); -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+.section-dark .mark { color: var(--color-accent-300); }
+.site .rule-list > * { border-top: 1px solid var(--color-line-strong); }
+.site .rule-list > *:last-child { border-bottom: 1px solid var(--color-line-strong); }
+.site .num { font-family: var(--font-display); font-variant-numeric: tabular-nums; color: var(--color-fg-muted); }
 
 @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 @keyframes shimmer { to { background-position: -200% 0; } }

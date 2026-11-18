@@ -55,7 +55,7 @@ export default async function SaasProductPage({ params }: Props) {
         </figure>
       </div>
       <Section title={t('Fonctionnalités')} lead={L(product.description, locale)}>
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{copy.features.map(([title, text]) => <div key={title} className="panel p-6"><h3 className="text-lg font-semibold">{title}</h3><p className="muted mt-2 text-sm">{text}</p></div>)}</div>
+        <div className="grid gap-x-10 gap-y-9 sm:grid-cols-2 lg:grid-cols-3">{copy.features.map(([title, text], i) => <div key={title} className="border-t border-fg pt-5"><span className="num text-sm">{String(i + 1).padStart(2, '0')}</span><h3 className="mt-2 text-xl font-semibold">{title}</h3><p className="muted mt-2 text-[0.98rem]">{text}</p></div>)}</div>
         {'note' in copy && copy.note && <p className="alert alert-info mt-6 text-sm">{copy.note}</p>}
         <div className="mt-12 grid gap-6 md:grid-cols-2">
           {shots.map(([file, caption]) => (
