@@ -10,7 +10,7 @@ import path from 'node:path';
 const ROOT = path.resolve(import.meta.dirname, '..');
 const SRC = path.join(ROOT, 'src');
 const GEN = path.join(SRC, 'i18n/generated');
-const REQUIRED = ['pt-PT', 'pt-BR'];
+const REQUIRED = ['de', 'pt-PT', 'en'];
 const PATTERN = /(?<![\w.])(?:t|m)\(\s*(?:'((?:[^'\\\n]|\\.)*)'|"((?:[^"\\\n]|\\.)*)")/g;
 // Default messages that are not wrapped in a marker.
 const EXTRA = ['Accès refusé.', 'Élément introuvable.'];

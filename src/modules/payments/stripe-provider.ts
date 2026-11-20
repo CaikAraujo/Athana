@@ -9,7 +9,7 @@ function stripe(): Stripe {
   return (client ??= new Stripe(env.stripeSecretKey));
 }
 
-const STRIPE_LOCALES: Record<string, Stripe.Checkout.SessionCreateParams.Locale> = { 'fr-ch': 'fr', 'fr-fr': 'fr', 'pt-pt': 'pt', 'pt-br': 'pt-BR' };
+const STRIPE_LOCALES: Record<string, Stripe.Checkout.SessionCreateParams.Locale> = { 'fr-ch': 'fr', 'de-ch': 'de', 'pt-ch': 'pt', 'en-ch': 'en' };
 
 /* eslint-disable @typescript-eslint/no-explicit-any -- Stripe moved some fields between API versions; both shapes are read defensively. */
 function subscriptionPeriodEnd(sub: any): Date {

@@ -26,7 +26,7 @@ export function LanguageSwitcher({ compact }: { compact?: boolean }) {
           window.location.assign(switchLocalePath(pathname, to) + window.location.search);
         }}
       >
-        {LOCALES.map((l) => <option key={l} value={l} className="bg-ink-850 text-fg">{compact ? l.toUpperCase() : LOCALE_META[l].label}</option>)}
+        {LOCALES.map((l) => <option key={l} value={l} className="bg-ink-850 text-fg">{compact ? l.slice(0, 2).toUpperCase() : LOCALE_META[l].label}</option>)}
       </select>
     </label>
   );

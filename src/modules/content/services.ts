@@ -12,7 +12,7 @@ export function serviceContent(key: 'websites' | 'ecommerce' | 'automation' | 'c
   switch (key) {
     case 'websites': return {
       path: '/websites', eyebrow: t('Sites web'), serviceType: 'Website creation', interest: 'website',
-      metaTitle: t('Création de site internet professionnel — Suisse, France, Portugal, Brésil'),
+      metaTitle: t('Création de site internet professionnel en Suisse'),
       metaDescription: t('Création de site internet pour PME et indépendants : site vitrine, institutionnel ou sur mesure. Modèles personnalisés dès quelques jours, prix clair.'),
       title: t('Création de sites internet professionnels'), lead: t('Un site rapide, clair et adapté au mobile, qui présente votre activité et transforme vos visiteurs en clients. À partir d’un modèle personnalisé ou entièrement sur mesure.'),
       primary: { href: '/templates', label: t('Voir les modèles') }, secondary: { href: '#contact', label: t('Demander un devis') },

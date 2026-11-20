@@ -54,7 +54,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
     ...(minDays !== null ? [[t('Dès {n} jours ouvrés', { n: minDays }), t('Le délai de chaque modèle est indiqué sur sa fiche, avant la commande.')] as [string, string]] : []),
     [t('Prix affichés'), t('Packs, options et total sont visibles avant le paiement. Pas de devis obligatoire pour un modèle.')],
     [t('Démonstration navigable'), t('Chaque modèle se teste sur ordinateur et sur mobile avant l’achat.')],
-    [t('Français et portugais'), t('Suisse, France, Portugal et Brésil, avec la devise de chaque marché.')],
+    [t('Quatre langues, un seul tarif'), t('Français, allemand, portugais et anglais. Les prix sont les mêmes partout, en francs suisses.')],
   ];
   const steps = [
     [t('Choisissez'), t('Sélectionnez un modèle, un pack et les options dont vous avez besoin.')],
@@ -99,7 +99,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
           {entries.map((e) => (
             <a key={e.href} href={p(e.href)} className="card card-hover group flex min-h-[250px] flex-col p-5 no-underline">
-              <e.icon size={24} strokeWidth={1.5} className="text-accent-700" aria-hidden />
+              <e.icon size={22} strokeWidth={1.75} className="icon-tile" aria-hidden />
               <h3 className="mt-8 text-[1.25rem]!">{e.title}</h3>
               <p className="mt-2 text-fg-soft">{e.text}</p>
               <span className="mt-auto inline-flex items-center gap-2 pt-6 font-medium">{e.cta} <ArrowRight size={16} className="transition-transform duration-300 group-hover:translate-x-1" aria-hidden /></span>
@@ -143,7 +143,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       <Section title={t('Vous voyez tout, à chaque étape')} lead={t('Après la commande, votre espace client montre où en est votre projet, ce qui est attendu de vous et ce que vous devez valider.')}>
         <div className="grid items-start gap-10 lg:grid-cols-12 lg:gap-8">
           <dl className="grid gap-8 sm:grid-cols-2 lg:col-span-5 lg:grid-cols-1 lg:pr-8">
-            {proofs.map(([k, v]) => <div key={k}><dt className="font-display text-[1.375rem] font-semibold tracking-tight">{k}</dt><dd className="mt-1 text-fg-soft">{v}</dd></div>)}
+            {proofs.map(([k, v]) => <div key={k} className="proof"><dt className="font-display text-[1.375rem] font-semibold tracking-tight">{k}</dt><dd className="mt-1 text-fg-soft">{v}</dd></div>)}
           </dl>
           <div className="zoom lg:col-span-7"><BrowserFrame src="/images/software/espace-client.png" alt={t('Suivi d’un projet dans l’espace client')} /></div>
         </div>

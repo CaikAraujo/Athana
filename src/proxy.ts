@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { hostPolicy, adminHost, normalizeHost } from '@/lib/admin-host';
-import { DEFAULT_LOCALE, SEGMENTS, internalSegment, isLocale, localePath, type Locale } from '@/i18n/config';
+import { DEFAULT_LOCALE, LEGACY_LOCALES, SEGMENTS, internalSegment, isLocale, localePath, type Locale } from '@/i18n/config';
 
 const LOCALE_COOKIE = 'athana_locale';
 
@@ -10,11 +10,10 @@ function detectLocale(req: NextRequest): Locale {
   const header = (req.headers.get('accept-language') || '').toLowerCase();
   for (const part of header.split(',')) {
     const tag = part.split(';')[0].trim();
-    if (tag === 'pt-br') return 'pt-br';
-    if (tag.startsWith('pt')) return 'pt-pt';
-    if (tag === 'fr-ch') return 'fr-ch';
-    if (tag === 'fr-fr' || tag === 'fr-be' || tag === 'fr-lu') return 'fr-fr';
     if (tag.startsWith('fr')) return 'fr-ch';
+    if (tag.startsWith('de')) return 'de-ch';
+    if (tag.startsWith('pt')) return 'pt-ch';
+    if (tag.startsWith('en')) return 'en-ch';
   }
   return DEFAULT_LOCALE;
 }
@@ -34,6 +33,13 @@ export function proxy(req: NextRequest) {
   // Back-office API routes only exist on the admin host (when one is configured).
   if (parts[0] === 'api') {
     return hostPolicy(host, ['admin']) === 'allow' ? NextResponse.next() : NextResponse.json({ error: 'not_found' }, { status: 404 });
+  }
+
+  // Locales of the former multi-country setup keep working: they move permanently to the matching language.
+  if (parts[0] && LEGACY_LOCALES[parts[0]]) {
+    const url = req.nextUrl.clone();
+    url.pathname = '/' + [LEGACY_LOCALES[parts[0]], ...parts.slice(1)].join('/');
+    return NextResponse.redirect(url, 308);
   }
 
   if (!isLocale(parts[0])) {

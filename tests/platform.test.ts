@@ -72,10 +72,10 @@ describe('helpers', () => {
   });
   it('i18n: localized paths round-trip and content fallback', () => {
     expect(localePath('fr-ch', '/templates/atelier')).toBe('/fr-ch/modeles/atelier');
-    expect(localePath('pt-br', '/contact?x=1')).toBe('/pt-br/contato?x=1');
-    expect(internalSegment('pt-pt', 'modelos')).toBe('templates');
-    expect(switchLocalePath('/fr-ch/modeles/atelier', 'pt-br')).toBe('/pt-br/modelos/atelier');
-    expect(switchLocalePath('/pt-pt/registo', 'fr-fr')).toBe('/fr-fr/inscription');
+    expect(localePath('de-ch', '/contact?x=1')).toBe('/de-ch/kontakt?x=1');
+    expect(internalSegment('pt-ch', 'modelos')).toBe('templates');
+    expect(switchLocalePath('/fr-ch/modeles/atelier', 'en-ch')).toBe('/en-ch/templates/atelier');
+    expect(switchLocalePath('/pt-ch/registo', 'de-ch')).toBe('/de-ch/registrieren');
     expect(pick({ fr: 'A', 'pt-PT': 'B' }, 'pt-BR')).toBe('B');
     expect(pick({ fr: 'A' }, 'pt-PT')).toBe('A');
     expect(interpolate('Bonjour {name} {x}', { name: 'Z' })).toBe('Bonjour Z {x}');

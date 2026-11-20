@@ -2,7 +2,7 @@
 
 import { useFieldError } from '@/components/ui/form';
 
-const LANGS = [['fr', 'FR'], ['pt-PT', 'PT'], ['pt-BR', 'BR']] as const;
+const LANGS = [['fr', 'FR'], ['de', 'DE'], ['pt-PT', 'PT'], ['en', 'EN']] as const;
 
 /** One input per language for a localised value; submits "<name>.fr", "<name>.pt-PT", "<name>.pt-BR". */
 export function I18nInput({ label, name, value, multiline, rows = 3, hint }: { label: string; name: string; value?: unknown; multiline?: boolean; rows?: number; hint?: string }) {
@@ -11,7 +11,7 @@ export function I18nInput({ label, name, value, multiline, rows = 3, hint }: { l
   return (
     <fieldset>
       <legend className="label">{label}</legend>
-      <div className="grid gap-2 md:grid-cols-3">
+      <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-4">
         {LANGS.map(([l, short]) => (
           <label key={l} className="relative block">
             <span className="muted absolute right-2 top-1.5 text-[10px] font-semibold">{short}</span>

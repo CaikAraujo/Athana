@@ -6,7 +6,7 @@ import { I18nInput } from '@/components/app/AdminFields';
 import * as A from '@/modules/admin/actions';
 
 type Any = Record<string, unknown>;
-const LANG_OPTS = [{ value: 'fr', label: 'Français' }, { value: 'pt-PT', label: 'Português (Portugal)' }, { value: 'pt-BR', label: 'Português (Brasil)' }, { value: 'en', label: 'English' }];
+const LANG_OPTS = [{ value: 'fr', label: 'Français' }, { value: 'de', label: 'Deutsch' }, { value: 'pt-PT', label: 'Português' }, { value: 'en', label: 'English' }];
 
 export function ContentPageForm({ page }: { page: Any }) {
   const t = useT();

@@ -26,7 +26,7 @@ import { storage } from '@/modules/storage/service';
 
 const refresh = () => revalidatePath('/', 'layout');
 const loc = (v: unknown): Locale => (isLocale(String(v)) ? (String(v) as Locale) : DEFAULT_LOCALE);
-const LANGS = ['fr', 'pt-PT', 'pt-BR'] as const;
+const LANGS = ['fr', 'de', 'pt-PT', 'en'] as const;
 type F = Record<string, unknown>;
 
 /** Reads "<name>.fr / <name>.pt-PT / <name>.pt-BR" form fields into a localised Json value. */
@@ -50,8 +50,8 @@ function prices(f: F, name: string): Prisma.InputJsonValue {
 const lines = (v: unknown) => String(v ?? '').split('\n').map((s) => s.trim()).filter(Boolean);
 /** One feature per line, same line index across the three language textareas. */
 function i18nLines(f: F, name: string): Prisma.InputJsonValue {
-  const fr = lines(f[`${name}.fr`]), pt = lines(f[`${name}.pt-PT`]), br = lines(f[`${name}.pt-BR`]);
-  return fr.map((x, i) => ({ fr: x, ...(pt[i] ? { 'pt-PT': pt[i] } : {}), ...(br[i] ? { 'pt-BR': br[i] } : {}) }));
+  const by = Object.fromEntries(LANGS.map((l) => [l, lines(f[`${name}.${l}`])]));
+  return by.fr.map((x, i) => ({ fr: x, ...Object.fromEntries(LANGS.filter((l) => l !== 'fr' && by[l][i]).map((l) => [l, by[l][i]])) }));
 }
 const int = (v: unknown, min = 0, max = 100000) => { const n = Number(v); if (!Number.isInteger(n) || n < min || n > max) throw new AppError(m('Valeur numérique invalide.')); return n; };
 const optDate = (v: unknown) => (String(v ?? '').trim() ? new Date(String(v)) : null);
@@ -370,7 +370,7 @@ export async function saveBlogPostAction(_: ActionState, fd: FormData): Promise<
     const actor = await assertPermission('content.manage');
     const data = z.object({
       title: z.string().trim().min(3, m('Titre requis.')).max(200), excerpt: z.string().trim().min(10, m('Résumé requis.')).max(400), body: z.string().min(50, m('Contenu trop court.')).max(60000),
-      language: z.enum(['fr', 'pt-PT', 'pt-BR', 'en']), seoTitle: z.string().trim().max(200).optional(), seoDescription: z.string().trim().max(300).optional(), translationKey: z.string().trim().max(80).optional(),
+      language: z.enum(['fr', 'de', 'pt-PT', 'pt-BR', 'en']), seoTitle: z.string().trim().max(200).optional(), seoDescription: z.string().trim().max(300).optional(), translationKey: z.string().trim().max(80).optional(),
     }).parse(f);
     const status = f.status === 'PUBLISHED' ? 'PUBLISHED' : 'DRAFT';
     const slug = slugify(String(f.slug || data.title));
@@ -419,7 +419,7 @@ export async function saveTestimonialAction(_: ActionState, fd: FormData): Promi
     const f = formObject(fd);
     if (f.delete === '1') { await db.testimonial.delete({ where: { id: String(f.id) } }); refresh(); return; }
     if (f.published === 'on' && f.authentic !== 'on') throw new AppError(m('Confirmez que ce témoignage provient d’un client réel et qu’il a donné son accord.'));
-    const data = z.object({ author: z.string().trim().min(2).max(120), role: z.string().trim().max(120).optional(), company: z.string().trim().max(160).optional(), content: z.string().trim().min(10).max(1500), language: z.enum(['fr', 'pt-PT', 'pt-BR', 'en']) }).parse(f);
+    const data = z.object({ author: z.string().trim().min(2).max(120), role: z.string().trim().max(120).optional(), company: z.string().trim().max(160).optional(), content: z.string().trim().min(10).max(1500), language: z.enum(['fr', 'de', 'pt-PT', 'pt-BR', 'en']) }).parse(f);
     const payload = { ...data, role: data.role || null, company: data.company || null, published: f.published === 'on' };
     if (f.id) await db.testimonial.update({ where: { id: String(f.id) }, data: payload }); else await db.testimonial.create({ data: payload });
     await audit({ actorId: actor.id, action: 'testimonial.save', entity: 'Testimonial', entityId: String(f.id ?? '') });
@@ -431,7 +431,7 @@ export async function saveTranslationAction(_: ActionState, fd: FormData): Promi
   return run(async () => {
     await assertPermission('content.manage');
     const f = formObject(fd);
-    const language = z.enum(['fr', 'fr-FR', 'pt-PT', 'pt-BR', 'en']).parse(f.language);
+    const language = z.enum(['fr', 'de', 'fr-FR', 'pt-PT', 'pt-BR', 'en']).parse(f.language);
     const source = String(f.source ?? '');
     const value = String(f.value ?? '').trim();
     if (!source) throw new AppError(m('Texte source requis.'));

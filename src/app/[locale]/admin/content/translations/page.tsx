@@ -6,7 +6,7 @@ import { requireStaff } from '@/modules/auth/session';
 import { Empty, PageHeader } from '@/components/ui';
 import { TranslationForm } from '../../ContentForms';
 
-const LANGS = ['pt-PT', 'pt-BR', 'fr-FR', 'en', 'fr'] as const;
+const LANGS = ['de', 'pt-PT', 'en', 'fr'] as const;
 
 export default async function AdminTranslations({ params, searchParams }: { params: Promise<{ locale: string }>; searchParams: Promise<{ lang?: string; q?: string }> }) {
   const locale = assertLocale((await params).locale);

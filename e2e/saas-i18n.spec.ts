@@ -39,28 +39,37 @@ test('SaaS: create a company, start CRM and Pointage trials, use both, cancel', 
   await expect(page.getByText(/Résiliation programmée/).first()).toBeVisible();
 });
 
-test('languages: detection, manual switch, localized URLs, hreflang and currency', async ({ browser }) => {
-  const ctx = await browser.newContext({ locale: 'pt-BR' });
+test('languages: detection, manual switch, localized URLs, hreflang and a single currency', async ({ browser }) => {
+  const ctx = await browser.newContext({ locale: 'de-CH' });
   const page = await ctx.newPage();
   await page.goto('/');
-  await expect(page).toHaveURL(/\/pt-br$/);
+  await expect(page).toHaveURL(/\/de-ch$/);
   await refuseCookies(page).catch(() => {});
-  await expect(page.locator('html')).toHaveAttribute('lang', 'pt-BR');
-  await expect(page.locator('h1')).toContainText('Seu site profissional');
-  await page.goto('/pt-br/modelos');
-  await expect(page.getByText('R$').first()).toBeVisible();
+  await expect(page.locator('html')).toHaveAttribute('lang', 'de-CH');
+  await expect(page.locator('h1')).toContainText('Website');
+  await page.goto('/de-ch/vorlagen');
+  await expect(page.getByText('CHF').first()).toBeVisible();
   // The explicit choice wins over browser detection.
   await page.getByLabel(/./).filter({ has: page.locator('option[value="fr-ch"]') }).first().selectOption('fr-ch');
   await expect(page).toHaveURL(/\/fr-ch\/modeles/);
   await expect(page.getByText('CHF').first()).toBeVisible();
   await page.goto('/');
   await expect(page).toHaveURL(/\/fr-ch$/);
-  await page.goto('/pt-pt/modelos/atelier');
+  // Every language sells in the same currency.
+  for (const path of ['/pt-ch/modelos/atelier', '/en-ch/templates/atelier']) {
+    await page.goto(path);
+    await expect(page.getByText('CHF').first()).toBeVisible();
+    await expect(page.getByText(/€|R\$/)).toHaveCount(0);
+  }
+  await page.goto('/pt-ch/modelos/atelier');
   await expect(page.locator('link[rel="alternate"][hreflang="fr-CH"]')).toHaveAttribute('href', /\/fr-ch\/modeles\/atelier$/);
-  await expect(page.locator('link[rel="alternate"][hreflang="pt-BR"]')).toHaveAttribute('href', /\/pt-br\/modelos\/atelier$/);
-  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', /\/pt-pt\/modelos\/atelier$/);
+  await expect(page.locator('link[rel="alternate"][hreflang="de-CH"]')).toHaveAttribute('href', /\/de-ch\/vorlagen\/atelier$/);
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', /\/pt-ch\/modelos\/atelier$/);
   await expect(page.getByRole('button', { name: 'Comprar agora' }).first()).toBeVisible();
-  await expect(page.getByText('€').first()).toBeVisible();
+  // Addresses of the former country versions move permanently to the matching language.
+  const legacy = await ctx.request.get('/pt-br/modelos/atelier', { maxRedirects: 0 });
+  expect(legacy.status()).toBe(308);
+  expect(legacy.headers().location).toMatch(/\/pt-ch\/modelos\/atelier$/);
   await ctx.close();
 });
 
@@ -73,8 +82,8 @@ test('SEO: structured data, sitemap and robots', async ({ page, request }) => {
   expect((await page.locator('script[type="application/ld+json"]').allTextContents()).map((x) => JSON.parse(x)['@type'])).toEqual(expect.arrayContaining(['Organization', 'FAQPage']));
   const sitemap = await (await request.get('/sitemap.xml')).text();
   expect(sitemap).toContain('/fr-ch/modeles/atelier');
-  expect(sitemap).toContain('/pt-br/modelos/atelier');
-  expect(sitemap).toContain('hreflang="pt-PT"');
+  expect(sitemap).toContain('/de-ch/vorlagen/atelier');
+  expect(sitemap).toContain('hreflang="en-CH"');
   expect((await request.get('/robots.txt')).status()).toBe(200);
   // Demos are never indexed.
   await page.goto('/demo/atelier');

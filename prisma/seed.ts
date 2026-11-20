@@ -12,12 +12,44 @@ import { hashPassword } from '../src/lib/crypto';
 import { LOCALES, LOCALE_META } from '../src/i18n/config';
 import { seedSaas } from './seed-data/saas';
 import { ADDONS, CATEGORIES, HOME_FAQ, PACKAGE_COPY, PRODUCTS, PRODUCT_FAQ, p } from './seed-data/catalog';
+import { CONTENT_TRANSLATIONS } from './seed-data/translations';
 import { EMAIL_TEMPLATES } from './seed-data/emails';
 import { LEGAL_PAGES } from './seed-data/legal';
 import { BLOG_POSTS } from './seed-data/blog';
 
 const db = new PrismaClient();
 const j = (v: unknown) => v as Prisma.InputJsonValue;
+
+/** Adds the German and English texts to localized values that still hold the original French and lack that language. */
+function withTranslations(v: unknown): { value: unknown; changed: boolean } {
+  if (Array.isArray(v)) { const r = v.map(withTranslations); return { value: r.map((x) => x.value), changed: r.some((x) => x.changed) }; }
+  if (!v || typeof v !== 'object') return { value: v, changed: false };
+  const o = v as Record<string, unknown>;
+  if (typeof o.fr === 'string') {
+    const tr = CONTENT_TRANSLATIONS[o.fr];
+    if (!tr || (o.de && o.en)) return { value: v, changed: false };
+    return { value: { ...o, de: o.de || tr.de, en: o.en || tr.en }, changed: true };
+  }
+  let changed = false; const out: Record<string, unknown> = {};
+  for (const [k, x] of Object.entries(o)) { const r = withTranslations(x); out[k] = r.value; changed ||= r.changed; }
+  return { value: out, changed };
+}
+async function backfillTranslations() {
+  const fill = async <T extends { id: string }>(rows: T[], fields: (keyof T)[], save: (id: string, data: Record<string, Prisma.InputJsonValue>) => Promise<unknown>) => {
+    for (const row of rows) {
+      const data: Record<string, Prisma.InputJsonValue> = {};
+      for (const f of fields) { const r = withTranslations(row[f]); if (r.changed) data[f as string] = j(r.value); }
+      if (Object.keys(data).length) await save(row.id, data);
+    }
+  };
+  await fill(await db.category.findMany(), ['name'], (id, data) => db.category.update({ where: { id }, data }));
+  await fill(await db.addon.findMany(), ['name', 'description'], (id, data) => db.addon.update({ where: { id }, data }));
+  await fill(await db.product.findMany(), ['tagline', 'description', 'features', 'faq'], (id, data) => db.product.update({ where: { id }, data }));
+  await fill(await db.package.findMany(), ['name', 'description', 'features'], (id, data) => db.package.update({ where: { id }, data }));
+  await fill((await db.saasProduct.findMany()).map((x) => ({ ...x, id: x.key })), ['tagline', 'description'], (key, data) => db.saasProduct.update({ where: { key }, data }));
+  await fill(await db.plan.findMany(), ['highlights'], (id, data) => db.plan.update({ where: { id }, data }));
+  await fill(await db.faq.findMany(), ['question', 'answer'], (id, data) => db.faq.update({ where: { id }, data }));
+}
 
 async function main() {
   // Markets (URL locale → language, currency, tax). Tax rates start at 0: the owner sets them after fiscal validation.
@@ -28,6 +60,8 @@ async function main() {
       create: { code, language: m.language, country: m.country, currency: m.currency, taxRateBps: m.taxRateBps, taxLabel: m.taxLabel, timezone: m.timezone, sortOrder: i },
     });
   }
+
+  await db.market.updateMany({ where: { code: { notIn: [...LOCALES] } }, data: { enabled: false } });
 
   // Company details taken from the existing athana.ch legal notice.
   const existingCompany = await db.setting.findUnique({ where: { key: 'company' } });
@@ -90,6 +124,8 @@ async function main() {
   for (const post of BLOG_POSTS) {
     await db.blogPost.upsert({ where: { language_slug: { language: post.language, slug: post.slug } }, update: {}, create: { ...post, status: 'PUBLISHED', publishedAt: new Date() } });
   }
+
+  await backfillTranslations();
 
   // Super admin
   const email = process.env.SEED_ADMIN_EMAIL?.toLowerCase();
