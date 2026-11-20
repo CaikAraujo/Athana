@@ -1,4 +1,3 @@
-import { ArrowRight, Workflow, Globe, ShoppingCart, AppWindow, Code2, Check } from 'lucide-react';
 import { db } from '@/lib/db';
 import { assertLocale, getT, L } from '@/i18n/server';
 import { localePath } from '@/i18n/config';
@@ -44,11 +43,11 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
   const reel = all.filter((x) => x.coverImage);
 
   const entries = [
-    { icon: Globe, title: t('Sites Web'), text: t('Des modèles professionnels personnalisés à votre marque, livrés en quelques jours.'), href: '/templates', cta: t('Voir les modèles') },
-    { icon: ShoppingCart, title: t('E-commerce'), text: t('Une boutique en ligne complète : catalogue, panier, paiement et gestion des commandes.'), href: '/ecommerce', cta: t('Créer ma boutique') },
-    { icon: AppWindow, title: t('Logiciels'), text: t('CRM, pointage et outils de gestion en abonnement, prêts à l’emploi.'), href: '/software', cta: t('Voir les logiciels') },
-    { icon: Workflow, title: t('Automatisation'), text: t('Vos tâches répétitives automatisées et vos outils connectés entre eux.'), href: '/automation', cta: t('Automatiser mes tâches') },
-    { icon: Code2, title: t('Sur mesure'), text: t('Applications, plateformes et intégrations conçues pour vos processus.'), href: '/custom', cta: t('Parler de mon projet') },
+    { title: t('Sites Web'), text: t('Des modèles professionnels personnalisés à votre marque, livrés en quelques jours.'), href: '/templates', cta: t('Voir les modèles') },
+    { title: t('E-commerce'), text: t('Une boutique en ligne complète : catalogue, panier, paiement et gestion des commandes.'), href: '/ecommerce', cta: t('Créer ma boutique') },
+    { title: t('Logiciels'), text: t('CRM, pointage et outils de gestion en abonnement, prêts à l’emploi.'), href: '/software', cta: t('Voir les logiciels') },
+    { title: t('Automatisation'), text: t('Vos tâches répétitives automatisées et vos outils connectés entre eux.'), href: '/automation', cta: t('Automatiser mes tâches') },
+    { title: t('Sur mesure'), text: t('Applications, plateformes et intégrations conçues pour vos processus.'), href: '/custom', cta: t('Parler de mon projet') },
   ];
   const proofs: [string, string][] = [
     ...(minDays !== null ? [[t('Dès {n} jours ouvrés', { n: minDays }), t('Le délai de chaque modèle est indiqué sur sa fiche, avant la commande.')] as [string, string]] : []),
@@ -81,7 +80,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
             <h1>{minDays !== null ? t('Votre site professionnel en ligne dès {n} jours,', { n: minDays }) : t('Votre site professionnel en ligne,')} <span className="mark">{t('à prix affiché.')}</span></h1>
             <p className="lead mt-6 max-w-[50ch]">{minPrice !== null ? t('Sites web dès {price}, boutiques en ligne et logiciels de gestion pour les PME. Vous testez la démonstration avant d’acheter et suivez chaque étape dans votre espace client.', { price: formatMoney(minPrice, currency, locale) }) : t('Sites web, boutiques en ligne et logiciels de gestion pour les PME. Vous testez la démonstration avant d’acheter et suivez chaque étape dans votre espace client.')}</p>
             <div className="mt-9 flex flex-wrap gap-3">
-              <a className="btn btn-primary btn-lg" href={p('/templates')}>{t('Choisir un modèle')} <ArrowRight size={18} aria-hidden /></a>
+              <a className="btn btn-primary btn-lg" href={p('/templates')}>{t('Choisir un modèle')}</a>
               <a className="btn btn-outline btn-lg" href={p('/quote')}>{t('Demander un devis')}</a>
             </div>
           </div>
@@ -98,11 +97,10 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       <Section title={t('Ce que nous faisons')} className="screen--surface">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
           {entries.map((e) => (
-            <a key={e.href} href={p(e.href)} className="card card-hover group flex min-h-[250px] flex-col p-5 no-underline">
-              <e.icon size={22} strokeWidth={1.75} className="icon-tile" aria-hidden />
-              <h3 className="mt-8 text-[1.25rem]!">{e.title}</h3>
+            <a key={e.href} href={p(e.href)} className="card card-hover group flex min-h-[210px] flex-col p-5 no-underline">
+              <h3 className="text-[1.25rem]!">{e.title}</h3>
               <p className="mt-2 text-fg-soft">{e.text}</p>
-              <span className="mt-auto inline-flex items-center gap-2 pt-6 font-medium">{e.cta} <ArrowRight size={16} className="transition-transform duration-300 group-hover:translate-x-1" aria-hidden /></span>
+              <span className="mt-auto pt-6"><span className="link font-medium text-accent-800">{e.cta}</span></span>
             </a>
           ))}
         </div>
@@ -110,7 +108,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
 
       {/* Featured templates */}
       <Section title={t('Des modèles prêts à devenir votre site')} lead={t('Chaque modèle possède une démonstration navigable. Vous voyez le résultat avant d’acheter.')}
-        action={<a className="btn btn-outline" href={p('/templates')}>{t('Voir tous les modèles')} <ArrowRight size={16} aria-hidden /></a>}>
+        action={<a className="btn btn-outline" href={p('/templates')}>{t('Voir tous les modèles')}</a>}>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {featured.slice(0, 3).map((prod, i) => <ProductCard key={prod.id} product={prod} locale={locale} currency={currency} t={t} priority={i === 0} />)}
         </div>
@@ -126,7 +124,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
               <Reveal key={s.key}>
                 <Split eyebrow={s.name} title={L(s.tagline, locale)} text={L(s.description, locale)} bullets={copy?.features.slice(0, 3).map(([title]) => title)}
                   cta={<>
-                    <a className="btn btn-primary" href={p(`/software/${s.key}`)}>{t('Voir {name}', { name: s.name })} <ArrowRight size={16} aria-hidden /></a>
+                    <a className="btn btn-primary" href={p(`/software/${s.key}`)}>{t('Voir {name}', { name: s.name })}</a>
                     {from !== null && <span className="text-fg-soft">{t('dès')} <strong className="font-medium text-fg">{formatMoney(from, currency, locale)}</strong> {t('/ mois')}</span>}
                   </>}
                   visual={<BrowserFrame src={`/images/software/${s.key === 'pointage' ? 'pointage-team' : `${s.key}-pipeline`}.png`} alt={t('Écran de {name}', { name: s.name })} />} />
@@ -190,11 +188,11 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
           <div>
             <ul className="space-y-3 text-fg-soft">
               {[t('Réponse par une personne de l’équipe, pas par un robot.'), t('Conseil sur la solution la plus adaptée à votre budget.'), t('Devis gratuit et sans engagement.')].map((x) => (
-                <li key={x} className="flex gap-3"><Check size={18} className="mt-1 shrink-0 text-accent-300" aria-hidden />{x}</li>
+                <li key={x} className="flex gap-3"><span aria-hidden className="mt-[0.7em] h-1.5 w-1.5 shrink-0 rounded-full bg-accent-300" />{x}</li>
               ))}
             </ul>
             <p className="mt-8"><a className="link text-fg" href={`mailto:${company.email}`}>{company.email}</a>{company.phone && <><br /><a className="link text-fg" href={`tel:${company.phone.replace(/\s/g, '')}`}>{company.phone}</a></>}</p>
-            <a className="btn btn-primary mt-8" href={p('/templates')}>{t('Voir les modèles')} <ArrowRight size={16} aria-hidden /></a>
+            <a className="btn btn-primary mt-8" href={p('/templates')}>{t('Voir les modèles')}</a>
           </div>
           <div className="section-light card card-pad"><LeadForm kind="contact" compact /></div>
         </div>

@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
-import { ExternalLink, Clock, Languages, Layers } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 import { assertLocale, getT, L } from '@/i18n/server';
 import { localePath } from '@/i18n/config';
 import { formatMoney } from '@/i18n/translate';
@@ -82,9 +82,9 @@ export default async function ProductPage({ params }: Props) {
             {demo && <a href={demo} target="_blank" rel="noopener" className="btn btn-outline btn-lg">{t('Démonstration en direct')} <ExternalLink size={16} aria-hidden /></a>}
           </div>
           <dl className="mt-8 grid grid-cols-1 gap-3 text-sm sm:grid-cols-3">
-            <div className="panel p-4"><dt className="muted flex items-center gap-2"><Clock size={15} aria-hidden />{t('Délai estimé')}</dt><dd className="mt-1 font-medium">{t('dès {n} jours ouvrés', { n: product.deliveryDays })}</dd></div>
-            <div className="panel p-4"><dt className="muted flex items-center gap-2"><Languages size={15} aria-hidden />{t('Langues')}</dt><dd className="mt-1 font-medium">{product.languages.map((x) => langNames[x] ?? x).join(', ')}</dd></div>
-            <div className="panel p-4"><dt className="muted flex items-center gap-2"><Layers size={15} aria-hidden />{t('Technologies')}</dt><dd className="mt-1 font-medium">{product.technologies.join(', ')}</dd></div>
+            <div className="panel p-4"><dt className="muted">{t('Délai estimé')}</dt><dd className="mt-1 font-medium">{t('dès {n} jours ouvrés', { n: product.deliveryDays })}</dd></div>
+            <div className="panel p-4"><dt className="muted">{t('Langues')}</dt><dd className="mt-1 font-medium">{product.languages.map((x) => langNames[x] ?? x).join(', ')}</dd></div>
+            <div className="panel p-4"><dt className="muted">{t('Technologies')}</dt><dd className="mt-1 font-medium">{product.technologies.join(', ')}</dd></div>
           </dl>
         </div>
       </div>

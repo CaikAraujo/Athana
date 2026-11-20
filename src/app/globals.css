@@ -301,7 +301,7 @@
   .site .hero-grid { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 56px; padding-block: 72px 96px; }
 }
 @media (min-width: 1024px) and (min-height: 640px) { .site .hero { min-height: 100svh; display: grid; align-items: center; } }
-/* Colour: the first pass was too pale. Tinted grounds, a vivid primary action, coloured icon tiles and a teal band. */
+/* Colour: the first pass was too pale. Tinted grounds, a vivid primary action and a teal band. */
 .site { --color-ink-900: #e6f7fb; --color-ink-800: #d3eff6; --color-ink-700: #c4e8f1; --color-fg: #06202a; --color-fg-soft: #23414c; --color-fg-muted: #4c6873; }
 .site .btn-primary, .site .section-dark .btn-primary, .site .section-dark .section-light .btn-primary { background: linear-gradient(135deg, #2fdcf5 0%, #06b6d4 100%); color: #04232d; box-shadow: 0 12px 26px -14px #0891b2, inset 0 1px 0 rgb(255 255 255 / 0.45); }
 .site .btn-primary:hover, .site .section-dark .btn-primary:hover { background: linear-gradient(135deg, #5be6fa 0%, #12c2de 100%); }
@@ -314,10 +314,7 @@
   radial-gradient(45% 55% at 62% 92%, rgb(16 185 129 / 0.16), transparent 70%),
   linear-gradient(180deg, #d6f5fb 0%, #eefbfd 62%, #ffffff 100%); }
 .site .hero h1 .mark { color: var(--color-accent-600); }
-.site .hero .eyebrow { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 999px; background: #ffffff; color: var(--color-accent-800); font-weight: 600; box-shadow: 0 1px 0 rgb(8 145 178 / 0.2), 0 8px 20px -14px #0891b2; }
-.site .hero .eyebrow::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #10b981; }
 .site .hero .btn-outline { background: #ffffff; }
-.site .icon-tile { box-sizing: content-box; padding: 11px; border-radius: 14px; background: linear-gradient(135deg, #a5f3fc, #67e8f9); color: #0b4a5e; }
 .site .screen--surface { background: linear-gradient(180deg, #e6f7fb 0%, #f1fbfd 100%); }
 .site .section-dark { background: linear-gradient(135deg, #04222c 0%, #0a4254 55%, #0e6d87 120%); --color-ink-950: #062c39; --color-ink-900: rgb(255 255 255 / 0.08); --color-ink-850: rgb(255 255 255 / 0.08); --color-ink-800: rgb(255 255 255 / 0.14); --color-fg: #ffffff; --color-fg-soft: #cdeaf2; --color-fg-muted: #9cc9d6; }
 .site .section-dark .num { color: var(--color-accent-300); font-weight: 600; }
