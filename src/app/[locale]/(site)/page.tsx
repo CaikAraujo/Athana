@@ -1,4 +1,4 @@
-import { ArrowRight, Globe, ShoppingCart, AppWindow, Code2, ShieldCheck, Gauge, Languages, MessagesSquare, Check } from 'lucide-react';
+import { ArrowRight, Workflow, Globe, ShoppingCart, AppWindow, Code2, Check } from 'lucide-react';
 import { db } from '@/lib/db';
 import { assertLocale, getT, L } from '@/i18n/server';
 import { localePath } from '@/i18n/config';
@@ -9,7 +9,7 @@ import { pageMeta, JsonLd } from '@/lib/seo';
 import { env } from '@/lib/env';
 import { listProducts } from '@/modules/catalog/service';
 import { ProductCard } from '@/components/site/ProductCard';
-import { Section, FaqList, CtaBand } from '@/components/site/Section';
+import { Section, FaqList } from '@/components/site/Section';
 import { Reveal } from '@/components/site/Consent';
 import { LeadForm } from '@/components/site/LeadForm';
 import { BrowserFrame, Split } from '@/components/site/Showcase';
@@ -47,13 +47,14 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
     { icon: Globe, title: t('Sites Web'), text: t('Des modèles professionnels personnalisés à votre marque, livrés en quelques jours.'), href: '/templates', cta: t('Voir les modèles') },
     { icon: ShoppingCart, title: t('E-commerce'), text: t('Une boutique en ligne complète : catalogue, panier, paiement et gestion des commandes.'), href: '/ecommerce', cta: t('Créer ma boutique') },
     { icon: AppWindow, title: t('Logiciels'), text: t('CRM, pointage et outils de gestion en abonnement, prêts à l’emploi.'), href: '/software', cta: t('Voir les logiciels') },
-    { icon: Code2, title: t('Développement sur mesure'), text: t('Applications, plateformes et intégrations conçues pour vos processus.'), href: '/custom', cta: t('Parler de mon projet') },
+    { icon: Workflow, title: t('Automatisation'), text: t('Vos tâches répétitives automatisées et vos outils connectés entre eux.'), href: '/automation', cta: t('Automatiser mes tâches') },
+    { icon: Code2, title: t('Sur mesure'), text: t('Applications, plateformes et intégrations conçues pour vos processus.'), href: '/custom', cta: t('Parler de mon projet') },
   ];
-  const benefits = [
-    { icon: ShieldCheck, title: t('Exigence suisse'), text: t('Un travail précis, des engagements clairs et un interlocuteur qui répond.') },
-    { icon: Gauge, title: t('Rapide et performant'), text: t('Des sites légers, optimisés pour le mobile et le référencement.') },
-    { icon: Languages, title: t('International'), text: t('Français et portugais, plusieurs devises, des projets livrés en Suisse, en France, au Portugal et au Brésil.') },
-    { icon: MessagesSquare, title: t('Suivi transparent'), text: t('Un espace client pour suivre chaque étape, échanger et valider votre projet.') },
+  const proofs: [string, string][] = [
+    ...(minDays !== null ? [[t('Dès {n} jours ouvrés', { n: minDays }), t('Le délai de chaque modèle est indiqué sur sa fiche, avant la commande.')] as [string, string]] : []),
+    [t('Prix affichés'), t('Packs, options et total sont visibles avant le paiement. Pas de devis obligatoire pour un modèle.')],
+    [t('Démonstration navigable'), t('Chaque modèle se teste sur ordinateur et sur mobile avant l’achat.')],
+    [t('Français et portugais'), t('Suisse, France, Portugal et Brésil, avec la devise de chaque marché.')],
   ];
   const steps = [
     [t('Choisissez'), t('Sélectionnez un modèle, un pack et les options dont vous avez besoin.')],
@@ -77,29 +78,29 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         <div className="container-page hero-grid">
           <div data-enter>
             <p className="eyebrow mb-6">{t('Solutions digitales conçues en Suisse')}</p>
-            <h1>{t('Votre entreprise mérite de')} <span className="mark">{t('meilleures solutions digitales.')}</span></h1>
-            <p className="lead mt-6 max-w-[50ch]">{t('Sites web, boutiques en ligne, logiciels et applications professionnelles. Choisissez votre solution et démarrez votre projet avec Athana.')}</p>
+            <h1>{minDays !== null ? t('Votre site professionnel en ligne dès {n} jours,', { n: minDays }) : t('Votre site professionnel en ligne,')} <span className="mark">{t('à prix affiché.')}</span></h1>
+            <p className="lead mt-6 max-w-[50ch]">{minPrice !== null ? t('Sites web dès {price}, boutiques en ligne et logiciels de gestion pour les PME. Vous testez la démonstration avant d’acheter et suivez chaque étape dans votre espace client.', { price: formatMoney(minPrice, currency, locale) }) : t('Sites web, boutiques en ligne et logiciels de gestion pour les PME. Vous testez la démonstration avant d’acheter et suivez chaque étape dans votre espace client.')}</p>
             <div className="mt-9 flex flex-wrap gap-3">
               <a className="btn btn-primary btn-lg" href={p('/templates')}>{t('Choisir un modèle')} <ArrowRight size={18} aria-hidden /></a>
               <a className="btn btn-outline btn-lg" href={p('/quote')}>{t('Demander un devis')}</a>
             </div>
           </div>
-          {reel.length >= 2 && (
+          {reel.length >= 1 && (
             <div className="hero-visual">
               <BrowserFrame src={reel[0].coverImage!} alt={t('Aperçu du modèle {name}', { name: reel[0].name })} priority sizes="(min-width:1024px) 600px, 100vw" />
-              <BrowserFrame src={reel[1].coverImage!} alt={t('Aperçu du modèle {name}', { name: reel[1].name })} priority sizes="340px" />
+              <BrowserFrame src="/images/software/crm-pipeline.png" alt={t('Écran de {name}', { name: 'ATHANA CRM' })} priority sizes="340px" />
             </div>
           )}
         </div>
       </section>
 
       {/* Four entries */}
-      <Section title={t('Quatre façons de démarrer')} className="screen--surface">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <Section title={t('Ce que nous faisons')} className="screen--surface">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
           {entries.map((e) => (
-            <a key={e.href} href={p(e.href)} className="card card-hover group flex min-h-[260px] flex-col p-6 no-underline">
+            <a key={e.href} href={p(e.href)} className="card card-hover group flex min-h-[250px] flex-col p-5 no-underline">
               <e.icon size={24} strokeWidth={1.5} className="text-accent-700" aria-hidden />
-              <h3 className="mt-8 text-[1.5rem]!">{e.title}</h3>
+              <h3 className="mt-8 text-[1.25rem]!">{e.title}</h3>
               <p className="mt-2 text-fg-soft">{e.text}</p>
               <span className="mt-auto inline-flex items-center gap-2 pt-6 font-medium">{e.cta} <ArrowRight size={16} className="transition-transform duration-300 group-hover:translate-x-1" aria-hidden /></span>
             </a>
@@ -134,25 +135,17 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
           })}
         </div>
         {saasSoon.length > 0 && (
-          <div className="mt-20">
-            <p className="eyebrow mb-4">{t('En préparation')}</p>
-            <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {saasSoon.map((s) => <li key={s.key} className="panel p-5"><p className="font-medium">{s.name}</p><p className="mt-1 text-sm text-fg-soft">{L(s.tagline, locale)}</p></li>)}
-            </ul>
-          </div>
+          <p className="mt-16 text-sm text-fg-muted">{t('Prochainement')} : {saasSoon.map((x) => x.name).join(' · ')}. <a className="link text-fg" href={p('/contact')}>{t('Être prévenu du lancement')}</a></p>
         )}
       </Section>
 
-      {/* Benefits */}
-      <Section title={t('Une équipe technique, un résultat professionnel')}>
-        <div className="grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
-          {benefits.map((b) => (
-            <Reveal key={b.title}>
-              <b.icon size={24} strokeWidth={1.5} className="text-accent-700" aria-hidden />
-              <h3 className="mt-5 text-[1.5rem]!">{b.title}</h3>
-              <p className="mt-2 text-fg-soft">{b.text}</p>
-            </Reveal>
-          ))}
+      {/* Why Athana: facts and the real client area */}
+      <Section title={t('Vous voyez tout, à chaque étape')} lead={t('Après la commande, votre espace client montre où en est votre projet, ce qui est attendu de vous et ce que vous devez valider.')}>
+        <div className="grid items-start gap-10 lg:grid-cols-12 lg:gap-8">
+          <dl className="grid gap-8 sm:grid-cols-2 lg:col-span-5 lg:grid-cols-1 lg:pr-8">
+            {proofs.map(([k, v]) => <div key={k}><dt className="font-display text-[1.375rem] font-semibold tracking-tight">{k}</dt><dd className="mt-1 text-fg-soft">{v}</dd></div>)}
+          </dl>
+          <div className="zoom lg:col-span-7"><BrowserFrame src="/images/software/espace-client.png" alt={t('Suivi d’un projet dans l’espace client')} /></div>
         </div>
       </Section>
 
@@ -191,23 +184,21 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         </Section>
       )}
 
-      {/* Contact */}
-      <Section id="contact" title={t('Une question ? Écrivez-nous.')} className="screen--surface">
+      {/* Closing: the call to action and the form are one block */}
+      <Section id="contact" title={t('Prêt à lancer votre projet ?')} lead={t('Achetez un modèle en ligne ou décrivez-nous votre besoin : nous revenons vers vous avec une proposition.')} className="section-dark">
         <div className="grid gap-10 lg:grid-cols-[1fr_1.4fr]">
-          <ul className="space-y-3 text-fg-soft">
-            {[t('Réponse par une personne de l’équipe, pas par un robot.'), t('Conseil sur la solution la plus adaptée à votre budget.'), t('Devis gratuit et sans engagement.')].map((x) => (
-              <li key={x} className="flex gap-3"><Check size={18} className="mt-1 shrink-0 text-accent-600" aria-hidden />{x}</li>
-            ))}
-            <li className="pt-4 text-sm"><a className="text-accent-700 underline" href={`mailto:${company.email}`}>{company.email}</a>{company.phone && <> · <a className="hover:text-accent-700" href={`tel:${company.phone.replace(/\s/g, '')}`}>{company.phone}</a></>}</li>
-          </ul>
-          <div className="card card-pad"><LeadForm kind="contact" compact /></div>
+          <div>
+            <ul className="space-y-3 text-fg-soft">
+              {[t('Réponse par une personne de l’équipe, pas par un robot.'), t('Conseil sur la solution la plus adaptée à votre budget.'), t('Devis gratuit et sans engagement.')].map((x) => (
+                <li key={x} className="flex gap-3"><Check size={18} className="mt-1 shrink-0 text-accent-300" aria-hidden />{x}</li>
+              ))}
+            </ul>
+            <p className="mt-8"><a className="link text-fg" href={`mailto:${company.email}`}>{company.email}</a>{company.phone && <><br /><a className="link text-fg" href={`tel:${company.phone.replace(/\s/g, '')}`}>{company.phone}</a></>}</p>
+            <a className="btn btn-primary mt-8" href={p('/templates')}>{t('Voir les modèles')} <ArrowRight size={16} aria-hidden /></a>
+          </div>
+          <div className="section-light card card-pad"><LeadForm kind="contact" compact /></div>
         </div>
       </Section>
-
-      <CtaBand title={t('Prêt à lancer votre projet ?')} lead={t('Achetez un modèle en ligne ou décrivez-nous votre besoin : nous revenons vers vous avec une proposition.')}>
-        <a className="btn btn-primary btn-lg" href={p('/templates')}>{t('Acheter un site')}</a>
-        <a className="btn btn-outline btn-lg" href={p('/quote')}>{t('Demander un devis')}</a>
-      </CtaBand>
     </>
   );
 }

@@ -236,6 +236,8 @@
 }
 .site .section-dark { background: #0c121c; --color-ink-950: #0c121c; --color-ink-900: #141b27; --color-ink-850: #141b27; --color-ink-800: #1c2533; --color-fg: #f4f5f6; --color-fg-soft: #c4cad1; --color-fg-muted: #98a1ad; --color-line: rgb(255 255 255 / 0.12); --color-line-strong: rgb(255 255 255 / 0.22); }
 
+.site .section-dark .section-light { --color-ink-950: #ffffff; --color-ink-900: #f4f5f6; --color-ink-850: #ffffff; --color-ink-800: #ebedef; --color-fg: #0c121c; --color-fg-soft: #333b47; --color-fg-muted: #5c6673; --color-line: rgb(12 18 28 / 0.09); --color-line-strong: rgb(12 18 28 / 0.18); background: #ffffff; color: var(--color-fg); }
+.site .section-dark .section-light .btn-primary { background: var(--color-accent-700); color: #fff; }
 /* One button style: solid, steps on hover, presses on click. */
 .site .btn { font-family: var(--font-display); border-radius: 10px; min-height: 48px; padding: 0 1.25rem; font-weight: 600; font-size: 0.9375rem; box-shadow: none; transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1), background-color 0.18s, border-color 0.18s, color 0.18s; }
 .site .btn:hover { transform: translateY(-1px); }
@@ -287,11 +289,11 @@
 .site .hero-grid { display: grid; gap: 48px; align-items: center; padding-block: 48px 64px; }
 .site .hero .eyebrow { color: var(--color-accent-700); font-size: 0.9375rem; }
 .site .hero h1 { font-size: clamp(2.25rem, 3.75vw, 3.75rem); line-height: 1.1; letter-spacing: -0.03em; font-weight: 500; text-wrap: wrap; }
-.site .hero h1 .mark { color: var(--color-accent-700); }
+.site .hero h1 .mark { color: var(--color-accent-700); white-space: nowrap; }
 .site .hero .btn { border-radius: 999px; padding-inline: 1.75rem; }
 .site .hero .btn-outline { color: var(--color-accent-800); background: transparent; }
 .site .hero-visual { position: relative; padding: 0 5% 9% 0; }
-.site .hero-visual > :nth-child(2) { position: absolute; right: 0; bottom: 0; width: 54%; }
+.site .hero-visual > :nth-child(2) { position: absolute; right: 0; bottom: 0; width: 58%; }
 .site .hero-visual .browser { transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1); will-change: transform; }
 .site .hero-visual:hover > :first-child { transform: translate(-10px, -8px); }
 .site .hero-visual:hover > :nth-child(2) { transform: translate(12px, 10px); }

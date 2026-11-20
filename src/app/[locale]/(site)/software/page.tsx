@@ -43,8 +43,7 @@ export default async function SoftwarePage({ params }: { params: Promise<{ local
         </div>
         {soon.length > 0 && (
           <section className="mt-14">
-            <h2 className="mb-4 text-xl font-medium">{t('En préparation')}</h2>
-            <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{soon.map((s) => <li key={s.key} className="panel p-5"><p className="font-semibold">{s.name}</p><p className="muted mt-1 text-sm">{L(s.tagline, locale)}</p><span className="badge mt-3">{t('Bientôt')}</span></li>)}</ul>
+            <p className="text-sm text-fg-muted">{t('Prochainement')} : {soon.map((x) => x.name).join(' · ')}. <a className="link text-fg" href={localePath(locale, '/contact')}>{t('Être prévenu du lancement')}</a></p>
           </section>
         )}
       </div>
