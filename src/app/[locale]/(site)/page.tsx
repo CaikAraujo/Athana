@@ -117,12 +117,12 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       {/* Software: real product screens, text always on the left */}
       <Section title={t('Nos logiciels en abonnement')} lead={t('Des outils de gestion simples, hébergés pour vous, sans installation.')} className="screen--surface">
         <div className="space-y-20 md:space-y-28">
-          {saasActive.map((s) => {
+          {saasActive.map((s, i) => {
             const from = s.plans[0] ? priceFor(s.plans[0].prices, currency) : null;
             const copy = saasCopy(s.key, t);
             return (
               <Reveal key={s.key}>
-                <Split eyebrow={s.name} title={L(s.tagline, locale)} text={L(s.description, locale)} bullets={copy?.features.slice(0, 3).map(([title]) => title)}
+                <Split flip={i % 2 === 1} eyebrow={s.name} title={L(s.tagline, locale)} text={L(s.description, locale)} bullets={copy?.features.slice(0, 3).map(([title]) => title)}
                   cta={<>
                     <a className="btn btn-primary" href={p(`/software/${s.key}`)}>{t('Voir {name}', { name: s.name })}</a>
                     {from !== null && <span className="text-fg-soft">{t('dès')} <strong className="font-medium text-fg">{formatMoney(from, currency, locale)}</strong> {t('/ mois')}</span>}

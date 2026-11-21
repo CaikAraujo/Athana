@@ -280,8 +280,13 @@
 .site-icon:active { transform: scale(0.94); }
 .site-lang { height: 42px; padding: 0 12px; border-radius: 999px; font-family: var(--font-display); font-weight: 500; color: var(--color-fg); transition: background-color 0.2s; }
 .site-lang:hover { background: rgb(12 18 28 / 0.06); }
-.site-lang select { font-family: inherit; font-weight: 500; color: inherit; }
-.site .btn.site-cta { min-height: 44px; padding-inline: 1.35rem; border-radius: 999px; font-size: 0.9375rem; }
+.lang-menu { position: absolute; right: 0; top: calc(100% + 8px); z-index: 50; min-width: 190px; padding: 6px; border-radius: 14px; background: #ffffff; box-shadow: 0 0 0 1px rgb(6 32 42 / 0.08), 0 18px 40px -16px rgb(6 32 42 / 0.35); font-family: var(--font-display); transform-origin: top right; opacity: 0; transform: translateY(-4px) scale(0.97); pointer-events: none; visibility: hidden; transition: opacity 0.14s, transform 0.14s, visibility 0s 0.14s; }
+.lang-menu[data-open="true"] { opacity: 1; transform: none; pointer-events: auto; visibility: visible; transition: opacity 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.lang-menu button { display: flex; width: 100%; align-items: center; justify-content: space-between; gap: 16px; padding: 10px 12px; border-radius: 9px; font-size: 0.9375rem; font-weight: 500; color: #06202a; text-align: left; transition: background-color 0.15s; }
+.lang-menu button:hover { background: #e6f7fb; }
+.lang-menu button[aria-checked="true"] { background: #06202a; color: #ffffff; }
+.lang-code { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em; opacity: 0.6; }
+.site .btn.site-cta { min-height: 42px; padding-inline: 1.25rem; font-size: 0.9rem; }
 @media (max-width: 1360px) { .site-nav a { padding-inline: 10px; font-size: 0.875rem; } .site .btn.site-cta { padding-inline: 1.1rem; font-size: 0.875rem; } .site-lang { padding-inline: 8px; } }
 /* Home hero: the two-column composition the owner chose (statement on the left, two real templates on the right)
    on a faintly tinted ground. */
@@ -290,8 +295,6 @@
 .site .hero .eyebrow { color: var(--color-accent-700); font-size: 0.9375rem; }
 .site .hero h1 { font-size: clamp(2.25rem, 3.75vw, 3.75rem); line-height: 1.1; letter-spacing: -0.03em; font-weight: 500; text-wrap: wrap; }
 .site .hero h1 .mark { color: var(--color-accent-700); white-space: nowrap; }
-.site .hero .btn { border-radius: 999px; padding-inline: 1.75rem; }
-.site .hero .btn-outline { color: var(--color-accent-800); background: transparent; }
 .site .hero-visual { position: relative; padding: 0 5% 9% 0; }
 .site .hero-visual > :nth-child(2) { position: absolute; right: 0; bottom: 0; width: 58%; }
 .site .hero-visual .browser { transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1); will-change: transform; }
@@ -303,18 +306,22 @@
 @media (min-width: 1024px) and (min-height: 640px) { .site .hero { min-height: 100svh; display: grid; align-items: center; } }
 /* Colour: the first pass was too pale. Tinted grounds, a vivid primary action and a teal band. */
 .site { --color-ink-900: #e6f7fb; --color-ink-800: #d3eff6; --color-ink-700: #c4e8f1; --color-fg: #06202a; --color-fg-soft: #23414c; --color-fg-muted: #4c6873; }
-.site .btn-primary, .site .section-dark .btn-primary, .site .section-dark .section-light .btn-primary { background: linear-gradient(135deg, #2fdcf5 0%, #06b6d4 100%); color: #04232d; box-shadow: 0 12px 26px -14px #0891b2, inset 0 1px 0 rgb(255 255 255 / 0.45); }
-.site .btn-primary:hover, .site .section-dark .btn-primary:hover { background: linear-gradient(135deg, #5be6fa 0%, #12c2de 100%); }
-.site .btn-outline { border-color: color-mix(in srgb, var(--color-accent-600) 45%, transparent); color: var(--color-accent-900); }
-.site .btn-outline:hover { background: var(--color-accent-100); border-color: var(--color-accent-600); color: var(--color-accent-900); }
-.site .section-dark .btn-outline { color: #fff; border-color: rgb(255 255 255 / 0.35); }
-.site .section-dark .btn-outline:hover { background: rgb(255 255 255 / 0.1); color: #fff; }
+.site .btn { border-radius: 999px; min-height: 46px; padding: 0 1.4rem; border: 1.5px solid transparent; font-weight: 600; font-size: 0.9375rem; letter-spacing: -0.005em; box-shadow: none; }
+.site .btn-lg { min-height: 52px; padding: 0 1.75rem; border-radius: 999px; font-size: 1rem; }
+.site .btn-sm { min-height: 40px; padding: 0 1.1rem; border-radius: 999px; font-size: 0.875rem; }
+.site .btn-primary, .site .section-dark .section-light .btn-primary { background: #0b5d73; border-color: #0b5d73; color: #ffffff; box-shadow: none; }
+.site .btn-primary:hover, .site .section-dark .section-light .btn-primary:hover { background: #06202a; border-color: #06202a; }
+.site .btn-outline, .site .hero .btn-outline { background: transparent; border-color: #06202a; color: #06202a; }
+.site .btn-outline:hover { background: #06202a; border-color: #06202a; color: #ffffff; }
+.site .section-dark .btn-primary { background: #ffffff; border-color: #ffffff; color: #06202a; }
+.site .section-dark .btn-primary:hover { background: var(--color-accent-200); border-color: var(--color-accent-200); }
+.site .section-dark .btn-outline { background: transparent; color: #ffffff; border-color: rgb(255 255 255 / 0.6); }
+.site .section-dark .btn-outline:hover { background: #ffffff; border-color: #ffffff; color: #06202a; }
 .site .hero { background:
   radial-gradient(60% 70% at 88% 18%, rgb(34 211 238 / 0.38), transparent 70%),
   radial-gradient(45% 55% at 62% 92%, rgb(16 185 129 / 0.16), transparent 70%),
   linear-gradient(180deg, #d6f5fb 0%, #eefbfd 62%, #ffffff 100%); }
 .site .hero h1 .mark { color: var(--color-accent-600); }
-.site .hero .btn-outline { background: #ffffff; }
 .site .screen--surface { background: linear-gradient(180deg, #e6f7fb 0%, #f1fbfd 100%); }
 .site .section-dark { background: linear-gradient(135deg, #04222c 0%, #0a4254 55%, #0e6d87 120%); --color-ink-950: #062c39; --color-ink-900: rgb(255 255 255 / 0.08); --color-ink-850: rgb(255 255 255 / 0.08); --color-ink-800: rgb(255 255 255 / 0.14); --color-fg: #ffffff; --color-fg-soft: #cdeaf2; --color-fg-muted: #9cc9d6; }
 .site .section-dark .num { color: var(--color-accent-300); font-weight: 600; }

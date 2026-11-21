@@ -50,7 +50,8 @@ test('languages: detection, manual switch, localized URLs, hreflang and a single
   await page.goto('/de-ch/vorlagen');
   await expect(page.getByText('CHF').first()).toBeVisible();
   // The explicit choice wins over browser detection.
-  await page.getByLabel(/./).filter({ has: page.locator('option[value="fr-ch"]') }).first().selectOption('fr-ch');
+  await page.locator('[data-lang-switch]').first().click();
+  await page.locator('[data-lang="fr-ch"]').first().click();
   await expect(page).toHaveURL(/\/fr-ch\/modeles/);
   await expect(page.getByText('CHF').first()).toBeVisible();
   await page.goto('/');

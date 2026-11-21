@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { Menu, X, Globe, ShoppingBag, User } from 'lucide-react';
+import { Menu, X, Globe, ShoppingBag, User, ChevronDown } from 'lucide-react';
 import { Link, useLocale, useT } from '@/i18n/client';
 import { LOCALES, LOCALE_META, switchLocalePath } from '@/i18n/config';
 import { Logo } from './Logo';
@@ -11,24 +11,34 @@ export function LanguageSwitcher({ compact }: { compact?: boolean }) {
   const locale = useLocale();
   const pathname = usePathname();
   const t = useT();
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const close = (e: Event) => { if (e instanceof KeyboardEvent ? e.key === 'Escape' : !ref.current?.contains(e.target as Node)) setOpen(false); };
+    document.addEventListener('pointerdown', close); document.addEventListener('keydown', close);
+    return () => { document.removeEventListener('pointerdown', close); document.removeEventListener('keydown', close); };
+  }, [open]);
+  const go = (to: (typeof LOCALES)[number]) => {
+    // Remember the explicit choice so automatic detection never overrides it.
+    document.cookie = `athana_locale=${to}; path=/; max-age=31536000; samesite=lax`;
+    window.location.assign(switchLocalePath(pathname, to) + window.location.search);
+  };
   return (
-    <label className="site-lang relative inline-flex items-center gap-1.5 text-sm text-fg-soft">
-      <Globe size={16} aria-hidden />
-      <span className="sr-only">{t('Langue et pays')}</span>
-      <select
-        aria-label={t('Langue et pays')}
-        className="cursor-pointer appearance-none bg-transparent pr-1 text-sm text-fg-soft hover:text-fg focus:outline-none"
-        value={locale}
-        onChange={(e) => {
-          const to = e.target.value as (typeof LOCALES)[number];
-          // Remember the explicit choice so automatic detection never overrides it.
-          document.cookie = `athana_locale=${to}; path=/; max-age=31536000; samesite=lax`;
-          window.location.assign(switchLocalePath(pathname, to) + window.location.search);
-        }}
-      >
-        {LOCALES.map((l) => <option key={l} value={l} className="bg-ink-850 text-fg">{compact ? l.slice(0, 2).toUpperCase() : LOCALE_META[l].label}</option>)}
-      </select>
-    </label>
+    <div ref={ref} className="lang relative">
+      <button type="button" data-lang-switch className="site-lang inline-flex items-center gap-1.5 text-sm" aria-haspopup="menu" aria-expanded={open} aria-label={t('Langue')} onClick={() => setOpen((v) => !v)}>
+        <Globe size={16} strokeWidth={1.75} aria-hidden />
+        <span>{compact ? locale.slice(0, 2).toUpperCase() : LOCALE_META[locale].label}</span>
+        <ChevronDown size={14} className={`transition-transform duration-200 ${open ? 'rotate-180' : ''}`} aria-hidden />
+      </button>
+      <div role="menu" className="lang-menu" data-open={open}>
+        {LOCALES.map((l) => (
+          <button key={l} type="button" role="menuitemradio" aria-checked={l === locale} data-lang={l} tabIndex={open ? 0 : -1} onClick={() => go(l)}>
+            <span>{LOCALE_META[l].label}</span><span aria-hidden className="lang-code">{l.slice(0, 2).toUpperCase()}</span>
+          </button>
+        ))}
+      </div>
+    </div>
   );
 }
 

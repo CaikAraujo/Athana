@@ -7,7 +7,7 @@ export function BrowserFrame({ src, alt, priority, className = '', ratio = '16/1
     <div className={`browser ${className}`}>
       <div className="browser-bar" aria-hidden><i /><i /><i /></div>
       <div className="relative bg-ink-800" style={{ aspectRatio: ratio }}>
-        <Image src={src} alt={alt} fill sizes={sizes} priority={priority} quality={92} className="object-cover object-top" />
+        <Image src={src} alt={alt} fill sizes={sizes} priority={priority} quality={92} unoptimized={src.startsWith('/images/software/')} className="object-cover object-top" />
       </div>
     </div>
   );
@@ -18,7 +18,7 @@ export function PhoneFrame({ src, alt, className = '' }: { src: string; alt: str
   return (
     <div className={`relative w-[230px] shrink-0 rounded-[34px] border border-line-strong bg-fg p-2 shadow-[0_30px_60px_-28px_rgb(15_23_42/0.5)] ${className}`}>
       <div className="relative overflow-hidden rounded-[27px] bg-ink-850" style={{ aspectRatio: '390/800' }}>
-        <Image src={src} alt={alt} fill sizes="230px" quality={92} className="object-cover object-top" />
+        <Image src={src} alt={alt} fill sizes="230px" quality={92} unoptimized={src.startsWith('/images/software/')} className="object-cover object-top" />
       </div>
     </div>
   );
@@ -40,11 +40,11 @@ export function HeroShowcase({ items }: { items: { src: string; alt: string }[] 
   );
 }
 
-/** Text on the left, the product on the right. Always this way round. */
-export function Split({ eyebrow, title, text, bullets, cta, visual }: { eyebrow?: string; title: string; text: string; bullets?: string[]; cta?: ReactNode; visual: ReactNode }) {
+/** Text on one side, the product on the other; `flip` puts the picture on the left. */
+export function Split({ eyebrow, title, text, bullets, cta, visual, flip }: { eyebrow?: string; title: string; text: string; bullets?: string[]; cta?: ReactNode; visual: ReactNode; flip?: boolean }) {
   return (
     <div className="grid items-start gap-10 lg:grid-cols-12 lg:gap-8">
-      <div className="lg:col-span-5 lg:pr-8">
+      <div className={`lg:col-span-5 ${flip ? 'lg:order-2 lg:pl-8' : 'lg:pr-8'}`}>
         {eyebrow && <p className="eyebrow mb-3">{eyebrow}</p>}
         <h3>{title}</h3>
         <p className="mt-4 text-fg-soft">{text}</p>
